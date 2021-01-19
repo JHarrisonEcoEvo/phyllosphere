@@ -1,14 +1,14 @@
 
 rm(list=ls())
 #load the two demux keys, edit and combine
-demux <- read.csv("data/raw_data_notIncluding_sequenceData/demultiplexingKeys/novaseq3_demux.csv", header = T, stringsAsFactors = F)
+demux <- read.csv("raw_data_notIncluding_sequenceData/demultiplexingKeys/novaseq3_demux.csv", header = T, stringsAsFactors = F)
 demux$forward_barcode <-toupper(demux$forward_barcode)
 demux$reverse_barcode <-toupper(demux$reverse_barcode)
 demux$combo <- paste(demux$locus, 
                      demux$forward_barcode, 
                      demux$reverse_barcode, 
                      demux$samplename, sep = "_")
-demux2 <- read.csv("data/raw_data_notIncluding_sequenceData/demultiplexingKeys/NovaSeq2_DemuxJH.csv", header = T, stringsAsFactors = F)
+demux2 <- read.csv("raw_data_notIncluding_sequenceData/demultiplexingKeys/NovaSeq2_DemuxJH.csv", header = T, stringsAsFactors = F)
 demux2$forward_barcode <-toupper(demux2$forward_barcode)
 demux2$reverse_barcode <-toupper(demux2$reverse_barcode)
 demux2$combo <- paste(demux2$locus, 
@@ -28,19 +28,19 @@ demux_all$plant <- gsub("[A-Za-z_]*(\\d+_\\d+_\\d+_\\d+)\\w+", "\\1", demux_all$
 dim(demux_all)
 
 #merge with leaf area and size information
-leafarea <- read.csv("data/raw_data_notIncluding_sequenceData/area_mg_leafCount.csv", header=T, stringsAsFactors =F)
+leafarea <- read.csv("raw_data_notIncluding_sequenceData/area_mg_leafCount.csv", header=T, stringsAsFactors =F)
 dim(leafarea)
 leafarea <- leafarea[leafarea$notes != "dupe",]
 demux_all_leaf <- merge(demux_all, leafarea, by.x = "plant", by.y = "label", all.x = T, all.y = F)
 dim(demux_all_leaf)
 
-locus <- read.csv("data/raw_data_notIncluding_sequenceData/LocationSize.csv", header=T, stringsAsFactors =F)
+locus <- read.csv("raw_data_notIncluding_sequenceData/LocationSize.csv", header=T, stringsAsFactors =F)
 dim(locus)
 demux_all_leaf_locus <- merge(demux_all_leaf, locus, by.x = "plant", by.y = "label", all.x = T, all.y = F)
 dim(demux_all_leaf_locus)
 
 #bring in the multispeq
-multi <- read.csv("data/raw_data_notIncluding_sequenceData/multispeq_data.csv", header=T, stringsAsFactors =F)
+multi <- read.csv("raw_data_notIncluding_sequenceData/multispeq_data.csv", header=T, stringsAsFactors =F)
 multi <- multi[-grep("[a-z]", multi$label),]
 dim(multi)
 multi <- multi[-grep("dupe",multi$note),]
@@ -52,7 +52,7 @@ demux_all_leaf_locus_multi <- merge(demux_all_leaf_locus, multi, by.x = "plant",
 dim(demux_all_leaf_locus_multi)
 
 #bring in leaf toughness and water retention
-tough <- read.csv("data/raw_data_notIncluding_sequenceData/Toughness_waterRetention.csv", header=T, stringsAsFactors =F)
+tough <- read.csv("raw_data_notIncluding_sequenceData/Toughness_waterRetention.csv", header=T, stringsAsFactors =F)
 dim(tough)
 
 demux_all_leaf_locus_multi_tough <- merge(demux_all_leaf_locus_multi, tough, by.x = "plant", by.y = "sample", 
@@ -62,7 +62,7 @@ dim(demux_all_leaf_locus_multi_tough)
 
 
 #bring in site data
-site <- read.csv("data/raw_data_notIncluding_sequenceData/siteData.csv", header=T, stringsAsFactors =F)
+site <- read.csv("raw_data_notIncluding_sequenceData/siteData.csv", header=T, stringsAsFactors =F)
 #make region and site labels for data
 demux_all_leaf_locus_multi_tough$region_site <- gsub("(\\d+_\\d+)_\\d+_\\d+","\\1",demux_all_leaf_locus_multi_tough$plant)
 #table(demux_all_leaf_locus_multi_tough$region_site )
@@ -71,7 +71,7 @@ demux_all_leaf_locus_multi_tough_site <- merge(demux_all_leaf_locus_multi_tough,
 dim(demux_all_leaf_locus_multi_tough_site)
 
 #bring in plant taxon data
-taxa <- read.csv("data/raw_data_notIncluding_sequenceData/TaxaSampled.csv", header=T, stringsAsFactors =F)
+taxa <- read.csv("raw_data_notIncluding_sequenceData/TaxaSampled.csv", header=T, stringsAsFactors =F)
 #make region and site labels for data
 demux_all_leaf_locus_multi_tough_site$region_site_plant <- gsub("(\\d+_\\d+_\\d+)_\\d+","\\1",demux_all_leaf_locus_multi_tough_site$plant)
 demux_all_leaf_locus_multi_tough_site_taxa <- merge(demux_all_leaf_locus_multi_tough_site, taxa, by.x = "region_site_plant", by.y = "label", 
@@ -83,7 +83,7 @@ demux_all_leaf_locus_multi_tough_site_taxa <- demux_all_leaf_locus_multi_tough_s
 
 
 write.csv(demux_all_leaf_locus_multi_tough_site_taxa,
-          file = "./data/metadata.csv", row.names = F)
+          file = "metadata.csv", row.names = F)
 
 
 #minor manipulation in Excel
