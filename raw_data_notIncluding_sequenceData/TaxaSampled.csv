@@ -1,0 +1,126 @@
+﻿taxon,family,label,siteName,date,numSamples
+Picea engelmannii,Pineaceae,1_1_1,Libby Flats,6_19_2018,10
+Juniperus communis,Cupressaceae,1_1_2,Libby Flats,6_19_2018,10
+Astragalus alpinus,Fabaceae,1_1_3,Libby Flats,6_19_2018,10
+Ribes montigenum,Grossulariaceae,1_1_4,Libby Flats,6_19_2018,10
+Potentilla diversifolia,Roseaceae,1_1_5,Libby Flats,6_19_2018,10
+Bistorta bistortoides,Polygonaceae,1_1_6,Libby Flats,6_19_2018,10
+Polemonium viscosum,Polemoniaceae,1_1_7,Libby Flats,6_19_2018,10
+Wyethia amplexicaulis,Asteraceae,1_2_1,Tie City,6_23_2018,10
+Poa pratensis,Poaceae,1_2_2,Tie City,6_23_2018,10
+Aquilegia caerula,Ranunculaceae,1_2_3,Tie City,6_23_2018,10
+Juniperus communis,Cupressaceae,1_2_4,Tie City,6_23_2018,10
+Abies grandis,Pineaceae,1_2_5,Tie City,6_23_2018,10
+Populus angustifolium,Salicaceae,1_2_6,Tie City,6_23_2018,10
+Populus tremulloides,Salicaceae,1_2_7,Tie City,6_23_2018,10
+Unknown fir,Pineaceae,1_3_1,Med Bow peak,8_26_2018,10
+Vaccinium scoparium,Ericaceae,1_3_2,Med Bow peak,8_26_2018,10
+Juncus sp.,Cyperaceae,1_3_3,Med Bow peak,8_26_2018,10
+Antennaria media,Asteraceae,1_3_4,Med Bow peak,8_26_2018,10
+Fragaria virginiana,Roseaceae,1_3_5,Med Bow peak,8_26_2018,10
+Osmorhiza depauperata,Apiaceae,2_1_1,Teton Canyon,6_29_2018,10
+Pinus contorta,Pineaceae,2_1_2,Teton Canyon,6_29_2018,10
+Paxistima myrsinites,Celastraceae,2_1_3,Teton Canyon,6_29_2018,10
+Picea engelmannii,Pineaceae,2_1_4,Teton Canyon,6_29_2018,10
+Symphoricarpos albus,Caprifoliaceae,2_1_5,Teton Canyon,6_29_2018,10
+Vaccinium membranaceum 2_1_6,Ericaceae,2_1_6,Teton Canyon,6_29_2018,10
+Unknown fir,Pineaceae,2_2_1,Aspen grove,8_9_2018,10
+Potentilla diversifolia var. diversifolia,Roseaceae,2_2_2,Aspen grove,8_9_2018,10
+Chamaenerion angustifolium var. angustifolium,Onagraceae,2_2_3,Aspen grove,8_9_2018,10
+Thalictrum occidentale,Ranunculaceae,2_2_4,Aspen grove,8_9_2018,10
+Eucephalus engelmannii,Asteraceae,2_2_5,Aspen grove,8_9_2018,10
+Lupinus argenteus var. argenteus,Fabaceae,2_2_6,Aspen grove,8_9_2018,10
+Heracleum maximum,Apiaceae,2_2_7,Aspen grove,8_9_2018,10
+Unknown fir,Pineaceae,2_3_1,Table Mountain,8_11_2018,10
+Unknown pine,Pineaceae,2_3_2,Table Mountain,8_11_2018,10
+Chamaenerion angustifolium var. angustifolium,Onagraceae,2_3_3,Table Mountain,8_11_2018,10
+Symphyotrichum foliaceum var. apricum,Asteraceae,2_3_4,Table Mountain,8_11_2018,10
+Ligusticum filicinum,Apiaceae,2_3_5,Table Mountain,8_11_2018,10
+Eucephalus engelmannii,Asteraceae,2_3_6,Table Mountain,8_11_2018,10
+Mertensiana ciliata var. ciliata,Boraginaceae,2_3_7,Table Mountain,8_11_2018,10
+Pinus albicaulis,Pineaceae,3_1_1,Laturio,7_4_2018,10
+Primula parryi,Primulaceae,3_1_2,Laturio,7_4_2018,10
+Polemonium viscosum,Polemoniaceae,3_1_3,Laturio,7_4_2018,10
+Potentilla diversifolia var. diversifolia,Roseaceae,3_1_4,Laturio,7_4_2018,10
+Bistorta bistortoides,Polygonaceae,3_1_5,Laturio,7_4_2018,10
+Ribes montigenum,Grossulariaceae,3_1_6,Laturio,7_4_2018,10
+Astragalus kentrophyta var. tegetarius,Fabaceae,3_1_7,Laturio,7_4_2018,10
+Pinus contorta,Pineaceae,3_2_1,Pastoral,7_5_2018,10
+Populus tremulloides,Salicaceae,3_2_2,Pastoral,7_5_2018,10
+Poa wheeleri,Poaceae,3_2_3,Pastoral,7_5_2018,10
+Osmorhiza depauperata,Apiaceae,3_2_4,Pastoral,7_5_2018,10
+Artemisia tridentata,Asteraceae,3_2_5,Pastoral,7_5_2018,9
+Lupinus argenteus,Fabaceae,3_2_6,Pastoral,7_5_2018,10
+Arnica cordifolia,Asteraceae,3_2_7,Pastoral,7_5_2018,10
+Bistorta bistortoides,Polygonaceae,3_3_1,Big Sandy,7_31_2018,10
+Potentilla diversifolia var. diversifolia,Roseaceae,3_3_2,Big Sandy,7_31_2018,10
+Carex paysonis,Cyperaceae,3_3_3,Big Sandy,7_31_2018,10
+Salix reticulata var. nana,Salicaceae,3_3_4,Big Sandy,7_31_2018,10
+Erigeron glacialis,Asteraceae,3_3_5,Big Sandy,7_31_2018,10
+Mertensiana ciliata var. ciliata,Boraginaceae,3_3_6,Big Sandy,7_31_2018,10
+Primula parryi,Primulaceae,3_3_7,Big Sandy,7_31_2018,10
+Salix glauca var. villosa,Salicaceae,4_1_1,beartooth,7_16_2018,10
+Bistorta bistortoides,Polygonaceae,4_1_2,beartooth,7_16_2018,10
+Potentilla diversifolia var. diversifolia,Roseaceae,4_1_3,beartooth,7_16_2018,10
+Salix reticulata var. nana,Salicaceae,4_1_4,beartooth,7_16_2018,10
+Minuartia obtusiloba,Caryophyllaceae,4_1_5,beartooth,7_16_2018,10
+Carex scopulorum var. bracteosa,Cyperaceae,4_1_6,beartooth,7_16_2018,10
+Trifolium parryi var. montanense,Fabaceae,4_1_7,beartooth,7_16_2018,10
+Artemisia tridentate var. vaseyana,Asteraceae,4_2_1,pilot peak,7_17_2018,10
+Geranium viscossimum var. viscosissimum,Geraniaceae,4_2_2,pilot peak,7_17_2018,10
+Helianthella uniflora,Asteraceae,4_2_3,pilot peak,7_17_2018,10
+Sedum lanceolatum,Crassulaceae,4_2_4,pilot peak,7_17_2018,10
+Eriogonum umbellatum,Polygonaceae,4_2_5,pilot peak,7_17_2018,10
+Potentilla pulcherrima,Roseaceae,4_2_6,pilot peak,7_17_2018,10
+Delphinium occidentale,Ranunculaceae,4_2_7,pilot peak,7_17_2018,10
+Artemisia tridentate var. vaseyana,Asteraceae,4_3_1,clark's fork,7_18_2018,10
+Sedum lanceolatum,Crassulaceae,4_3_2,clark's fork,7_18_2018,10
+Juniperus communis,Cupressaceae,4_3_3,clark's fork,7_18_2018,10
+Pinus contorta,Pineaceae,4_3_4,clark's fork,7_18_2018,10
+Mahonia repens,Berberidaceae,4_3_5,clark's fork,7_18_2018,10
+Eriogonum umbellatum,Polygonaceae,4_3_6,clark's fork,7_18_2018,10
+Geranium viscossimum var. viscosissimum,Geraniaceae,4_3_7,clark's fork,7_18_2018,10
+Picea engelmannii,Pineaceae,5_1_1,Osborne,8_3_2018,10
+Astragalus kentrophyta cf. ,Fabaceae,5_1_2,Osborne,8_3_2018,10
+Salix reticulata var. nana,Salicaceae,5_1_3,Osborne,8_3_2018,10
+Sedum lanceolatum,Crassulaceae,5_1_4,Osborne,8_3_2018,7
+Unknown Spruce,Pineaceae,5_2_1,Bearshit forest,8_4_2018,10
+Pinus contorta,Pineaceae,5_2_2,Bearshit forest,8_4_2018,10
+Populus tremulloides,Roseaceae,5_2_3,Bearshit forest,8_4_2018,10
+Juniperus communis,Cupressaceae,5_2_4,Bearshit forest,8_4_2018,10
+Chamaenerion angustifolium var. angustifolium,Onagraceae,5_2_5,Bearshit forest,8_4_2018,10
+Potentilla fruticosa,Roseaceae,5_2_6,Bearshit forest,8_4_2018,10
+Juncus balticus ,Juncaceae,5_2_7,Bearshit forest,8_4_2018,10
+Pseudotsuga menziesii,Pineaceae,5_3_1,Green River lake,8_5_2018,10
+Abies concolor,Pineaceae,5_3_2,Green River lake,8_6_2018,10
+Artemisia tridentate,Asteraceae,5_3_3,Green River lake,8_6_2018,10
+Mahonia repens,Berberidaceae,5_3_4,Green River lake,8_6_2018,10
+Eriogonum umbellatum var. majus,Polygonaceae,5_3_5,Green River lake,8_6_2018,10
+Eucephalus elegans,Asteraceae,5_3_6,Green River lake,8_6_2018,10
+Astragalus miser,Fabaceae,5_3_7,Green River lake,8_6_2018,10
+Pinus contorta,Pineaceae,6_1_1,Midelev,8_15_2018,10
+Unknown spruce,Pineaceae,6_1_2,Midelev,8_15_2018,10
+Vaccinium scoparium,Ericaceae,6_1_3,Midelev,8_15_2018,10
+Juniperus communis,Cupressaceae,6_1_4,Midelev,8_15_2018,10
+Pseudotsuga menziesii,Pineaceae,6_2_1,lowelev,8_16_2018,10
+Populus tremulloides,Salicaceae,6_2_2,lowelev,8_16_2018,10
+Mahonia repens,Berberidaceae,6_2_3,lowelev,8_16_2018,10
+Juniperus communis,Cupressaceae,6_2_4,lowelev,8_17_2018,10
+Artemisia tridentate,Asteraceae,6_2_5,lowelev,8_17_2018,10
+Thalictrum occidentale,Ranunculaceae,6_2_6,lowelev,8_17_2018,10
+Symphoricarpos albus,Caprifoliaceae,6_2_7,lowelev,8_17_2018,10
+Unknown fir,Pineaceae,6_3_1,highelev,8_17_2018,10
+Vaccinium scoparium,Ericaceae,6_3_2,highelev,8_17_2018,10
+Juncus parryi,Juncaceae,6_3_3,highelev,8_17_2018,10
+Juniperus communis,Cupressaceae,6_3_4,highelev,8_17_2018,10
+Frasera speciosa,Gentianaceae,6_3_5,highelev,8_17_2018,10
+Oxyria digyna,Saxifragaceae,6_3_6,highelev,8_17_2018,10
+Salix glauca var. villosa,Salicaceae,7_1_1,Seneca,8_24_2018,10
+Carex paysonis,Cyperaceae,7_1_2,Seneca,8_24_2018,10
+Erigeron glacialis,Asteraceae,7_1_3,Seneca,8_24_2018,10
+Salix reticulata var. nana,Salicaceae,7_1_4,Seneca,8_24_2018,10
+Antennaria media,Asteraceae,7_1_5,Seneca,8_24_2018,10
+Unknown fir,Pineaceae,7_2_1,Fremont,8_25_2018,10
+Mahonia repens,Berberidaceae,7_2_2,Fremont,8_25_2018,10
+Symphoricarpos albus,Caprifoliaceae,7_2_3,Fremont,8_25_2018,10
+Antennaria media,Asteraceae,7_2_4,Fremont,8_25_2018,10
