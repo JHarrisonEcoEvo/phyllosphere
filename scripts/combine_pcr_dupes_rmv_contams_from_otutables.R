@@ -7,6 +7,8 @@
 rm(list=ls())
 
 #Note that smallmem* files are clustered ESVs
+dat <- read.csv("./processedData/otuTables/16s_97_smallmem_otuTableCLEAN", 
+                fill = T, header = T, stringsAsFactors = F)
 dat <- read.csv("./processedData/otuTables/its97smallmem_otuTableCLEAN", 
                 fill = T, header = T, stringsAsFactors = F)
 
@@ -20,21 +22,55 @@ metadat$mid <- paste(metadat$locus,
                      metadat$mid,
                      sep = "")
 
+
+############################
+# Fix over addition of ISD #
+############################
+
+isd <- dat[which(dat[,1] == "ISD"),]
+# hist(unlist(isd[,2:length(isd)]))
+
+#Extract those samples that were on problematic plates
+
+prob5k <- metadat$combo[metadat$plate %in% c("19", "14", "9")]
+prob3.33 <- metadat$combo[metadat$plate %in% c("23")]
+
+#See what our counts for the ISD were for good samples
+good <- isd[,!(names(dat) %in% c(prob5k, prob3.33))]
+summary(unlist(good[,2:length(good)]))
+#compare to bad samples
+summary(unlist(isd[,names(dat) %in% prob5k]))
+summary(unlist(isd[,names(dat) %in% prob3.33]))
+
+#Much higher in bad samples of course
+
+#Divide problematic samples by how much extra ISD I added
+#This should not be compromised by combining PCR replicates
+isd[,names(dat) %in% prob5k] <- isd[,names(dat) %in% prob5k] / 5000
+isd[,names(dat) %in% prob3.33] <- isd[,names(dat) %in% prob3.33] / 3.33
+
+#replace the ISD in the data frame
+dat[which(dat[,1] == "ISD"),] <- isd
+
+########
+
 # remove stuff that is contaminated as shown by coligos
 contams <- read.csv("processedData/cross_contam_oct9", stringsAsFactors = F)
 contams2 <- read.csv("processedData/cross_contam_sep17", stringsAsFactors = F)
 contams <- c(contams$x, contams2$x)
 
+
 #CHANGE FOR LOCUS****
 contams <- contams[grep("ITS", contams)]
 contams <- contams[grep("16S", contams)]
 
-contams %in% names(dat)
-
 #sanity check. Do the "rna" options for 16s
-#contams %in% paste("rna",metadat$combo, sep = "") 
-#metadat <- metadat[!(paste("rna",metadat$combo, sep = "") %in% contams),]
 
+#16s
+contams %in% paste("rna",metadat$combo, sep = "") 
+metadat <- metadat[!(paste("rna",metadat$combo, sep = "") %in% contams),]
+
+#ITS
 contams %in% paste("",metadat$combo, sep = "") 
 metadat <- metadat[!(paste("",metadat$combo, sep = "") %in% contams),]
 
@@ -149,8 +185,6 @@ compartment <- gsub("X\\d+_\\d+_\\d+_\\d+_(ENP)*","\\1", names(newdat))
 newdat2 <- newdat[,order(compartment,sample)]
 newdat2 <- data.frame(otus, newdat2)
 
-fn <- gsub(".*/processedData/otuTables/(.*)CLEAN","\\1", inargs[1])
-
-write.csv(newdat2, file = paste("smallmem97_ITS", "for_modeling", sep = "_"))
+write.csv(newdat2, file = paste("smallmem97_16s", "for_modeling", sep = "_"))
 
 
