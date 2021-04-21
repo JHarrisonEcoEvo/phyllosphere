@@ -187,4 +187,3 @@ newdat2 <- data.frame(otus, newdat2)
 
 write.csv(newdat2, file = paste("smallmem97_16s", "for_modeling", sep = "_"))
 
-
