@@ -6,7 +6,7 @@ set.seed(666)
 #install.packages("CNVRG")
 library(rstan)
 library(CNVRG)
-dat <- read.csv("./smallmem97_16s_for_modeling", 
+dat <- read.csv("./processedData/smallmem97_16s_for_modeling", 
                 fill = T, header = T, stringsAsFactors = F)
 
 #print dim to stdout
@@ -56,6 +56,12 @@ tdat$sample <- as.character(tdat$sample)
 
 #sanity check
 cbind(tdat$sample, treatments)
+
+#convert ISD to integers. It is a float because of how I modified the ISD to reflect
+#mistaken addition of too much ISD to certain plates. 
+#See the combine_pcr_dupes... script
+tdat$ISD <- round(tdat$ISD)
+write.csv(tdat, row.names = F, file = "./processedData/sixteenS_otu_table_preModeling.csv")
 
 modelOut <- cnvrg_VI(
   countData = tdat,
