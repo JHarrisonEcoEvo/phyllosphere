@@ -55,6 +55,7 @@ tdat$sample <- as.character(tdat$sample)
 
 #sanity check
 cbind(tdat$sample, treatments)
+write.csv(treatments, file = "./processedData/treatments_metadata.csv", row.names = F)
 
 #convert ISD to integers. It is a float because of how I modified the ISD to reflect
 #mistaken addition of too much ISD to certain plates. 
@@ -78,4 +79,24 @@ modelOut <- cnvrg_VI(
   params_to_save = c("pi","p")
 )
 save.image(file = "/gscratch/jharri62/CNVRG_ITS_97.Rdata")
+
+
+diffs <- diff_abund(model_output = modelOut, countData = tdat)
+save(diffs, file = "16s_diffs.Rdata")
+
+ests <- extract_point_estimate(modelOut = modelOut, countData = tdat,treatments = length(unique(treatments)))
+forExport <- data.frame(treatments, tdat[,1],ests$pointEstimates_p)
+names(forExport)[2] <- "sample"
+forExport <- data.frame(treatments, tdat[,1],ests$pointEstimates_pi)
+
+write.csv(forExport, file = "ITS_pi_estimates.csv")
+
+div <- diversity_calc(
+  model_out = modelOut, countData = tdat[,(length(tdat)-2)],
+  params = "pi",
+  entropy_measure = "shannon",
+  equivalents = T
+)
+save(div, file = "ITS_div.Rdata")
+
 

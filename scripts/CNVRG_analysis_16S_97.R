@@ -82,3 +82,16 @@ diffs <- diff_abund(model_output = modelOut, countData = tdat)
 
 save.image(file = "/gscratch/jharri62/CNVRG_16S_97diffs.Rdata")
 
+ests <- extract_point_estimate(modelOut = modelOut, countData = tdat,treatments = length(unique(treatments)))
+forExport <- data.frame(treatments, tdat[,1],ests$pointEstimates_p)
+names(forExport)[2] <- "sample"
+write.csv(forExport, file = "16s_p_estimates.csv")
+
+div <- diversity_calc(
+  model_out = modelOut, countData = tdat[, 1:(length(tdat)-4)],
+  params = "pi",
+  entropy_measure = "shannon",
+  equivalents = T
+)
+save(div, file = "16s_div.Rdata")
+

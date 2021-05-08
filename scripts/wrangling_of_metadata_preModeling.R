@@ -445,6 +445,25 @@ metadata$substrate[grep("lank", metadata$samplename)]<- "blank"
 
 metadata$substrate[grep("soil", metadata$samplename)] <- "soil" 
 
+#bring in growthhabit info
+host <- read.csv("./raw_data_notIncluding_sequenceData/Hosttaxon_lifehistory.csv",
+                 stringsAsFactors = F, header = T)
+
+dim(metadata)
+metadata <- merge(metadata, host, by.x = "taxon.x", by.y = "taxon", all.x = T)
+dim(metadata)
+metadata$taxon_final <- metadata$taxon.x
+metadata$taxon_final[metadata$taxon.x == "Artemisia tridentate var. vaseyana"] <- "Artemisia tridentata"
+metadata$taxon_final[metadata$taxon.x == "Astragalus kentrophyta cf."] <- 
+  "Astragalus kentrophyta"
+metadata$taxon_final[metadata$taxon.x == "Astragalus kentrophyta var. tegetarius"] <- 
+  "Astragalus kentrophyta"
+metadata$taxon_final[metadata$taxon.x == "Eriogonum umbellatum var. majus"] <- 
+  "Eriogonum umbellatum"
+metadata$taxon_final[metadata$taxon.x == "Lupinus argenteus var. argenteus"] <- 
+  "Lupinus argenteus"
+metadata$taxon_final[metadata$taxon.x == "Potentilla diversifolia var. diversifolia"] <- 
+  "Potentilla diversifolia"
 
 write.csv(metadata,
           file = "./processedData/metadata.csv", row.names = F)
