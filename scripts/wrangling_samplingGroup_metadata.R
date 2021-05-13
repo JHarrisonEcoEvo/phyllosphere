@@ -27,5 +27,37 @@ for(i in unique(dat$plant)){
   dat$lifehistory[dat$plant == i] <- 
     unique(meta$habit[grep(i, meta$region_site_plant)])
 }
+head(dat)
 
-write.csv(dat, file = "./processedData/treatments_metadata.csv")
+dat <- dplyr::distinct(dat[,2:length(dat)])
+
+for(i in unique(dat$plant)){
+  if(length(unique(meta$taxon.x[grep(i, meta$region_site_plant)])) > 1){
+    print(i)
+  }
+dat$lifehistory[dat$plant == i] <- 
+  unique(meta$habit[grep(i, meta$region_site_plant)])
+}
+
+dat$lifehistory[dat$taxon == "Picea engelmannii"] <- "tree"
+dat$lifehistory[dat$taxon == "Juniperus communis"] <- "shrub"
+dat$lifehistory[dat$taxon == "Unknown fir"] <- "tree"
+dat$lifehistory[dat$taxon == "Juncus sp."] <- "graminoid"
+dat$lifehistory[dat$taxon == "Osmorhiza depauperata"] <- "forb"
+dat$lifehistory[dat$taxon == "Pinus contorta"] <- "tree"
+dat$lifehistory[dat$taxon == "Paxistima myrsinites"] <- "shrub"
+dat$lifehistory[dat$taxon == "Symphoricarpos albus"] <- "shrub"
+dat$lifehistory[dat$taxon == "Vaccinium membranaceum 2_1_6"] <- "shrub"
+dat$taxon[dat$taxon == "Vaccinium membranaceum 2_1_6"] <- "Vaccinium membranaceum"
+dat$lifehistory[dat$taxon == "Potentilla diversifolia var. diversifolia"] <- "forb"
+dat$lifehistory[dat$taxon == "Trifolium parryi var. montanense"] <- "forb"
+dat$lifehistory[dat$taxon == "Astragalus kentrophyta cf. "] <- "forb"
+dat$lifehistory[dat$taxon == "Sedum lanceolatum"] <- "forb"
+dat$lifehistory[dat$taxon == "Juncus balticus "] <- "graminoid"
+dat$taxon[dat$taxon == "Artemisia tridentate"] <- "Artemisia tridentata"
+dat$lifehistory[dat$taxon == "Artemisia tridentate"] <- "shrub"
+dat$lifehistory[dat$taxon == "Frasera speciosa"] <- "forb"
+dat$lifehistory[dat$taxon == "Antennaria media"] <- "forb"
+
+names(dat)[1] <- "sampling_group_name"
+write.csv(dat, file = "./processedData/treatments_metadata.csv", row.names = F)
