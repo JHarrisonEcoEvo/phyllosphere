@@ -62,6 +62,10 @@ write.csv(treatments, file = "./processedData/treatments_metadata.csv", row.name
 #See the combine_pcr_dupes... script
 tdat$ISD <- round(tdat$ISD)
 
+write.csv(unique(treatments), file = "./processedData/treatments_for_modeling_ITS.csv", 
+          row.names = F)
+
+
 #write.csv(tdat, row.names = F, file = "./processedData/ITS_otu_table_preModeling.csv")
 
 table(is.numeric(tdat))

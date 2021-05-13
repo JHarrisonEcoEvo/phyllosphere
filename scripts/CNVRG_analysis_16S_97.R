@@ -61,6 +61,10 @@ cbind(tdat$sample, treatments)
 #mistaken addition of too much ISD to certain plates. 
 #See the combine_pcr_dupes... script
 tdat$ISD <- round(tdat$ISD)
+
+write.csv(unique(treatments), file = "./processedData/treatments_for_modeling_16s.csv", 
+          row.names = F)
+
 write.csv(tdat, row.names = F, file = "./processedData/sixteenS_otu_table_preModeling.csv")
 
 modelOut <- cnvrg_VI(
