@@ -20,11 +20,11 @@ for(i in unique(dat$plant)){
   if(length(unique(meta$taxon.y[grep(i, meta$region_site_plant)])) > 1){
     print(i)
   }
-  dat$taxon[dat$plant == i] <- 
+  dat$taxon[dat$plant == i] <-
     unique(meta$taxon.y[grep(i, meta$region_site_plant)])
-  dat$location[dat$plant == i] <- 
+  dat$location[dat$plant == i] <-
     unique(meta$region_site[grep(i, meta$region_site_plant)])
-  dat$lifehistory[dat$plant == i] <- 
+  dat$lifehistory[dat$plant == i] <-
     unique(meta$habit[grep(i, meta$region_site_plant)])
 }
 head(dat)
@@ -35,7 +35,7 @@ for(i in unique(dat$plant)){
   if(length(unique(meta$taxon.x[grep(i, meta$region_site_plant)])) > 1){
     print(i)
   }
-dat$lifehistory[dat$plant == i] <- 
+dat$lifehistory[dat$plant == i] <-
   unique(meta$habit[grep(i, meta$region_site_plant)])
 }
 
@@ -59,5 +59,33 @@ dat$lifehistory[dat$taxon == "Artemisia tridentate"] <- "shrub"
 dat$lifehistory[dat$taxon == "Frasera speciosa"] <- "forb"
 dat$lifehistory[dat$taxon == "Antennaria media"] <- "forb"
 
-names(dat)[1] <- "sampling_group_name"
+names(dat)[1] <- "compartment"
+
+#Reorder to match how we modeled it. Load the order that we need
+#Check both loci were modeled in same order
+
+treats16s <- read.csv("./processedData/treatments_for_modeling_16s.csv", 
+                      stringsAsFactors = F)
+treats16s$x <- gsub("(\\d+_\\d+_\\d+E[NP])_.*", "\\1", treats16s$x)
+
+treatsITS <- read.csv("./processedData/treatments_for_modeling_ITS.csv", 
+                      stringsAsFactors = F)
+treatsITS$x <- gsub("(\\d+_\\d+_\\d+E[NP])_.*", "\\1", treatsITS$x)
+
+table(treats16s == treatsITS) #yay
+
+dat$treatmentClass <- paste(dat$plant, dat$compartment, sep = "")
+
+dat <- dat[match(treats16s$x, dat$treatmentClass),]
+
+table(treats16s$x == dat$treatmentClass)
+
 write.csv(dat, file = "./processedData/treatments_metadata.csv", row.names = F)
+
+
+
+
+
+
+
+
