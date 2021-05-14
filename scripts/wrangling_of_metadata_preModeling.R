@@ -465,8 +465,17 @@ metadata$taxon_final[metadata$taxon.x == "Lupinus argenteus var. argenteus"] <-
 metadata$taxon_final[metadata$taxon.x == "Potentilla diversifolia var. diversifolia"] <- 
   "Potentilla diversifolia"
 
-write.csv(metadata,
-          file = "./processedData/metadata.csv", row.names = F)
+#load treatment vectors that were used during modeling
+
+treats16s <- read.csv("./processedData/treatments_for_modeling_16s.csv", 
+                      stringsAsFactors = F)
+treats16s$x <- gsub("(\\d+_\\d+_\\d+E[NP])_.*", "\\1", treats16s$x)
+
+treatsITS <- read.csv("./processedData/treatments_for_modeling_ITS.csv", 
+                      stringsAsFactors = F)
+treatsITS$x <- gsub("(\\d+_\\d+_\\d+E[NP])_.*", "\\1", treatsITS$x)
+
+table(treats16s == treatsITS) #yay
 
 #checking to see if Ha26_ITSoC6 was PCRd twice
 # dat <- read.csv("./processedData/otuTables/its90_otuTableCLEAN", 
