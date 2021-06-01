@@ -91,11 +91,15 @@ forExport <- data.frame(treatments, tdat[,1],ests$pointEstimates_p)
 names(forExport)[2] <- "sample"
 write.csv(forExport, file = "16s_p_estimates.csv")
 
+transformed <-
+  isd_transform(model_out = modelOut, countData = tdat, isd_index = 4776, format = "samples")
+
 div <- diversity_calc(
-  model_out = modelOut, countData = tdat[, 1:(length(tdat)-4)],
+  model_out = modelOut, 
+  countData = tdat[, 1:(length(tdat)-4)],
   params = "pi",
   entropy_measure = "shannon",
   equivalents = T
 )
-save(div, file = "16s_div.Rdata")
+save(div, file = "16s_div_isd_normalized.Rdata")
 

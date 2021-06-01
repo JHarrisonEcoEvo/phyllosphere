@@ -86,7 +86,7 @@ save.image(file = "/gscratch/jharri62/CNVRG_ITS_97.Rdata")
 
 
 diffs <- diff_abund(model_output = modelOut, countData = tdat)
-save(diffs, file = "16s_diffs.Rdata")
+save(diffs, file = "ITS_diffs.Rdata")
 
 ests <- extract_point_estimate(modelOut = modelOut, countData = tdat,treatments = length(unique(treatments)))
 forExport <- data.frame(treatments, tdat[,1],ests$pointEstimates_p)
@@ -95,29 +95,18 @@ forExport <- data.frame(treatments, tdat[,1],ests$pointEstimates_pi)
 
 write.csv(forExport, file = "ITS_pi_estimates.csv")
 
-#Doing transformation...need to modify the function in CNVRG
-pis <- rstan::extract(model_out, "pi")
-treatments <- rapply(pis, dim, how="list")$pi[2]
+#Doing transformation...
+load("CNVRG_ITS_97.Rdata")
 
-out <- pis
+transformed <-
+  isd_transform(model_out = modelOut, countData = tdat, isd_index = 4267, format = "samples")
 
-for(i in 1:250){
-  #Recall the array goes samples, groups, features
-  out$pi[,i,] <-  out$pi[,i,] / out$pi[,i,4775] #recall being off by one index
-}
-pis <- out$pi
-entropy_pi <- list()
-for(i in 1:treatments){
-               entropy_pi[[i]] <- exp(vegan::diversity(pis[,i,], index = "shannon"))
-             }
-
-# 
-# div <- diversity_calc(
-#   model_out = out, 
-#   countData = tdat[,(length(tdat)-2)],
-#   params = "pi",
-#   entropy_measure = "shannon",
-#   equivalents = T
-# )
+div <- diversity_calc(
+  model_out = transformed$pi,
+  countData = tdat[,(length(tdat)-2)],
+  params = "pi",
+  entropy_measure = "shannon",
+  equivalents = T
+)
 save(div, file = "ITS_div.Rdata")
 

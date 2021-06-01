@@ -1,5 +1,5 @@
 rm(list=ls())
-load("processedData/ITS_div.Rdata")
+load("./processedData/ITS_div_isd_normalized.Rdata")
 
 diversity_plotter <- function(div, color_vec = "black", xlab = "entropy"){
   #Extract the largest density value to make plot dimensions
@@ -61,7 +61,7 @@ par(mfrow = c(2,1), mar = c(3, 4, 0, 0), oma = c(4, 1, 1,1))
 
 diversity_plotter(div, color_vec = color_vec, xlab = "Shannon's equivalents")
 axis(1, at = seq(0,4000, 1000), lab = seq(0,4000,1000))
-legend(x = 0, y = 0.1, legend = c("tree", "shrub", "forb", "graminoid"),
+legend(x = 0, y = 0.12, legend = c("tree", "shrub", "forb", "graminoid"),
        pch = 15, cex = 2, col = colvir, bty = "n")
 
 text("fungi", x =2000, y = .125, xpd = NA, cex = 2)
@@ -119,7 +119,7 @@ pdf(width = 7, height = 12, file = "./visuals/diversity_density_lifehistory16S.p
 par(mfrow = c(2,1), mar = c(3, 4, 0, 0), oma = c(4, 1, 1,1))
 
 #DO FOR BACTERIA
-load("processedData/16s_div.Rdata")
+load("processedData/16s_div_isd_normalized.Rdata")
 
 div_means <- unlist(lapply(div$entropy_pi, FUN = mean))
 
