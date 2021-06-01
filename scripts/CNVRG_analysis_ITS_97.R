@@ -110,3 +110,16 @@ div <- diversity_calc(
 )
 save(div, file = "ITS_div.Rdata")
 
+#sanity check, first part on teton
+# vegdv <- vegan::diversity(tdat[,2:length(tdat)])
+# boxplot(vegdv~treatments)
+# treatments
+# boxplot(vegdv~treatments)
+# write.csv(data.frame(vegdv, treatments), file = "vegdv.csv")
+
+#Looks fairly different without transforming/modeling
+# test <- read.csv(file = "processedData/vegdv.csv")
+# meta <- read.csv("processedData/treatments_metadata.csv")
+# test$treatments <- gsub("(.*)_\\d+", "\\1", test$treatments)
+# mtest <- merge(test, meta, by.x = "treatments", by.y = "treatmentClass")
+# boxplot(mtest$vegdv ~ mtest$lifehistory + mtest$compartment)
