@@ -127,7 +127,9 @@ save(div, file = "ITS_div.Rdata")
 
 # vegdv <- vegan::diversity(transformed) #gives same output as cnvrg, when using transformed data
 
-rich0.001 <- rich_calc(model_out = modelOut, countData = tdat, params = "pi", threshold = 0.001)
-rich0.005 <- rich_calc(model_out = modelOut, countData = tdat, params = "pi", threshold = 0.005)
-rich0.01 <- rich_calc(model_out = modelOut, countData = tdat, params = "pi", threshold = 0.01)
+rich0.0005 <- rich_calc(model_out = modelOut, countData = tdat, params = "pi", threshold = 0.0005)
+rich0.0001 <- rich_calc(model_out = modelOut, countData = tdat, params = "pi", threshold = 0.0001)
+rich0.0002 <- rich_calc(model_out = modelOut, countData = tdat, params = "pi", threshold = 0.0002)
+save(rich0.0002, rich0.0001, rich0.0005, file = "rich.Rdata")
+
 
