@@ -110,6 +110,7 @@ div <- diversity_calc(
 )
 save(div, file = "ITS_div.Rdata")
 
+
 #sanity check, first part on teton
 # vegdv <- vegan::diversity(tdat[,2:length(tdat)])
 # boxplot(vegdv~treatments)
@@ -123,3 +124,10 @@ save(div, file = "ITS_div.Rdata")
 # test$treatments <- gsub("(.*)_\\d+", "\\1", test$treatments)
 # mtest <- merge(test, meta, by.x = "treatments", by.y = "treatmentClass")
 # boxplot(mtest$vegdv ~ mtest$lifehistory + mtest$compartment)
+
+# vegdv <- vegan::diversity(transformed) #gives same output as cnvrg, when using transformed data
+
+rich0.001 <- rich_calc(model_out = modelOut, countData = tdat, params = "pi", threshold = 0.001)
+rich0.005 <- rich_calc(model_out = modelOut, countData = tdat, params = "pi", threshold = 0.005)
+rich0.01 <- rich_calc(model_out = modelOut, countData = tdat, params = "pi", threshold = 0.01)
+
