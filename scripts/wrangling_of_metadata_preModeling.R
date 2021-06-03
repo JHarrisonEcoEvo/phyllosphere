@@ -454,6 +454,8 @@ metadata <- merge(metadata, host, by.x = "taxon.x", by.y = "taxon", all.x = T)
 dim(metadata)
 metadata$taxon_final <- metadata$taxon.x
 metadata$taxon_final[metadata$taxon.x == "Artemisia tridentate var. vaseyana"] <- "Artemisia tridentata"
+
+metadata$taxon_final[metadata$taxon.x == "Artemisia tridentate"] <- "Artemisia tridentate"
 metadata$taxon_final[metadata$taxon.x == "Astragalus kentrophyta cf."] <- 
   "Astragalus kentrophyta"
 metadata$taxon_final[metadata$taxon.x == "Astragalus kentrophyta var. tegetarius"] <- 
@@ -476,6 +478,8 @@ treatsITS <- read.csv("./processedData/treatments_for_modeling_ITS.csv",
 treatsITS$x <- gsub("(\\d+_\\d+_\\d+E[NP])_.*", "\\1", treatsITS$x)
 
 table(treats16s == treatsITS) #yay
+
+write.csv(metadata, file = "./processedData/metadata_2.csv")
 
 #checking to see if Ha26_ITSoC6 was PCRd twice
 # dat <- read.csv("./processedData/otuTables/its90_otuTableCLEAN", 

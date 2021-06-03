@@ -4,7 +4,7 @@
 
 rm(list=ls())
 dat <- read.csv("processedData/treatments_metadata.csv", stringsAsFactors = F)
-meta <- read.csv("processedData/metadata.csv", stringsAsFactors = F)
+meta <- read.csv("processedData/metadata_2.csv", stringsAsFactors = F)
 meta <- meta[meta$substrate == "plant",]
 #add compartment column
 dat$compartment <- "EP"

@@ -104,11 +104,11 @@ transformed <-
 div <- diversity_calc(
   model_out = transformed$pi,
   countData = tdat[,(length(tdat)-2)],
-  params = "pi",
+  params = c("p","pi"),
   entropy_measure = "shannon",
   equivalents = T
 )
-save(div, file = "ITS_div.Rdata")
+save(div, file = "ITS_div_isd_normalized.Rdata")
 
 
 #sanity check, first part on teton
