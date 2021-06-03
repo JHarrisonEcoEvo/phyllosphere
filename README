@@ -1,0 +1,30 @@
+Data_that_I_dont* : This folder has various data that I don’t really see a use for including random nanodrop spectra, some old data that is likely not relevant anymore, scanned images of leaves, etc. The scans are the only thing that might be useful. Also has: sample-well_key_for_single*: This describes the ASLE 1 and 2 sample to well key. This is important info, but is for a different project. Leaving here because it was sequenced on Novaseq 2.  Also has the important backup file: 
+sampleWell_key_extraction: Has original sample to well key, this was amended to make the “MidKey_for_demux”. Has demux key for NovaSeq 3 as a csv, that I kept for posterity.
+
+quantifiedDNA: DNA concentration and spectral info from the microdrop reader
+
+Raw_fieldData* : these data likely will need to be wrangled, but have much of use. The wrangled versions will be stored in this folder and described below.
+
+Soil_data: soil data were messed up due to leaky vials and misplaced information from the soil lab. Given the lack of reliability here, I think it is best to probably not mess with these data much. It might be possible to extract soil moisture from some samples, but nothing else is here. This was largely a waste of time unfortunately.
+
+area_mg_leafCount: has useful info on mass extracted and leaves extracted as well as leaf area
+
+Location_size: has x and y coordinates for each plant, the side of the plant sampled, when it was sampled, its phenology, stem circumference (for a tree), plant box measurements
+
+MidKey_for_demux: links MIDS to samples. Note that I will likely need to change sample names after sequencing as there are a few strange dupes. 
+
+MultiSpeq_data_readme: important info for several metrics that shouldn’t be trusted
+
+Multispeq_data: all the output from the multispeq. Lots and lots here.
+
+siteData: lots of info for each site sampled
+
+TaxaSampled: taxa and individuals sampled at each site
+
+Toughness_water*: toughness and water retention info. I think these data are likely to be very noisy as the method of measurement was not super precise. Still, could be interesting. 
+
+
+
+
+
+
