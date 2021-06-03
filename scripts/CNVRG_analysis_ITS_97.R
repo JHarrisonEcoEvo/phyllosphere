@@ -132,4 +132,4 @@ rich0.0001 <- rich_calc(model_out = modelOut, countData = tdat, params = "pi", t
 rich0.0002 <- rich_calc(model_out = modelOut, countData = tdat, params = "pi", threshold = 0.0002)
 save(rich0.0002, rich0.0001, rich0.0005, file = "rich.Rdata")
 
-
+ests <- extract_point_estimate(model_out = modelOut, countData = tdat, params = c("p","pi"))
