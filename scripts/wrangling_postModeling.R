@@ -4,7 +4,7 @@ dat <- read.csv("./processedData/16s_p_estimates.csv",
                 stringsAsFactors = F)
 dat[1:3,1:3]
 
-metadat <- read.csv("./processedData/metadata.csv",
+metadat <- read.csv("./processedData/metadata_2.csv",
                     stringsAsFactors = F)
 #CHANGE LOCUS AS NEEDED
 metadat <- metadat[metadat$locus == "16S",]
@@ -63,7 +63,7 @@ rm(list = ls())
                 stringsAsFactors = F)
 dat[1:3,1:3]
 
-metadat <- read.csv("./processedData/metadata.csv",
+metadat <- read.csv("./processedData/metadata_2.csv",
                     stringsAsFactors = F)
 #CHANGE LOCUS AS NEEDED
 metadat <- metadat[metadat$locus == "ITS",]
