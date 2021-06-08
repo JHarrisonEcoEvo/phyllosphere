@@ -3,7 +3,7 @@ library(tidyr)
 library(tibble)
 library(dplyr)
 
-dat <- read.csv("./raw_data_notIncluding_sequenceData/rawODKdata/alldata_ODK_combined.csv",
+dat <- read.csv("./raw_data_notIncluding_sequenceData//rawODKdata/alldata_ODK_combined.csv",
                 stringsAsFactors = F, 
                 fill = T)
 #checking that the number of sites present is as expected
@@ -90,7 +90,8 @@ dat$daubPlots__daubplottree <- recode(as.character(dat$daubPlots__daubplottree),
 #4. Need to convert cover measurements to total percentage for the whole site
 #Could combine data for all identical taxa within a site..
 #Could convert cover measurements to rows so, four rows for each site, with x columns, for taxa
-#then calc shannons for each row and take average shannons
+#then calc shannons for each row and take average shannons...or
+#go through by site and do Shannons of the veg composition column for whole site
 
 #remove NAs in the species code
 dat <- dat[!is.na(dat$daubPlots__VegCompositionBlock__speciesCode),]
@@ -100,5 +101,9 @@ newdat <- as_tibble(data.frame(dat$siteLabel,
                      dat$daubPlots__VegCompositionBlock__speciesCode,
                      dat$daubPlots__VegCompositionBlock__coverClass))
 
-pivot_wider(names_from = as.character(newdat$dat.daubPlots__VegCompositionBlock__speciesCode),
-       values_from = as.numeric(newdat$dat.daubPlots__VegCompositionBlock__coverClass))
+shannons_site_veg <- aggregate(as.numeric(newdat$dat.daubPlots__VegCompositionBlock__coverClass) ~ 
+                  newdat$dat.siteLabel, FUN = function(x){
+                          vegan::diversity(x, index = "shannon")
+                  })
+
+meta <- read.csv("processedData/treatments_metadata.csv")
