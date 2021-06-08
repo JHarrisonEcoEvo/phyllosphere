@@ -1,5 +1,5 @@
-Data_that_I_dont* : This folder has various data that I don’t really see a use for including random nanodrop spectra, some old data that is likely not relevant anymore, scanned images of leaves, etc. The scans are the only thing that might be useful. Also has: sample-well_key_for_single*: This describes the ASLE 1 and 2 sample to well key. This is important info, but is for a different project. Leaving here because it was sequenced on Novaseq 2.  Also has the important backup file: 
-sampleWell_key_extraction: Has original sample to well key, this was amended to make the “MidKey_for_demux”. Has demux key for NovaSeq 3 as a csv, that I kept for posterity.
+
+raw_data_notIncluding+sequenceData/ includes: 
 
 quantifiedDNA: DNA concentration and spectral info from the microdrop reader
 
