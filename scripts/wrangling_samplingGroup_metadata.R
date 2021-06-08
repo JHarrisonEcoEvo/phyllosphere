@@ -3,6 +3,8 @@
 #other analyses
 
 rm(list=ls())
+#sadly the original treatments metadata file was at least partly made by hand
+#during field work, so there is no script to call before this one.
 dat <- read.csv("processedData/treatments_metadata.csv", stringsAsFactors = F)
 meta <- read.csv("processedData/metadata_2.csv", stringsAsFactors = F)
 meta <- meta[meta$substrate == "plant",]
@@ -80,7 +82,19 @@ dat <- dat[match(treats16s$x, dat$treatmentClass),]
 
 table(treats16s$x == dat$treatmentClass)
 
-write.csv(dat, file = "./processedData/treatments_metadata.csv", row.names = F)
+#####################
+#Bring in the neighboring flora diversity
+flora <- read.csv(file = "./processedData/shannons_siteLevel_veg.csv",
+                  stringsAsFactors = F, header = T)
+
+dat <- read.csv("processedData/treatments_metadata.csv", stringsAsFactors = F)
+
+newdat <- merge(dat, flora, by.y = "newdat.dat.siteLabel",
+      by.x = "location")
+
+
+names(newdat)[length(newdat)] <- "shannons_flora"
+write.csv(newdat, file = "./processedData/treatments_metadata.csv", row.names = F)
 
 
 

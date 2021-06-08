@@ -106,4 +106,5 @@ shannons_site_veg <- aggregate(as.numeric(newdat$dat.daubPlots__VegCompositionBl
                           vegan::diversity(x, index = "shannon")
                   })
 
-meta <- read.csv("processedData/treatments_metadata.csv")
+write.csv(shannons_site_veg, 
+          file = "./processedData/shannons_siteLevel_veg.csv", row.names = F)
