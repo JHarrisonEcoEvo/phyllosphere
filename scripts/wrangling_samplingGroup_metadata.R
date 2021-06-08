@@ -96,8 +96,16 @@ newdat <- merge(dat, flora, by.y = "newdat.dat.siteLabel",
 names(newdat)[length(newdat)] <- "shannons_flora"
 write.csv(newdat, file = "./processedData/treatments_metadata.csv", row.names = F)
 
+#Densitometer
+denso <- read.csv(file = "./processedData/densitometer_mean_vs_site.csv",
+                  stringsAsFactors = F, header = T)
 
+dat <- read.csv("processedData/treatments_metadata.csv", stringsAsFactors = F)
 
+newdat <- merge(denso, dat, 
+                by.y = "location",
+                by.x = "dat.siteLabel")
+write.csv(newdat, file = "./processedData/treatments_metadata.csv", row.names = F)
 
 
 

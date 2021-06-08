@@ -3,7 +3,7 @@ library(tidyr)
 library(tibble)
 library(dplyr)
 
-dat <- read.csv("./raw_data_notIncluding_sequenceData//rawODKdata/alldata_ODK_combined.csv",
+dat <- read.csv("./raw_data_notIncluding_sequenceData//rawODKdata/alldata_ODK_combined_edited.csv",
                 stringsAsFactors = F, 
                 fill = T)
 #checking that the number of sites present is as expected
@@ -26,7 +26,7 @@ dat <- as_tibble(dat)
 #have to change empty strings to NAs prior to fill
 dat[dat == ""] <- NA
 
-dat <- fill(dat,2:length(dat), .direction="down")
+dat <- fill(dat,c(2:37, 39:55), .direction="down")
 
 #3. 
 dat$daubPlots__VegCompositionBlock__coverClass <- recode(as.character(dat$daubPlots__VegCompositionBlock__coverClass), 
@@ -100,6 +100,7 @@ newdat <- as_tibble(data.frame(dat$siteLabel,
                      dat$gpsLocation.Latitude,
                      dat$daubPlots__VegCompositionBlock__speciesCode,
                      dat$daubPlots__VegCompositionBlock__coverClass))
+newdat[newdat$dat.siteLabel=="1_1",]
 
 shannons_site_veg <- aggregate(as.numeric(newdat$dat.daubPlots__VegCompositionBlock__coverClass) ~ 
                   newdat$dat.siteLabel, FUN = function(x){
