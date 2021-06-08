@@ -479,7 +479,15 @@ treatsITS$x <- gsub("(\\d+_\\d+_\\d+E[NP])_.*", "\\1", treatsITS$x)
 
 table(treats16s == treatsITS) #yay
 
-write.csv(metadata, file = "./processedData/metadata_2.csv")
+flora <- read.csv(file = "./processedData/shannons_siteLevel_veg.csv",
+                  stringsAsFactors = F, header = T)
+
+
+newdat <- merge(metadata, flora, by.x = "region_site",
+                by.y = "newdat.dat.siteLabel")
+
+
+write.csv(newdat, file = "./processedData/metadata_2.csv")
 
 #checking to see if Ha26_ITSoC6 was PCRd twice
 # dat <- read.csv("./processedData/otuTables/its90_otuTableCLEAN", 
