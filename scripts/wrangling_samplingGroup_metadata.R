@@ -107,6 +107,17 @@ newdat <- merge(denso, dat,
                 by.x = "dat.siteLabel")
 write.csv(newdat, file = "./processedData/treatments_metadata.csv", row.names = F)
 
+#latlong
+rm(list=ls())
+latlong <- read.csv(file = "./processedData/latlong_elevation_by_site.csv",
+                  stringsAsFactors = F, header = T)
+
+dat <- read.csv("processedData/treatments_metadata.csv", stringsAsFactors = F)
+
+newdat <- merge(latlong, dat, 
+                by.y = "dat.siteLabel",
+                by.x = "unique.dat.siteLabel.")
+write.csv(newdat, file = "./processedData/treatments_metadata.csv", row.names = F)
 
 
 
