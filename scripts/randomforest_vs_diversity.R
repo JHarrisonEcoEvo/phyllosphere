@@ -313,18 +313,36 @@ meta_impute <- rfImpute(x = meta[,1:67], y = meta$shannons,
 train <- meta_impute[,2:length(meta_impute)]
 
 set.seed(666)
-rf <- randomForest(x = data.frame(train, 
-                                  fastDummiesmeta1$taxon_final),
-                   y = meta$shannons,
-                   importance = T,						#save variable importance metrics
-                   ntree=4000,							#number of trees to make
-                   nodesize = 5,						#this is the number of rows of data in the terminal node, defaults at 5 for regression
-                   mtry = length(meta_impute)/3				#this is m, the number of predictors to consider at each split. 
-                   #The default for regression is p/3 (which I just spelled out here for clarity. p is the number of predictors by convention)
-)
+dummy_taxon <- fastDummies::dummy_cols(meta1$taxon_final)
 
-varImpPlot(rf, sort=T)	
-
-reg <- lm(meta1$shannons ~ . , data = data.frame(train[,1:(length(train)-1)], meta1$taxon_final))
-summary(reg)
-dim(train)
+rf_out16 <- list()
+for(i in 1:100){
+  indices <- sample(samps, replace = F, size = 0.15*length(samps))
+  train <- meta_impute[indices,
+                       2:length(meta_impute)]
+  
+  rf <- randomForest(x = data.frame(train, 
+                                    dummy_taxon[indices, 2:65]),
+                     y = meta$shannons[indices],
+                     importance = T,						#save variable importance metrics
+                     ntree=4000,							#number of trees to make
+                     nodesize = 5,						#this is the number of rows of data in the terminal node, defaults at 5 for regression
+                     mtry = length(meta_impute)/3				#this is m, the number of predictors to consider at each split. 
+                     #The default for regression is p/3 (which I just spelled out here for clarity. p is the number of predictors by convention)
+  )
+  #Extract % var explained in this cumbersome way. 
+  rf$var_explained <- 100*rf$rsq[length(rf$rsq)]
+  
+  out <- predict(object = rf, 
+                 newdata = data.frame(
+                   meta_impute[-indices,
+                               2:length(meta_impute)], 
+                   dummy_taxon[-indices, 2:65]),
+                 type = "response")
+  
+  rf$rmse <- Metrics::rmse(out, meta$shannons[-indices])
+  rf$cor <- cor.test(out, meta$shannons[-indices])
+  #plot(out, meta$shannons[-indices])
+  
+  rf_out16[[i]] <- rf
+}
