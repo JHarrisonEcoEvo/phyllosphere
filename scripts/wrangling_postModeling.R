@@ -53,10 +53,13 @@ table(metadat_reduced$sample == dat$sample)
 samplemeta <- read.csv("./processedData/treatments_metadata.csv",
                        stringsAsFactors = F)
 metadat_reduced <- merge(metadat_reduced, 
-      samplemeta, 
-      by.x = "region_site",
-      by.y = "label", 
-      all.x = T)
+                         samplemeta, 
+                         by.x = "region_site",
+                         by.y = "label", 
+                         all.x = T)
+
+metadat_reduced$julianDate <- format(as.Date(gsub("_","-",metadat_reduced$date),
+                                             format = "%m-%d-%Y"), "%j")
 
 #Data are in proper order
 #commence to doing analyses!
@@ -128,6 +131,10 @@ metadat_reduced <- merge(metadat_reduced,
                          by.x = "region_site",
                          by.y = "label", 
                          all.x = T)
+
+metadat_reduced$julianDate <- format(as.Date(gsub("_","-",metadat_reduced$date),
+        format = "%m-%d-%Y"), "%j")
+
 #Data are in proper order
 #commence to doing analyses!
 write.csv(metadat_reduced, file = "./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv")
