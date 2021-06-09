@@ -6,6 +6,7 @@ dat[1:3,1:3]
 
 metadat <- read.csv("./processedData/metadata_2.csv",
                     stringsAsFactors = F)
+table(metadat$region_site)
 #CHANGE LOCUS AS NEEDED
 metadat <- metadat[metadat$locus == "16S",]
 
@@ -48,6 +49,14 @@ metadat_reduced <- metadat_reduced[match(dat$sample,
                                          metadat_reduced$sample),]
 
 table(metadat_reduced$sample == dat$sample)
+
+samplemeta <- read.csv("./processedData/treatments_metadata.csv",
+                       stringsAsFactors = F)
+metadat_reduced <- merge(metadat_reduced, 
+      samplemeta, 
+      by.x = "region_site",
+      by.y = "label", 
+      all.x = T)
 
 #Data are in proper order
 #commence to doing analyses!
@@ -112,6 +121,13 @@ metadat_reduced$samplename[is.na(metadat_reduced$compartment)]
 
 metadat_reduced$compartment[is.na(metadat_reduced$compartment)] <- "EN"
 
+samplemeta <- read.csv("./processedData/treatments_metadata.csv",
+                       stringsAsFactors = F)
+metadat_reduced <- merge(metadat_reduced, 
+                         samplemeta, 
+                         by.x = "region_site",
+                         by.y = "label", 
+                         all.x = T)
 #Data are in proper order
 #commence to doing analyses!
 write.csv(metadat_reduced, file = "./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv")
