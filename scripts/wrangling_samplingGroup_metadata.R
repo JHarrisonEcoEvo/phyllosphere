@@ -133,5 +133,11 @@ names(newdat)[1:5] <- c("label",
 write.csv(newdat, file = "./processedData/treatments_metadata.csv", row.names = F)
 
 
+dat <- read.csv("processedData/treatments_metadata.csv", stringsAsFactors = F)
+mems <- read.csv("processedData/moransEigenVectors.csv", stringsAsFactors = F)
 
-
+newdat <- merge(dat, mems, 
+                by.x = "label",
+                by.y = "unique.dat.label.")
+dim(newdat)
+write.csv(newdat, file = "./processedData/treatments_metadata.csv", row.names = F)
