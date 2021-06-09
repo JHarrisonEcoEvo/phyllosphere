@@ -82,16 +82,19 @@ dat <- dat[match(treats16s$x, dat$treatmentClass),]
 
 table(treats16s$x == dat$treatmentClass)
 
+write.csv(dat, file = "./processedData/treatments_metadata.csv", row.names = F)
+
 #####################
 #Bring in the neighboring flora diversity
 flora <- read.csv(file = "./processedData/shannons_siteLevel_veg.csv",
                   stringsAsFactors = F, header = T)
+flora$newdat.dat.siteLabel <- gsub("(\\d+_\\d+).*", "\\1", flora$newdat.dat.siteLabel)
+flora$newdat.dat.siteLabel <- gsub(".*(\\d+_\\d+)", "\\1", flora$newdat.dat.siteLabel)
 
-dat <- read.csv("processedData/treatments_metadata.csv", stringsAsFactors = F)
+#dat <- read.csv("processedData/treatments_metadata.csv", stringsAsFactors = F)
 
 newdat <- merge(dat, flora, by.y = "newdat.dat.siteLabel",
-      by.x = "location")
-
+      by.x = "location", all.x = T)
 
 names(newdat)[length(newdat)] <- "shannons_flora"
 write.csv(newdat, file = "./processedData/treatments_metadata.csv", row.names = F)
@@ -99,6 +102,8 @@ write.csv(newdat, file = "./processedData/treatments_metadata.csv", row.names = 
 #Densitometer
 denso <- read.csv(file = "./processedData/densitometer_mean_vs_site.csv",
                   stringsAsFactors = F, header = T)
+denso$dat.siteLabel <- gsub("(\\d+_\\d+).*", "\\1", denso$dat.siteLabel)
+denso$dat.siteLabel <- gsub(".*(\\d+_\\d+)", "\\1", denso$dat.siteLabel)
 
 dat <- read.csv("processedData/treatments_metadata.csv", stringsAsFactors = F)
 
@@ -111,12 +116,20 @@ write.csv(newdat, file = "./processedData/treatments_metadata.csv", row.names = 
 rm(list=ls())
 latlong <- read.csv(file = "./processedData/latlong_elevation_by_site.csv",
                   stringsAsFactors = F, header = T)
+latlong$unique.dat.siteLabel. <- gsub("(\\d+_\\d+).*", "\\1", latlong$unique.dat.siteLabel.)
+latlong$unique.dat.siteLabel. <- gsub(".*(\\d+_\\d+)", "\\1", latlong$unique.dat.siteLabel.)
 
 dat <- read.csv("processedData/treatments_metadata.csv", stringsAsFactors = F)
 
 newdat <- merge(latlong, dat, 
                 by.y = "dat.siteLabel",
                 by.x = "unique.dat.siteLabel.")
+names(newdat)[1:5] <- c("label",
+                        "latitude",
+                        "altitude",
+                        "longitude",
+                        "densitometer") 
+
 write.csv(newdat, file = "./processedData/treatments_metadata.csv", row.names = F)
 
 
