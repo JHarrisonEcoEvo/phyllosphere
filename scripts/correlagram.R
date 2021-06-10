@@ -61,7 +61,7 @@ predictors<-c(
   "NPQt_MPF",
  # "NPQt_noMPF",
   #"Phi2_MPF",
-  "PhiNPQ_MPF",
+  "PhiNPQ",
  # "PhiNPQ_noMPF",
   #"pitch",
   "pressure",
