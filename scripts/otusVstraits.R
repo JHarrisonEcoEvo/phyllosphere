@@ -1,9 +1,11 @@
+rm(list=ls())
 options(scipen = 99)
-
 
 meta1 <- read.csv("./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv", 
                   stringsAsFactors = F, header = T)
 
+#things that are commented out are either uninteresting notekeeping fields or were
+#very correlated with some other variable. See the correlogram script, for more. 
 predictors<-c(
   "area_cm2",
   "mass_g",
@@ -107,10 +109,18 @@ predictors<-c(
   "deadDown",
   # "numSamples", #not correlated with much of anything
   # "taxon.x",
-  "shannons",
-  "simpsons" ,                
-  "shannonsISD" , #Note that the info content is very similar regardless of whether it was normalized or not
-  "simpsonsISD"   
+  "latitude"    ,                    
+"altitude"    ,                    
+  "longitude"                       
+  ,"densitometer.y"   
+  ,"shannons_flora.y"                
+  , "MEM1.y"                          
+  , "MEM2.y"                          
+  , "julianDate"                      
+  , "shannons"                        
+  , "simpsons"                        
+  , "shannonsISD"                     
+  ,"simpsonsISD"
 )
 meta1$waterRetention <- as.numeric(meta1$waterRetention)
 
