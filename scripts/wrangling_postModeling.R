@@ -81,8 +81,8 @@ table(metadat_reduced$sample == dat$sample)
 
 
 #commence to doing analyses!
-write.csv(metadat_reduced, file = "./processedData/16smetadat_wrangled_for_post_modeling_analysis.csv")
-write.csv(dat, file = "./processedData/16sp_estimates_wrangled_for_post_modeling_analysis.csv")
+write.csv(metadat_reduced, file = "./processedData/16smetadat_wrangled_for_post_modeling_analysis.csv", row.names = F)
+write.csv(dat, file = "./processedData/16sp_estimates_wrangled_for_post_modeling_analysis.csv", row.names = F)
 
 ############
 #Do for ITS#
@@ -173,5 +173,5 @@ metadat_reduced <- metadat_reduced[match(dat$sample,
 table(metadat_reduced$sample == dat$sample)
 
 #commence to doing analyses!
-write.csv(metadat_reduced, file = "./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv")
-write.csv(dat, file = "./processedData/ITSp_estimates_wrangled_for_post_modeling_analysis.csv")
+write.csv(metadat_reduced, file = "./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv", row.names = F)
+write.csv(dat, file = "./processedData/ITSp_estimates_wrangled_for_post_modeling_analysis.csv", row.names = F)
