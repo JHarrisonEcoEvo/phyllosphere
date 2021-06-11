@@ -79,6 +79,8 @@ metadat_reduced <- metadat_reduced[match(dat$sample,
 
 table(metadat_reduced$sample == dat$sample)
 
+metadat_reduced$plant_vol <- metadat_reduced$plantMeasurements__height*
+  metadat_reduced$plantMeasurements__width2*metadat_reduced$width
 
 #commence to doing analyses!
 write.csv(metadat_reduced, file = "./processedData/16smetadat_wrangled_for_post_modeling_analysis.csv", row.names = F)
@@ -172,6 +174,8 @@ metadat_reduced <- metadat_reduced[match(dat$sample,
 #Data are in proper order
 table(metadat_reduced$sample == dat$sample)
 
+metadat_reduced$plant_vol <- metadat_reduced$plantMeasurements__height*
+                              metadat_reduced$plantMeasurements__width2*metadat_reduced$width
 #commence to doing analyses!
 write.csv(metadat_reduced, file = "./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv", row.names = F)
 write.csv(dat, file = "./processedData/ITSp_estimates_wrangled_for_post_modeling_analysis.csv", row.names = F)
