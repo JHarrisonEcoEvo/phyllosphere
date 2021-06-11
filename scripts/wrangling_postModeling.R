@@ -64,12 +64,10 @@ metadat_reduced$thickness[metadat_reduced$thicknessReliable == "N"] <- NA
 abiotic_data <- read.csv("./raw_data_notIncluding_sequenceData/siteData.csv", stringsAsFactors = F)
 
 metadat_reduced <-merge(metadat_reduced, 
-                        abiotic_data, 
+                        abiotic_data[,c(1,20:25)], 
                         by.x = "region_site",
                         by.y = "label", 
                         all.x = T)
-
-
 
 #make metadat and dat have same samples
 metadat_reduced <- metadat_reduced[metadat_reduced$sample %in% dat$sample,]
@@ -160,7 +158,7 @@ metadat_reduced$thickness[metadat_reduced$thicknessReliable == "N"] <- NA
 abiotic_data <- read.csv("./raw_data_notIncluding_sequenceData/siteData.csv", stringsAsFactors = F)
 
 metadat_reduced <-merge(metadat_reduced, 
-      abiotic_data, 
+      abiotic_data[,c(1,20:25)], 
       by.x = "region_site",
       by.y = "label", 
       all.x = T)
