@@ -1,6 +1,7 @@
 #Code adapted from https://machinelearningmastery.com/regression-tutorial-keras-deep-learning-library-python/
 
 import pandas as pd
+import numpy as np
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.wrappers.scikit_learn import KerasRegressor
@@ -23,28 +24,20 @@ Y = data['shannonsISD']
 #Make dummy variables (one hot encoding) for all non-numeric variables in the data
 taxa = pd.get_dummies(X['taxon.x'])
 X = [X, taxa]
+X = pd.concat(X, axis=1)
 
-#Doesnt work, got to here...need to concatenate data frames
-Need to also look in to NAs
-pd.concat(X)
+#lots of NULLs
+#print(X[X.isnull().any(axis=1)])
 
 # define the keras model
-def baseline_model():
 	# create model
-	model = Sequential()
-	model.add(Dense(len(X['area_cm2']),
-                 input_dim=len(X['area_cm2']),
-                 kernel_initializer='normal',
-                 activation='relu'))
-	model.add(Dense(1, kernel_initializer='normal'))
-	# Compile model
-	model.compile(loss='mean_squared_error', optimizer='adam')
-	return model
+model = Sequential()
+model.add(Dense(1,input_dim=len(X['area_cm2']),kernel_initializer='normal',activation='relu'))
+model.add(Dense(1, kernel_initializer='normal'))
+model.compile(loss= "mean_squared_error" , optimizer="adam", metrics=["mean_squared_error"])
 
-#evaluate model
-estimator = KerasRegressor(build_fn=baseline_model, epochs=100, batch_size=5, verbose=0)
+testX = np.asarray(X["area_cm2"]).astype('float32')
+testY = np.asarray(Y).astype('float32')
 
-#model validation
-kfold = KFold(n_splits=10)
-results = cross_val_score(estimator, X, Y, cv=kfold)
-print("Results: %.2f (%.2f) MSE" % (results.mean(), results.std()))
+model.fit(testX, testY, epochs=20)
+
