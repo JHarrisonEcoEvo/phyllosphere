@@ -27,7 +27,7 @@ data.describe() #This is like R's summary command when called on numerical data
 data['taxon.x'].value_counts()
 #data.columns
 
-data['sla'] = data['area_cm2'] / data['mass_g']
+data['sla'] = data['area_cm2'] / data['mass_extracted_g']
 
 #Handy code for making histograms
 # import matplotlib.pyplot as plt
@@ -47,7 +47,7 @@ cols=["area_cm2",\
     "Ambient_Temperature",\
     "B",\
     "circumStem",\
-    #"compartment.x",\
+    "compartment.x",\
     "contactless_temp",\
     "deadDown",\
     "densitometer.y",\
@@ -67,16 +67,15 @@ cols=["area_cm2",\
     "LEF",\
     "leaves_extracted",\
     "Light_Intensity..PAR.",\
-   # "lifehistory",\
+    "lifehistory",\
     "Longitude",\
     "mass_extracted_g",\
     "MEM1.y",\
     "MEM2.y",\
     "NPQt_MPF",\
-   # "phenology",\
+    "phenology",\
     "Phi2",\
     "PhiNO",\
-    "PhiNPQ",\
     "PhiNPQ",\
     "plant_vol",\
     "pressure",\
@@ -94,20 +93,55 @@ cols=["area_cm2",\
     "SPAD_420",\
     "thickness",\
     "TimeofDay",\
-   #"taxon.x",\
+   "taxon.x",\
     "toughness",\
     "treeRich",\
     "waterRetention"\
     # "NPQt",\
+    ,"shannonsISD"
     ]
 
-# split into input (X) and output (Y) variables
-X = data[cols]
-Y = data['shannonsISD']
+#Just the hot shit
+data = data[cols]
 
-#IMPORTANT NOTE: all features need to be numeric, so some sort of encoding
-#is needed. Beware of encoding that could be construed as ordinal. This is why
-#I do dummy (one hot) encoding.
+
+#####################################################################
+# Do one hot encoding, conversion to numeric, and scaling/centering #
+#####################################################################
+#Note that you ca a lot of this inside the model, which is a bit better
+#since the model can be ported more easily, since wrangling is internal.
+
+#First we figure out which features are numeric and which are not
+num_features = []
+categorical_features = []
+
+for i in data:
+    if data[i].dtype.kind in 'iufc':
+        num_features.extend([i])
+    else:
+        categorical_features.extend([i])
+#The 'iufc' thing means: i int (signed), u unsigned int, f float, c complex. 
+  
+#Note I explored the pipeline options with sklearn and decided against
+#for this use case.
+from sklearn.preprocessing import StandardScaler
+from sklearn.experimental import enable_iterative_imputer 
+from sklearn.impute import IterativeImputer
+
+
+#Impute missing data, the default model here is a ridge regression
+#Note how I have to convert back to a pandas data frame
+#
+imp = IterativeImputer(max_iter=50, verbose=0)
+imp.fit(data[num_features])
+imputed_df = imp.transform(data[num_features])
+
+#Scale data
+scaler = StandardScaler()
+scaled_data = scaler.fit_transform(imputed_df)
+imputed_scaled_df = pd.DataFrame(scaled_data, columns=data[num_features].columns)
+
+#Make one-hot encoded categorical variables
 taxa = pd.get_dummies(data['taxon.x'])
 habit = pd.get_dummies(data['lifehistory'])
 compartment = pd.get_dummies(data['compartment.x'])
@@ -115,34 +149,34 @@ phenology = pd.get_dummies(data['phenology'])
 
 #Handy way to concatenate data frames, axis decides if fields or rows are added
 #can do pretty smart merging, see help.
-X = pd.concat([X, taxa, habit, compartment, phenology], axis=1)
+X = pd.concat([imputed_scaled_df, taxa, habit, compartment, phenology], axis=1)
 
-Need to scale and center and do NAs
+#Do a final check for Null/NA
+Xbool = X.isnull()
+
+for i in Xbool:
+    print(Xbool[i].value_counts())
+
 
 #####################
 #Do train/test split#
 #####################
 #Code from Geron. 
-#Set seed to get same split. Doing via instantiation of a new pseudorandom
-#number generator, instead of changing global seed. Does not matter in this
-#case, but this is best practice so you know what rng used for what part of 
-#code and will play well with other functions that change seed
 
-np.random.default_rng(666)
+#Handy code for stratified test/train splitting with a random number 
+#generator used for reproducibility
 
-def split_train_test(data, test_ratio):
-        shuffled_indices = np.random.permutation(len(data))
-        test_set_size = int(len(data) * test_ratio)
-        test_indices = shuffled_indices[:test_set_size]
-        train_indices = shuffled_indices[test_set_size:]
-        return data.iloc[train_indices], data.iloc[test_indices]
+#Stratifying by compartment. May need to revisit this if some other feature
+#is really important.
+from sklearn.model_selection import StratifiedShuffleSplit
 
-train_set, test_set = split_train_test(X, 0.2)
-print(len(train_set), "train +", len(test_set), "test")
+split = StratifiedShuffleSplit(n_splits=1, test_size=(0.2), random_state=(666))
+for train_index, test_index in split.split(X, X["EN"]):
+    strat_train_set = X.loc[train_index]
+    strat_test_set = X.loc[test_index]
 
-#Incidentally, to do this via scikit learn use this
-#from sklearn.model_selection import train_test_split
-#train_set, test_set = train_test_split(data, test_size=0.2, random_state=(666))
+strat_test_set.shape  
+strat_train_set.shape
 
 ############
 # Analysis #
@@ -150,11 +184,66 @@ print(len(train_set), "train +", len(test_set), "test")
 
 #Define the keras model
 model = Sequential()
-model.add(Dense(1,input_dim=len(X['area_cm2']),kernel_initializer='normal',activation='relu'))
+#Input dim should be the number of predictors, subtracting one because the response
+#is included
+#The first integer (12) is the number of nodes in the first dense layer
+
+model.add(Dense(12,input_dim=(1),kernel_initializer='normal',activation='relu'))
+#model.add(Dense(8,activation='relu'))
 model.add(Dense(1, kernel_initializer='normal'))
 model.compile(loss= "mean_squared_error" , optimizer="adam", metrics=["mean_squared_error"])
 
-testX = np.asarray(X["area_cm2"]).astype('float32')
-testY = np.asarray(Y).astype('float32')
+#Keras needs Numpy arrays or TensorFlow dataset objects as input. 
+#The latter is optimized for really large datasets. Need to learn more about it
+#as it could be useful for genomics data. 
+X_array = np.array(X.loc[:, X.columns != 'shannonsISD'])
+Y_array = np.array(X['shannonsISD']).reshape(1,-1)
 
-model.fit(testX, testY, epochs=20)
+
+#An epoch is one pass through all the rows in the data set
+#Batch is how many samples (rows) to consider before updating weights
+model.fit(X.iloc[1:2419,], Y_array, epochs=20, batch_size=100)
+
+model.summary()
+
+y_pred= model.predict(np.array(X["area_cm2"]).reshape(1,-1))
+
+
+import matplotlib.pyplot as plt
+X.plot(kind='scatter',
+       x='area_cm2',
+       y='shannonsISD', title='area vs shannons ISD')
+plt.plot(X["area_cm2"], y_pred, color='red', linewidth=3)
+
+
+
+
+#Get working on training dataset
+model = Sequential()
+#Input dim should be the number of predictors, subtracting one because the response
+#is included
+#The first integer (12) is the number of nodes in the first dense layer
+
+model.add(Dense(12,input_dim=(1,),kernel_initializer='normal',activation='relu'))
+#model.add(Dense(8,activation='relu'))
+model.add(Dense(1, kernel_initializer='normal'))
+model.compile(loss= "mean_squared_error" , optimizer="adam", metrics=["mean_squared_error"])
+
+#Keras needs Numpy arrays or TensorFlow dataset objects as input. 
+#The latter is optimized for really large datasets. Need to learn more about it
+#as it could be useful for genomics data. 
+X_array = np.array(X.loc[:, X.columns != 'shannonsISD'])
+Y_array = np.array(X['shannonsISD']).reshape(1,-1)
+
+
+#An epoch is one pass through all the rows in the data set
+#Batch is how many samples (rows) to consider before updating weights
+model.fit(np.array(X["area_cm2"]).reshape(1,-1), Y_array, epochs=20, batch_size=100)
+
+model.summary()
+
+
+
+
+
+
