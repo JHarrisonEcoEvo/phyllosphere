@@ -18,16 +18,16 @@ from keras.layers import Dense
 # from sklearn.pipeline import Pipeline
 
 #Load data
-data = pd.read_csv('../processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv')
+data1 = pd.read_csv('../processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv')
 
 #Explore the data
-data.head
-data.info()
-data.describe() #This is like R's summary command when called on numerical data
-data['taxon.x'].value_counts()
+data1.head
+data1.info()
+data1.describe() #This is like R's summary command when called on numerical data
+data1['taxon.x'].value_counts()
 #data.columns
 
-data['sla'] = data['area_cm2'] / data['mass_extracted_g']
+data1['sla'] = data1['area_cm2'] / data1['mass_extracted_g']
 
 #Handy code for making histograms
 # import matplotlib.pyplot as plt
@@ -102,7 +102,7 @@ cols=["area_cm2",\
     ]
 
 #Just the hot shit
-data = data[cols]
+data = data1[cols]
 
 
 #####################################################################
@@ -235,8 +235,7 @@ plt.xlabel('epoch')
 plt.legend(['train', 'validation'], loc='upper left')
 plt.show()
 
-from sklearn.metrics import mean_absolute_error
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_absolute_error, mean_squared_error,r2_score 
 import math 
 
 mean_absolute_error(Y_array, y_pred)
@@ -257,5 +256,16 @@ pearsonr(np.squeeze(y_pred_test), np.squeeze(Y_arraytest))
 mean_absolute_error(y_pred_test, Y_arraytest)
 math.sqrt(mean_squared_error(y_pred_test, Y_arraytest))
 
+plt.scatter(y_pred_test, Y_arraytest)
 
+r2_score(Y_arraytest,y_pred_test)
 
+#piss poor
+
+###############
+
+#write the transformed data to disk for future use
+    
+#Pandas makes writing a lot easier
+towrite = pd.concat([data1.iloc[:,0:9], X], axis = 1)
+towrite.to_csv(path_or_buf=(".//imputed_scaled_ITS_metadata.csv"))
