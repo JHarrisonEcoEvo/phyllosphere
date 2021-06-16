@@ -188,62 +188,74 @@ model = Sequential()
 #is included
 #The first integer (12) is the number of nodes in the first dense layer
 
-model.add(Dense(12,input_dim=(1),kernel_initializer='normal',activation='relu'))
-#model.add(Dense(8,activation='relu'))
-model.add(Dense(1, kernel_initializer='normal'))
+model.add(Dense(12,input_dim=strat_train_set.shape[1]-1,activation='relu'))
+model.add(Dense(8,activation='relu'))
+#Linear activation needed for regression
+model.add(Dense(1, activation='linear'))
 model.compile(loss= "mean_squared_error" , optimizer="adam", metrics=["mean_squared_error"])
 
 #Keras needs Numpy arrays or TensorFlow dataset objects as input. 
 #The latter is optimized for really large datasets. Need to learn more about it
 #as it could be useful for genomics data. 
-X_array = np.array(X.loc[:, X.columns != 'shannonsISD'])
-Y_array = np.array(X['shannonsISD']).reshape(1,-1)
-
+X_array = np.array(strat_train_set.loc[:, strat_train_set.columns != 'shannonsISD'])
+#Note the use of reshape. This is because the array is of dimension [484,]
+#The null dimension causes problems, so this reshape makes it have a dimension of [484,1]
+#The -1 asks NUmpy to figure out the missing shape...so I could have put [484,1]
+#but that would be less robust.
+Y_array = np.array(strat_train_set['shannonsISD']).reshape(-1,1)
 
 #An epoch is one pass through all the rows in the data set
 #Batch is how many samples (rows) to consider before updating weights
-model.fit(X.iloc[1:2419,], Y_array, epochs=20, batch_size=100)
+history =  model.fit(X_array, Y_array, epochs=200, batch_size=50)
 
+#Learn a bit about model structure
 model.summary()
 
-y_pred= model.predict(np.array(X["area_cm2"]).reshape(1,-1))
-
+y_pred= model.predict(X_array)
 
 import matplotlib.pyplot as plt
-X.plot(kind='scatter',
-       x='area_cm2',
-       y='shannonsISD', title='area vs shannons ISD')
-plt.plot(X["area_cm2"], y_pred, color='red', linewidth=3)
+plt.scatter(y_pred, Y_array)
+
+#Do Pearsons on predictions
+from scipy.stats import pearsonr
+
+#R is not bad
+pearsonr(np.squeeze(y_pred), np.squeeze(Y_array))
+
+oss, acc = model.evaluate(np.array(strat_test_set.loc[:, strat_test_set.columns != 'shannonsISD']))  # returns loss and metrics
+print("acc: %.2f" % acc)
+
+print(history.history.keys())
+# "Loss"
+#plt.plot(history.history['loss'])
+plt.plot(history.history['mean_squared_error'])
+plt.title('model loss')
+plt.ylabel('loss')
+plt.xlabel('epoch')
+plt.legend(['train', 'validation'], loc='upper left')
+plt.show()
+
+from sklearn.metrics import mean_absolute_error
+from sklearn.metrics import mean_squared_error
+import math 
+
+mean_absolute_error(Y_array, y_pred)
+math.sqrt(mean_squared_error(Y_array, y_pred))
 
 
+#####################
+#Predict to new data#
+#####################
+X_array_test = np.array(strat_test_set.loc[:, strat_test_set.columns != 'shannonsISD'])
+Y_arraytest = np.array(strat_test_set['shannonsISD']).reshape(-1,1)
 
+y_pred_test = model.predict(X_array_test)
 
-#Get working on training dataset
-model = Sequential()
-#Input dim should be the number of predictors, subtracting one because the response
-#is included
-#The first integer (12) is the number of nodes in the first dense layer
+#evaluate
+pearsonr(np.squeeze(y_pred_test), np.squeeze(Y_arraytest))
 
-model.add(Dense(12,input_dim=(1,),kernel_initializer='normal',activation='relu'))
-#model.add(Dense(8,activation='relu'))
-model.add(Dense(1, kernel_initializer='normal'))
-model.compile(loss= "mean_squared_error" , optimizer="adam", metrics=["mean_squared_error"])
-
-#Keras needs Numpy arrays or TensorFlow dataset objects as input. 
-#The latter is optimized for really large datasets. Need to learn more about it
-#as it could be useful for genomics data. 
-X_array = np.array(X.loc[:, X.columns != 'shannonsISD'])
-Y_array = np.array(X['shannonsISD']).reshape(1,-1)
-
-
-#An epoch is one pass through all the rows in the data set
-#Batch is how many samples (rows) to consider before updating weights
-model.fit(np.array(X["area_cm2"]).reshape(1,-1), Y_array, epochs=20, batch_size=100)
-
-model.summary()
-
-
-
+mean_absolute_error(y_pred_test, Y_arraytest)
+math.sqrt(mean_squared_error(y_pred_test, Y_arraytest))
 
 
 
