@@ -18,7 +18,7 @@ from keras.layers import Dense
 # from sklearn.pipeline import Pipeline
 
 #Load data
-data1 = pd.read_csv('../processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv')
+data1 = pd.read_csv('./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv')
 
 #Explore the data
 data1.head
@@ -157,6 +157,17 @@ Xbool = X.isnull()
 for i in Xbool:
     print(Xbool[i].value_counts())
 
+############
+# QC step ##
+############
+
+#Simulate data that should be predictive of diversity
+#This causes model performance to jump up a lot. R2 is .8 roughly, 
+#with these setttings.
+
+# testFeature = np.random.normal(loc = 2, scale = 1, size = len(X['shannonsISD']))
+
+# X['testFeature'] = X['shannonsISD']*testFeature
 
 #####################
 #Do train/test split#
