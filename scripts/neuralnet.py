@@ -199,8 +199,21 @@ model = Sequential()
 #is included
 #The first integer (12) is the number of nodes in the first dense layer
 
-model.add(Dense(12,input_dim=strat_train_set.shape[1]-1,activation='relu'))
-model.add(Dense(8,activation='relu'))
+#MODEL 1. This model does poorly with our data (R 2 is negative), but does well
+#with the simulated data
+
+# model.add(Dense(12,input_dim=strat_train_set.shape[1]-1,activation='relu'))
+# model.add(Dense(8,activation='relu'))
+# #Linear activation needed for regression
+# model.add(Dense(1, activation='linear'))
+# model.compile(loss= "mean_squared_error" , optimizer="adam", metrics=["mean_squared_error"])
+
+#MODEL 2, increasing the number of neurons considerably
+model.add(Dense(50,input_dim=strat_train_set.shape[1]-1,activation='relu'))
+model.add(Dense(20,activation='relu'))
+model.add(Dense(10,activation='relu'))
+model.add(Dense(5,activation='relu'))
+
 #Linear activation needed for regression
 model.add(Dense(1, activation='linear'))
 model.compile(loss= "mean_squared_error" , optimizer="adam", metrics=["mean_squared_error"])
