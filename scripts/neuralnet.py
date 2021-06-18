@@ -312,48 +312,50 @@ towrite.to_csv(path_or_buf=(".//imputed_scaled_ITS_metadata.csv"))
 # hyperparameter tuning #
 #########################
 
-import tensorflow as tf
-from tensorflow import keras
-import pandas as pd
-from tensorflow.keras import layers
-from kerastuner.tuners import RandomSearch
-import IPython
-from tensorflow.keras.models import Sequential
-import kerastuner
+#This is not fully operational yet. 
 
-from tensorflow.keras.layers import Dense
-#from tensorflow.keras.optimizers import Adam
+# import tensorflow as tf
+# from tensorflow import keras
+# import pandas as pd
+# from tensorflow.keras import layers
+# from kerastuner.tuners import RandomSearch
+# import IPython
+# from tensorflow.keras.models import Sequential
+# import kerastuner
 
-def build_model(hp):
-    model = keras.Sequential()
-    hp_units = hp.Int('units', min_value=10, max_value=100, step=20)
+# from tensorflow.keras.layers import Dense
+# #from tensorflow.keras.optimizers import Adam
+
+# def build_model(hp):
+#     model = keras.Sequential()
+#     hp_units = hp.Int('units', min_value=10, max_value=100, step=20)
     
-    model.add(keras.layers.Dense(units=hp_units, activation='relu'))
-    model.add(Dense(1, activation='linear'))
+#     model.add(keras.layers.Dense(units=hp_units, activation='relu'))
+#     model.add(Dense(1, activation='linear'))
 
-    model.compile(
-        #optimizer="adam",
-        optimizer=keras.optimizers.Adam(
-             hp.Choice('learning_rate', [1e-2, 1e-3, 1e-4])),
-             loss='mean_absolute_error',
-             metrics=['mean_absolute_error'])
+#     model.compile(
+#         #optimizer="adam",
+#         optimizer=keras.optimizers.Adam(
+#              hp.Choice('learning_rate', [1e-2, 1e-3, 1e-4])),
+#              loss='mean_absolute_error',
+#              metrics=['mean_absolute_error'])
 
-    return model
+#     return model
 
-tuner_band = kerastuner.Hyperband(build_model, objective = 'val_mean_absolute_error',\
-                                  max_epochs =2, factor = 3, directory = '.', project_name = 'tuning')
+# tuner_band = kerastuner.Hyperband(build_model, objective = 'val_mean_absolute_error',\
+#                                   max_epochs =2, factor = 3, directory = '.', project_name = 'tuning')
 
 
-class ClearTrainingOutput(tf.keras.callbacks.Callback):
-    def on_train_end(*args, **kwargs):
-        IPython.display.clear_output(wait = True)
+# class ClearTrainingOutput(tf.keras.callbacks.Callback):
+#     def on_train_end(*args, **kwargs):
+#         IPython.display.clear_output(wait = True)
     
-tuner_band.search(X_array, Y_array, epochs = 2, validation_data = (X_array_test, Y_arraytest), \
-                  callbacks = [ClearTrainingOutput()])
+# tuner_band.search(X_array, Y_array, epochs = 2, validation_data = (X_array_test, Y_arraytest), \
+#                   callbacks = [ClearTrainingOutput()])
     
-best_hps = tuner_band.get_best_hyperparameters(num_trials = 1)[0]
-best_hps.get('learning_rate')
+# best_hps = tuner_band.get_best_hyperparameters(num_trials = 1)[0]
+# best_hps.get('learning_rate')
 
-#If not using Jupyter or similar can't display results written in HTML
-from IPython.display import display, HTML
-display(HTML(tuner_band.results_summary()).data)
+# #If not using Jupyter or similar can't display results written in HTML
+# from IPython.display import display, HTML
+# display(HTML(tuner_band.results_summary()).data)
