@@ -9,9 +9,9 @@
 
 import pandas as pd
 import numpy as np
-import keras
-from keras.models import Sequential
-from keras.layers import Dense
+from tensorflow import keras 
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
 # from keras.wrappers.scikit_learn import KerasRegressor
 # from sklearn.model_selection import cross_val_score
 # from sklearn.model_selection import KFold
@@ -231,43 +231,55 @@ Y_array = np.array(strat_train_set['shannonsISD']).reshape(-1,1)
 
 #An epoch is one pass through all the rows in the data set
 #Batch is how many samples (rows) to consider before updating weights
-history =  model.fit(X_array, Y_array, epochs=200, batch_size=50)
+history =  model.fit(X_array, Y_array, epochs=20, batch_size=50)
 
 #Learn a bit about model structure
 model.summary()
 
-y_pred= model.predict(X_array)
 
-import matplotlib.pyplot as plt
-plt.scatter(y_pred, Y_array)
+##############################################
+# Assess feature importance with SHAP values. 
+# This is prohibitively time consuming 
+###############################################
+# import shap
 
-#Do Pearsons on predictions
-from scipy.stats import pearsonr
+# # print the JS visualization code to the notebook
+# shap.initjs()
+# explainer = shap.KernelExplainer(model = model.predict, data = X_array, link = "identity")
 
-#R is not bad
-pearsonr(np.squeeze(y_pred), np.squeeze(Y_array))
+# X_idx = 0
 
-oss, acc = model.evaluate(np.array(strat_test_set.loc[:, strat_test_set.columns != 'shannonsISD']))  # returns loss and metrics
-print("acc: %.2f" % acc)
+# shap_value_single = explainer.shap_values(X = X_array[X_idx:X_idx+1,:], nsamples = 100)
+# X.iloc[X_idx:X_idx+1,:]
 
-print(history.history.keys())
-# "Loss"
-#plt.plot(history.history['loss'])
-plt.plot(history.history['mean_squared_error'])
-plt.title('model loss')
-plt.ylabel('loss')
-plt.xlabel('epoch')
-plt.legend(['train', 'validation'], loc='upper left')
-plt.show()
+# import ipywidgets as widgets
+# # Create the list of all labels for the drop down list
+# list_of_labels = list(strat_train_set.loc[:, strat_train_set.columns != 'shannonsISD'].columns)
 
-from sklearn.metrics import mean_absolute_error, mean_squared_error,r2_score 
-import math 
+# # Create a list of tuples so that the index of the label is what is returned
+# tuple_of_labels = list(zip(list_of_labels, range(len(list_of_labels))))
 
-mean_absolute_error(Y_array, y_pred)
-math.sqrt(mean_squared_error(Y_array, y_pred))
+# # Create a widget for the labels and then display the widget
+# current_label = widgets.Dropdown(options=tuple_of_labels,
+#                               value=0,
+#                               description='Select Label:'
+#                               )
 
+# Display the dropdown list (Note: access index value with 'current_label.value')
 
-#####################
+# print(f'Current Label Shown: {list_of_labels[current_label.value]}\n')
+
+#Nsamples should stay high, but the auto setting is waaay to slow
+#Running this for more than a handful of rows is also way to slow. 
+
+# shap_values = explainer.shap_values(X = X_array[0:5,:], nsamples = 100)
+
+# shap.summary_plot(shap_values = shap_values[current_label.value],
+#                   features = X_array[0:5,:],
+#                   feature_names=list_of_labels
+#                   )
+
+# #####################
 #Predict to new data#
 #####################
 X_array_test = np.array(strat_test_set.loc[:, strat_test_set.columns != 'shannonsISD'])
@@ -276,16 +288,16 @@ Y_arraytest = np.array(strat_test_set['shannonsISD']).reshape(-1,1)
 y_pred_test = model.predict(X_array_test)
 
 #evaluate
-pearsonr(np.squeeze(y_pred_test), np.squeeze(Y_arraytest))
+# pearsonr(np.squeeze(y_pred_test), np.squeeze(Y_arraytest))
 
-mean_absolute_error(y_pred_test, Y_arraytest)
-math.sqrt(mean_squared_error(y_pred_test, Y_arraytest))
+# mean_absolute_error(y_pred_test, Y_arraytest)
+# math.sqrt(mean_squared_error(y_pred_test, Y_arraytest))
 
-plt.scatter(y_pred_test, Y_arraytest)
+# plt.scatter(y_pred_test, Y_arraytest)
 
-r2_score(Y_arraytest,y_pred_test)
+# r2_score(Y_arraytest,y_pred_test)
 
-#piss poor
+# #piss poor
 
 ###############
 
@@ -314,19 +326,9 @@ from tensorflow.keras.layers import Dense
 
 def build_model(hp):
     model = keras.Sequential()
-    for i in range(hp.Int('num_layers', 2, 20)):
-        model.add(
-            Dense(units=hp.Int(
-                'units' + str(i),
-                min_value=5,
-                max_value=200,
-                step=10
-            ),
-              #input_dim=self.input_shape,
-              activation='relu')
-        )
-        
-
+    hp_units = hp.Int('units', min_value=10, max_value=100, step=20)
+    
+    model.add(keras.layers.Dense(units=hp_units, activation='relu'))
     model.add(Dense(1, activation='linear'))
 
     model.compile(
@@ -339,14 +341,14 @@ def build_model(hp):
     return model
 
 tuner_band = kerastuner.Hyperband(build_model, objective = 'val_mean_absolute_error',\
-                                  max_epochs =10, factor = 3, directory = '.', project_name = 'tuning')
+                                  max_epochs =2, factor = 3, directory = '.', project_name = 'tuning')
 
 
 class ClearTrainingOutput(tf.keras.callbacks.Callback):
     def on_train_end(*args, **kwargs):
         IPython.display.clear_output(wait = True)
     
-tuner_band.search(X_array, Y_array, epochs = 10, validation_data = (X_array_test, Y_arraytest), \
+tuner_band.search(X_array, Y_array, epochs = 2, validation_data = (X_array_test, Y_arraytest), \
                   callbacks = [ClearTrainingOutput()])
     
 best_hps = tuner_band.get_best_hyperparameters(num_trials = 1)[0]
