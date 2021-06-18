@@ -9,6 +9,7 @@
 
 import pandas as pd
 import numpy as np
+import keras
 from keras.models import Sequential
 from keras.layers import Dense
 # from keras.wrappers.scikit_learn import KerasRegressor
@@ -293,3 +294,64 @@ r2_score(Y_arraytest,y_pred_test)
 #Pandas makes writing a lot easier
 towrite = pd.concat([data1.iloc[:,0:9], X], axis = 1)
 towrite.to_csv(path_or_buf=(".//imputed_scaled_ITS_metadata.csv"))
+
+
+#########################
+# hyperparameter tuning #
+#########################
+
+import tensorflow as tf
+from tensorflow import keras
+import pandas as pd
+from tensorflow.keras import layers
+from kerastuner.tuners import RandomSearch
+import IPython
+from tensorflow.keras.models import Sequential
+import kerastuner
+
+from tensorflow.keras.layers import Dense
+#from tensorflow.keras.optimizers import Adam
+
+def build_model(hp):
+    model = keras.Sequential()
+    for i in range(hp.Int('num_layers', 2, 20)):
+        model.add(
+            Dense(units=hp.Int(
+                'units' + str(i),
+                min_value=5,
+                max_value=200,
+                step=10
+            ),
+              #input_dim=self.input_shape,
+              activation='relu')
+        )
+        
+
+    model.add(Dense(1, activation='linear'))
+
+    model.compile(
+        #optimizer="adam",
+        optimizer=keras.optimizers.Adam(
+             hp.Choice('learning_rate', [1e-2, 1e-3, 1e-4])),
+             loss='mean_absolute_error',
+             metrics=['mean_absolute_error'])
+
+    return model
+
+tuner_band = kerastuner.Hyperband(build_model, objective = 'val_mean_absolute_error',\
+                                  max_epochs =10, factor = 3, directory = '.', project_name = 'tuning')
+
+
+class ClearTrainingOutput(tf.keras.callbacks.Callback):
+    def on_train_end(*args, **kwargs):
+        IPython.display.clear_output(wait = True)
+    
+tuner_band.search(X_array, Y_array, epochs = 10, validation_data = (X_array_test, Y_arraytest), \
+                  callbacks = [ClearTrainingOutput()])
+    
+best_hps = tuner_band.get_best_hyperparameters(num_trials = 1)[0]
+best_hps.get('learning_rate')
+
+#If not using Jupyter or similar can't display results written in HTML
+from IPython.display import display, HTML
+display(HTML(tuner_band.results_summary()).data)
