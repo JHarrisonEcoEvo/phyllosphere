@@ -4,6 +4,7 @@ library(corrplot)
 meta <- read.csv("./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv", 
                  stringsAsFactors = F, header = T)
 
+names(meta)
 predictors<-c(
   "area_cm2",
   "mass_g",

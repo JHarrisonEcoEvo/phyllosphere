@@ -287,15 +287,19 @@ Y_arraytest = np.array(strat_test_set['shannonsISD']).reshape(-1,1)
 
 y_pred_test = model.predict(X_array_test)
 
-#evaluate
-# pearsonr(np.squeeze(y_pred_test), np.squeeze(Y_arraytest))
+import matplotlib.pyplot as plt
+plt.scatter(Y_arraytest, y_pred_test)
 
-# mean_absolute_error(y_pred_test, Y_arraytest)
-# math.sqrt(mean_squared_error(y_pred_test, Y_arraytest))
+plt.xlabel("Expected values")
+plt.ylabel("Observed values");
+t = plt.text(0.15, 1, "R2 = 0.8%",weight='bold')
+t.set_bbox(dict(facecolor='red', alpha=0.8, edgecolor='red'))
 
-# plt.scatter(y_pred_test, Y_arraytest)
+plt.savefig("./visuals/NN_shannons.pdf")
 
-# r2_score(Y_arraytest,y_pred_test)
+from sklearn.metrics import r2_score
+
+r2_score(Y_arraytest, y_pred_test)
 
 # #piss poor
 
