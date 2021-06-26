@@ -14,10 +14,28 @@ from sklearn.model_selection import RepeatedKFold
 from sklearn.ensemble import RandomForestRegressor
 
 #feature engineering was done in the neural net program
-X = pd.read_csv("../processedData/imputed_scaled_16S_metadata.csv")
+X = pd.read_csv("./processedData/imputed_scaled_16S_metadata.csv")
 
-#Bring in taxon proportions from command line. 
-Need to ensure the samples are in the correct order
+#Bring in taxon proportions
+taxa = pd.read_csv("./processedData/16sp_estimates_wrangled_for_post_modeling_analysis_divided_by_ISD.csv")
+
+#Need to ensure the samples are in the correct order
+#First a bit of wrangling to get a matchable sample name field
+#We will merge X and taxa instead of reording one of them
+X['compartment'] = X['EN'].map({1: 'EN', 0: 'EP'})
+#X['compartment'].value_counts()
+X['sample'] = X['plant.x'].str.cat(X['compartment'], sep='_')
+
+pd.concat([X['sample'],taxa['sample']]).drop_duplicates(keep=False)
+pd.concat([taxa['sample'],X['sample']]).drop_duplicates(keep=False)
+
+
+X_taxa = pd.merge(X, taxa, on='sample')
+X_taxa.shape
+
+STOP...going back through R wrangling code to see why I am losing a few things
+Seems that compartment has duplicates in the metadata, perhaps
+
 need to make sure I deal with shannons below and remove it from feature 
 
 
