@@ -15,7 +15,7 @@ from sklearn.ensemble import RandomForestRegressor
 
 #feature engineering was done in the neural net program
 X = pd.read_csv("../processedData/imputed_scaled_16S_metadata.csv")
- 
+
 ############
 # QC step ##
 ############
@@ -53,42 +53,148 @@ Y_array = np.array(strat_train_set['shannonsISD']).reshape(-1,1)
 Xtest_array = np.array(strat_test_set.loc[:, strat_test_set.columns != 'shannonsISD'])
 Ytest_array = np.array(strat_test_set['shannonsISD']).reshape(-1,1)
 
+###############################
+# hyperparameter optimization #
+###############################
+#Code modified from: https://towardsdatascience.com/hyperparameter-tuning-the-random-forest-in-python-using-scikit-learn-28d2aa77dd74
+
+from sklearn.model_selection import RandomizedSearchCV
+
+n_estimators = [int(x) for x in np.linspace(start = 200, stop = 500, num = 10)]
+
+# Number of features to consider at every split
+max_features = ['auto', 'sqrt']
+
+# Maximum number of levels in tree
+max_depth = [int(x) for x in np.linspace(4, 50, num = 2)]
+max_depth.append(None)
+
+# Minimum number of samples required to split a node
+min_samples_split = [2, 5, 10]
+# Minimum number of samples required at each leaf node
+min_samples_leaf = [1, 2, 4]
+# Method of selecting samples for training each tree
+bootstrap = [True, False]
+# Create the random grid
+random_grid = {'n_estimators': n_estimators,
+               'max_features': max_features,
+               'max_depth': max_depth,
+               'min_samples_split': min_samples_split,
+               'min_samples_leaf': min_samples_leaf,
+               'bootstrap': bootstrap}
+
+from pprint import pprint
+pprint(random_grid)
+
+{'bootstrap': [True, False],
+               'max_depth': [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, None],
+ 'max_features': ['auto', 'sqrt'],
+ 'min_samples_leaf': [1, 2, 4],
+ 'min_samples_split': [2, 5, 10],
+ 'n_estimators': [200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000]}
+
+##############
+# model time #
+##############
+
 # define the model
 model = RandomForestRegressor(n_estimators=200,
                               criterion = 'mse',
                               min_samples_split = 2,
+                              random_state = 666
                               )
-model.fit(X=X_array[:,10:], y=Y_array.ravel())
+ 
+# Random search of hyper parameters, using 3 fold cross validation, 
+# search across 100 different combinations, and use all available cores
+model_random = RandomizedSearchCV(estimator = model, 
+                               param_distributions = random_grid, 
+                               n_iter = 100, 
+                               cv = 3, 
+                               verbose=2, 
+                               random_state=666, 
+                               n_jobs = -1) #-1 means use all processers
 
-yhat = model.predict(Xtest_array[:,10:])
+
+model_random.fit(X=X_array[:,10:], y=Y_array.ravel())
+
+#see what we got
+model_random.best_params_
+
+yhat = model_random.predict(Xtest_array[:,10:])
 from sklearn.metrics import r2_score
 
 r2 = r2_score(Ytest_array,yhat)
 r2
-import matplotlib.pyplot as plt
-plt.scatter(Ytest_array, yhat, )
 
-plt.xlabel("Expected values")
-plt.ylabel("Observed values");
-t = plt.text(0.15, 0.5, "R2 = {}%".format(round(r2*100)),weight='bold')
-t.set_bbox(dict(facecolor='red', alpha=0.8, edgecolor='red'))
+#save the model '
+import joblib
 
-plt.savefig("./visuals/RandomForest_shannons16s.pdf")
+#save model
+#joblib.dump(model_random, './models/randomforest_Shannons_16s')
 
-from scipy.stats import pearsonr
+#To load use this syntax
+#model_random = joblib.load("PATH")
+
+#Convert the RandomizedSearchCV object to a randomForestRegressor object
+tuned_model = RandomForestRegressor(**model_random.best_params_)
+
+#sanity check
+# yhat = model_random.predict(Xtest_array[:,10:])
+tuned_model.fit(X=X_array[:,10:], y=Y_array.ravel())
+yhat2 = tuned_model.predict(Xtest_array[:,10:])
+r2 = r2_score(Ytest_array,yhat2)
+r2
+
+# import matplotlib.pyplot as plt
+# plt.scatter(yhat, yhat2)
+
+#################
+# QC relic code #
+#################
+
+#Compare fit of OG model and tuned model
+# def evaluate(model, test_features, test_labels):
+#     predictions = model.predict(test_features)
+#     errors = abs(predictions - test_labels)
+#     mape = 100 * np.mean(errors / test_labels)
+#     accuracy = 100 - mape
+#     print('Model Performance')
+#     print('Average Error: {:0.4f} degrees.'.format(np.mean(errors)))
+#     print('Accuracy = {:0.2f}%.'.format(accuracy))
+    
+#     return accuracy
 
 
-pearsonr(np.squeeze(Ytest_array), np.squeeze(yhat))
+# model.fit(X=X_array[:,10:], y=Y_array.ravel())
+# base_accuracy = evaluate(model, Xtest_array[:,10:], Ytest_array)
 
-# evaluate the model
-cv = RepeatedKFold(n_splits=10, n_repeats=3, random_state=1)
-n_scores = cross_val_score(model, X_array[:,10:], Y_array,
-                           scoring='neg_mean_absolute_error', 
-                           cv=cv, 
-                           n_jobs=-1, 
-                           error_score='raise')
-# report performance
-print('MAE: %.3f (%.3f)' % (np.mean(n_scores), np.std(n_scores)))
+# base_accuracy_tuned = evaluate(model_random, Xtest_array[:,10:], Ytest_array)
+
+
+#More model plotting and evaluation
+# import matplotlib.pyplot as plt
+# plt.scatter(Ytest_array, yhat, )
+
+# plt.xlabel("Expected values")
+# plt.ylabel("Observed values");
+# plt.text(0.1, 0.9, "R2 = {}%".format(round(r2*100)),weight='bold')
+
+# plt.savefig("./visuals/RandomForest_shannons16s.pdf")
+
+# from scipy.stats import pearsonr
+
+
+# pearsonr(np.squeeze(Ytest_array), np.squeeze(yhat))
+
+# # evaluate the model
+# cv = RepeatedKFold(n_splits=10, n_repeats=3, random_state=1)
+# n_scores = cross_val_score(model, X_array[:,10:], Y_array,
+#                            scoring='neg_mean_absolute_error', 
+#                            cv=cv, 
+#                            n_jobs=-1, 
+#                            error_score='raise')
+# # report performance
+# print('MAE: %.3f (%.3f)' % (np.mean(n_scores), np.std(n_scores)))
 
 ##############
 #SHAP values
@@ -98,25 +204,35 @@ import shap
 shap.initjs()
 
 # Create Tree Explainer object that can calculate shap values
-explainer = shap.TreeExplainer(model)
+explainer = shap.TreeExplainer(tuned_model)
 
 shap_values = explainer.shap_values(X = X_array[:,10:])
 list_of_labels = list(strat_train_set.loc[:, strat_train_set.columns != 'shannonsISD'].columns)
 feature_names=list_of_labels[10:]
 
-shap.summary_plot(shap_values, 
-                  X_array[:,10:],
-                  feature_names=feature_names)
+# shap.summary_plot(shap_values, 
+#                   X_array[:,10:],
+#                   feature_names=feature_names)
 
-#Extract SHAP values and then remove some features and try rerunning model
+# #Extract SHAP values and then remove some features and try rerunning model
 shapValues = pd.DataFrame(shap_values, columns=feature_names, 
                           index = strat_train_set.loc[:,'samplename'])
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
+
+#write SHAP values to disk. 
+shapValues.to_csv(path_or_buf=("./results/shap_values_randomforest_Shannons_16s"))
+
+###############################################
+#Feature removal following SHAP value creation
+###############################################
+
+#Figure out unimportant features
 duds = shapValues.sum(axis = 0)[abs(shapValues.sum(axis = 0)) < 0.2]
 
-[duds.index]
+#Here I am searching for taxa in this list of useless features, bc
+#I WANT to keep all taxa
 
 import re
 l = duds.index.tolist()
@@ -124,7 +240,7 @@ r = re.compile(r'.*\s+.*')
 newlist = list(filter(r.match, l))
 #print(newlist)
 
-#Remove taxa
+#Remove taxa from list of features to remove. Thus keeping taxa.
 for i in newlist:
     l.remove(i)
 
@@ -132,6 +248,11 @@ for i in newlist:
 ###########################################
 # Running model again after removing useless features #
 ###########################################
+
+#Note that the reason to do this is because if one has a bunch of shit features
+#they will get picked during feature bagging while training the model, thus
+#diluting the effect of the better features. 
+
 
 X = pd.read_csv("./processedData/imputed_scaled_16S_metadata.csv")
 
@@ -154,30 +275,14 @@ Y_array = np.array(strat_train_set['shannonsISD']).reshape(-1,1)
 Xtest_array = np.array(strat_test_set.loc[:, strat_test_set.columns != 'shannonsISD'])
 Ytest_array = np.array(strat_test_set['shannonsISD']).reshape(-1,1)
 
-# define the model
-model = RandomForestRegressor(n_estimators=200,
-                              criterion = 'mse',
-                              min_samples_split = 2,
-                              )
-model.fit(X=X_array[:,10:], y=Y_array.ravel())
+# refit the model. NOTE that I am not bothering to retune the model as I think
+#This goes into diminishing returns
 
-yhat = model.predict(Xtest_array[:,10:])
+tuned_model.fit(X=X_array[:,10:], y=Y_array.ravel())
 
-r2 = r2_score(Ytest_array,yhat)
+yhat = tuned_model.predict(Xtest_array[:,10:])
 
-pearsonr(np.squeeze(Ytest_array), np.squeeze(yhat))
+r2_reduced = r2_score(Ytest_array,yhat)
 
-import matplotlib.pyplot as plt
-plt.scatter(Ytest_array, yhat, )
- 
-plt.xlabel("Expected values")
-plt.ylabel("Observed values");
-
-
-t = plt.text(0.15, 0.5,
-             "R2 = {}%".format(round(r2*100)),
-             weight='bold')
-t.set_bbox(dict(facecolor='red', alpha=0.8, edgecolor='red'))
-
-
+r2 - r2_reduced
 
