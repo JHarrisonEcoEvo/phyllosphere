@@ -48,7 +48,7 @@ cols=["area_cm2",\
     "Ambient_Temperature",\
     "B",\
     "circumStem",\
-    "compartment.x",\
+    "compartment.y",\
     "contactless_temp",\
     "deadDown",\
     "densitometer.y",\
@@ -109,8 +109,9 @@ data = data1[cols]
 #####################################################################
 # Do one hot encoding, conversion to numeric, and scaling/centering #
 #####################################################################
-#Note that you ca a lot of this inside the model, which is a bit better
-#since the model can be ported more easily, since wrangling is internal.
+#Note that you can do a lot of this inside the model, which is a bit better
+#since the model can be ported more easily, since wrangling is internal. I am 
+#not doing this for the time being.
 
 #First we figure out which features are numeric and which are not
 num_features = []
@@ -145,7 +146,7 @@ imputed_scaled_df = pd.DataFrame(scaled_data, columns=data[num_features].columns
 #Make one-hot encoded categorical variables
 taxa = pd.get_dummies(data['taxon.x'])
 habit = pd.get_dummies(data['lifehistory'])
-compartment = pd.get_dummies(data['compartment.x'])
+compartment = pd.get_dummies(data['compartment.y'])
 phenology = pd.get_dummies(data['phenology'])
 
 #Handy way to concatenate data frames, axis decides if fields or rows are added

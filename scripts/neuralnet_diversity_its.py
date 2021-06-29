@@ -48,7 +48,7 @@ cols=["area_cm2",\
     "Ambient_Temperature",\
     "B",\
     "circumStem",\
-    "compartment.x",\
+    "compartment.y",\
     "contactless_temp",\
     "deadDown",\
     "densitometer.y",\
@@ -145,7 +145,7 @@ imputed_scaled_df = pd.DataFrame(scaled_data, columns=data[num_features].columns
 #Make one-hot encoded categorical variables
 taxa = pd.get_dummies(data['taxon.x'])
 habit = pd.get_dummies(data['lifehistory'])
-compartment = pd.get_dummies(data['compartment.x'])
+compartment = pd.get_dummies(data['compartment.y'])
 phenology = pd.get_dummies(data['phenology'])
 
 #Handy way to concatenate data frames, axis decides if fields or rows are added
