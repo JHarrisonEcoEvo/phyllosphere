@@ -13,14 +13,12 @@ import pandas as pd
 # pd.options.display.max_rows = None
 from functools import partial
 from pprint import pprint
-from hyperopt import fmin, hp, space_eval, tpe, STATUS_OK, Trials
-from hyperopt.pyll import scope, stochastic
-# from plotly import express as px
-# from plotly import graph_objects as go
-# from plotly import offline as pyo
+from hyperopt import tpe
+
+from hpsklearn import HyperoptEstimator
 from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
 from sklearn.metrics import make_scorer, mean_squared_error, r2_score
-from sklearn.model_selection import cross_val_score, KFold, StratifiedShuffleSplit
+from sklearn.model_selection import cross_val_score, KFold, StratifiedShuffleSplit, RandomizedSearchCV
 from sklearn.utils import check_random_state
 import joblib
 import shap
@@ -33,7 +31,9 @@ import sys
 #Doing this way so that I can choose which OTUs to model more easily
 #See the script, "choosing_taxa_to_model_with_rf.py"
 
-focal_integer = sys.argv[1] - 1 #because of Pythonic indexing
+print("change the input integer!!!!!!!!")
+#focal_integer = sys.argv[1] - 1 #because of Pythonic indexing
+focal_integer = 1
 
 possibles = pd.read_csv("./processedData/ITS_taxa_to_model_via_randomforest.csv")
 focal_taxon = possibles['taxa_its'][focal_integer]
@@ -100,6 +100,7 @@ for train_index, test_index in split.split(X_taxa, X_taxa['brutal_hack']):
 #First drop various book keeping columns
 strat_test_set = strat_test_set.drop(['focal_taxon_onehot', 'brutal_hack', 'sample',
  'region_site',
+ 'compartment',
  'Unnamed: 0',
  'X',
  'taxon.x',
@@ -113,6 +114,7 @@ strat_test_set = strat_test_set.drop(['focal_taxon_onehot', 'brutal_hack', 'samp
 strat_train_set = strat_train_set.drop(['focal_taxon_onehot', 'brutal_hack', 'sample',
  'region_site',
  'Unnamed: 0',
+ 'compartment',
  'X',
  'taxon.x',
  'region_site_plant',
@@ -137,49 +139,21 @@ strat_train_set.shape
 
 #Two options are included here. The first uses
 # Bayesian Sequential Model-based Optimization (SMBO) using HyperOpt. 
+# 
+
 #The second is a random search with scikit
 
-#Following code inspired by https://www.statestitle.com/resource/visualizing-hyperparameter-optimization-with-hyperopt-and-plotly/
+#Note that I am using an easy to use AutoML wrapper for hyperopt called hpsklearn
+#using hyperopt itself is a bit trickier, but not too bad. This way is much
+#simpler though.
+from hpsklearn import HyperoptEstimator,random_forest_regression
+model_random = HyperoptEstimator(regressor=random_forest_regression('random_forest_regression'),
+                          algo=tpe.suggest, 
+                          max_evals=100, 
+                          trial_timeout=30)
 
-#choose model(s). Useful if multiple learners are used
-models = {
-   'rf' : RandomForestClassifier
-}
-# function to define hyper parameter search space. Note that I just have
-#one model type here...could add different params for different models using
-#elif statements. 
-def search_space(model):
-    model = model.lower()
-    space = {'max_depth': hp.choice('max_depth', range(2,10)),
-           'max_features': hp.choice('max_features', range(1,3)),
-           'min_samples_split': hp.choice('min_samples_split', [2, 5, 10]),
-           'min_samples_leaf': hp.choice('min_samples_leaf', [1, 2, 5, 10]),
-           'n_estimators': hp.choice('n_estimators', range(10,100)),
-           'criterion': hp.choice('criterion', ["gini", "entropy"])}
-    space['model'] = model
-    return space
 
-#Define loss function
-def get_acc_status(clf,X_,y):
-  acc = cross_val_score(clf, X_, y, cv=5).mean() 
-  return {'loss': -acc, 'status': STATUS_OK}
-
-#Define objective function. 
-#takes hyper parameters and sees what we get. dope or undope?
-def obj_fnc(params) : 
-   model = params.get('model').lower()
-   X_ = scale_normalize(params,X[:]) 
-   del params['model']
-   clf = models[model](**params) 
-   return(get_acc_status(clf,X_,y))
-
-#save the trials and print the best ones
-hypopt_trials = Trials()
-best_params = fmin(obj_fnc, search_space(model), algo=tpe.suggest, 
-max_evals=1000, trials= hypopt_trials)
-print(best_params)
-print(hypopt_trials.best_trial['result']['loss'])
-
+# FOR RANDOM SEARCH OF HYPERPARAMETERS
 #Code modified from: https://towardsdatascience.com/hyperparameter-tuning-the-random-forest-in-python-using-scikit-learn-28d2aa77dd74
 
 # from sklearn.model_selection import RandomizedSearchCV
@@ -218,35 +192,38 @@ print(hypopt_trials.best_trial['result']['loss'])
 #   'n_estimators': [200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000]}
 
 
-# define the model
-model = RandomForestRegressor(
-                              criterion = 'mse',
-                              random_state = 666,
-                              n_jobs = -1
-                              )
+# # define the model
+# model = RandomForestRegressor(
+#                               criterion = 'mse',
+#                               random_state = 666,
+#                               n_jobs = -1
+#                               )
  
-# FOR RANDOM SEARCH OF HYPERPARAMETERS
-# # Random search of hyper parameters, using 3 fold cross validation, 
-# # search across 100 different combinations, and use all available cores
+# # FOR RANDOM SEARCH OF HYPERPARAMETERS
+# # # Random search of hyper parameters, using 3 fold cross validation, 
+# # # search across 100 different combinations, and use all available cores
 # model_random = RandomizedSearchCV(estimator = model, 
 #                                 param_distributions = random_grid, 
-#                                 n_iter = 100, 
+#                                 n_iter = 5, #EDIT
 #                                 cv = 3, 
 #                                 verbose=2, 
 #                                 random_state=666, 
 #                                 n_jobs = -1) #-1 means use all processers
 
-
 ##############
 # model eval #
 ##############
 
-model_random.fit(X=X_array[:,10:], y=Y_array.ravel())
+# perform the search
+model_random.fit(X=X_array, y=Y_array.ravel())
 
-#see what we got
-model_random.best_params_
+mae = model_random.score(X_array, Y_array.ravel())
+print("MAE: %.3f" % mae)
 
-yhat = model_random.predict(Xtest_array[:,10:])
+# summarize the best model
+print(model_random.best_model())
+
+yhat = model_random.predict(Xtest_array)
 
 r2 = r2_score(Ytest_array,yhat)
 r2
