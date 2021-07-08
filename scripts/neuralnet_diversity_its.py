@@ -19,7 +19,7 @@ from tensorflow.keras.layers import Dense
 # from sklearn.pipeline import Pipeline
 
 #Load data
-data1 = pd.read_csv('../processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv')
+data1 = pd.read_csv('./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv')
 
 #Explore the data
 data1.head
@@ -94,7 +94,7 @@ cols=["area_cm2",\
     "SPAD_420",\
     "thickness",\
     "TimeofDay",\
-   "taxon.x",\
+   "taxon_final",\
     "toughness",\
     "treeRich",\
     "waterRetention"\
@@ -143,7 +143,7 @@ scaled_data = scaler.fit_transform(imputed_df)
 imputed_scaled_df = pd.DataFrame(scaled_data, columns=data[num_features].columns)
 
 #Make one-hot encoded categorical variables
-taxa = pd.get_dummies(data['taxon.x'])
+taxa = pd.get_dummies(data['taxon_final'])
 habit = pd.get_dummies(data['lifehistory'])
 compartment = pd.get_dummies(data['compartment.y'])
 phenology = pd.get_dummies(data['phenology'])

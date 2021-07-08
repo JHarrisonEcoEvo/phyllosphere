@@ -455,7 +455,7 @@ if __name__ == '__main__':
     r2_reduced = r2_score(Ytest_array,yhat)
     r2_reduced
     
-    List=['full model',r2,'reduced model', r2_reduced]
+    List=[focal_taxon,'full model',r2,'reduced model', r2_reduced]
       
     # Open our existing CSV file in append mode
     # Create a file object for this file

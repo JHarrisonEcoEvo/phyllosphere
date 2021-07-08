@@ -455,7 +455,7 @@ dim(metadata)
 metadata$taxon_final <- metadata$taxon.x
 metadata$taxon_final[metadata$taxon.x == "Artemisia tridentate var. vaseyana"] <- "Artemisia tridentata"
 
-metadata$taxon_final[metadata$taxon.x == "Artemisia tridentate"] <- "Artemisia tridentate"
+metadata$taxon_final[metadata$taxon.x == "Artemisia tridentate"] <- "Artemisia tridentata"
 metadata$taxon_final[metadata$taxon.x == "Astragalus kentrophyta cf."] <- 
   "Astragalus kentrophyta"
 metadata$taxon_final[metadata$taxon.x == "Astragalus kentrophyta var. tegetarius"] <- 

@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Fri Jul  2 15:03:24 2021
 
-@author: jharrison
-"""
 #Goal is to have two barplots, one for EN and one for EP, with bars for each host taxon
 #To do this I need something like this: 
 ## Values of each group
@@ -13,6 +9,7 @@ Created on Fri Jul  2 15:03:24 2021
 #bars3 = [25, 3, 23, 25, 17]
 # where the integers correspond to different taxa (e.g., family, phyla)
 #and there are different bars for each taxon/compartment combo
+#see here for inspiration: https://www.python-graph-gallery.com/12-stacked-barplot-with-matplotlib
 
 import numpy as np
 import pandas as pd
@@ -23,6 +20,10 @@ props = pd.read_csv("./processedData/ITSp_estimates_wrangled_for_post_modeling_a
 taxa = pd.read_table("./processedData/smallmem97_ITS.sintax", names=range(4), sep='\t')
 taxa.shape
 meta = pd.read_csv("./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv")
+meta.shape
+
+PROBLEM this feature is messed up 
+Counter(meta['treatmentClass'])
 
 props_meta = pd.merge(props, meta, on="sample")
 #QC, all is well
@@ -31,10 +32,9 @@ props_meta = pd.merge(props, meta, on="sample")
 # meta.shape
 
 #Extract just those taxa that are hypothesized to be fungi
+df_taxa = taxa[3].str.split(",", expand = True)
 boolarray = pd.Series(df_taxa.loc[:,0] == "d:Fungi").values
 taxa = taxa.loc[boolarray,:]
-df_taxa = taxa[3].str.split(",", expand = True)
-
 
 # function to get unique values. snagged from geeksforgeeks
 def unique(list1):
@@ -47,25 +47,36 @@ def unique(list1):
         # check if exists in unique_list or not
         if x not in unique_list:
             unique_list.append(x)
-    # print list
-    for x in unique_list:
-        print(x)
-
+    # return list
+    return unique_list
 
 orders = unique(df_taxa[3])
 
 #Find all the taxa within an order
+taxa_by_order = []
 for i in orders:
-    taxa.iloc[:,0][df_taxa.iloc[:,3] == i]
+    taxa_by_order.append(taxa.iloc[:,0][df_taxa.iloc[:,3] == i])
 
 #Then do row sums for those taxa and add
 #those new sums to a new dataframe that has samples as the first field
-#then each summed taxon in subsequent fields. Once this df
-#is made then we can plot it. Also turn all this code
-#into a function so I can do it for orders, family, phyla
+#then each summed taxon in subsequent fields. 
 
+sums_taxa = []
+for i in range(len(taxa_by_order)):
+    #Selecting multiple columns in pandas sucks!!!!! 
+    x = props_meta[props_meta.columns[props_meta.columns.isin(taxa_by_order[i])]]
+    sums_taxa.append(x.sum(axis = 1))
 
+df = pd.DataFrame(sums_taxa)
+df.columns = props_meta['sample']
+df = df.transpose()
+df.columns = orders
 
+props_meta_df = pd.merge(props_meta,df, on="sample")
 
-
-https://www.python-graph-gallery.com/12-stacked-barplot-with-matplotlib
+#Do this same process over again, but this time sum by taxon and compartment
+#Build a group.by object from the treatmentClass feature
+#sum by that feature
+sums_treatment = props_meta_df.groupby('treatmentClass').sum()
+sums_treatment = sums_treatment.loc[:, sums_treatment.columns.str.startswith('o:', na=False)]
+Counter(props_meta_df['treatmentClass'])
