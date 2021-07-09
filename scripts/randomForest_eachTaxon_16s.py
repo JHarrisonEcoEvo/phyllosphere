@@ -71,8 +71,8 @@ if __name__ == '__main__':
     
     eval_runs = sys.argv[2]
     
-    possibles = pd.read_csv("./processedData/1616smetadat_wrangled_for_post_modeling_analysis.csv")
-    focal_taxon = possibles['taxa_its'][focal_integer]
+    possibles = pd.read_csv("./processedData/sixteenS_taxa_to_model_via_randomforest.csv")
+    focal_taxon = possibles['taxa_16s'][focal_integer]
     
     print(focal_taxon)
     
@@ -187,7 +187,6 @@ if __name__ == '__main__':
     #simpler though.
     # refit the model
     
-    
     model_random = HyperoptEstimator(regressor=random_forest_regression('random_forest_regression'),
                           algo=tpe.suggest, 
                           max_evals=int(eval_runs), 
@@ -280,7 +279,7 @@ if __name__ == '__main__':
     
     #save the model
     
-    joblib.dump(model_random, './models/rf_model_object_' + focal_taxon)
+    joblib.dump(model_random, './models/rf_model_object_16s' + focal_taxon)
     
     #To load use this syntax
     #model_random = joblib.load("PATH")
@@ -304,7 +303,7 @@ if __name__ == '__main__':
                               index = trainsamples)
     
     #write SHAP values to disk. 
-    shapValues.to_csv(path_or_buf=("./models/shap_values_randomforest_" + focal_taxon + ".csv"))
+    shapValues.to_csv(path_or_buf=("./models/shap_values_randomforest_16s" + focal_taxon + ".csv"))
     
     ###############################################
     #Feature removal following SHAP value creation
