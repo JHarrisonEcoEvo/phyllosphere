@@ -455,7 +455,7 @@ dim(metadata)
 metadata$taxon_final <- metadata$taxon.x
 metadata$taxon_final[metadata$taxon.x == "Artemisia tridentate var. vaseyana"] <- "Artemisia tridentata"
 
-metadata$taxon_final[metadata$taxon.x == "Artemisia tridentate"] <- "Artemisia tridentata"
+metadata$taxon_final[metadata$taxon.x == "Artemisia tridentate"] <- "Artemisia tridentate"
 metadata$taxon_final[metadata$taxon.x == "Astragalus kentrophyta cf."] <- 
   "Astragalus kentrophyta"
 metadata$taxon_final[metadata$taxon.x == "Astragalus kentrophyta var. tegetarius"] <- 
@@ -479,51 +479,7 @@ treatsITS$x <- gsub("(\\d+_\\d+_\\d+E[NP])_.*", "\\1", treatsITS$x)
 
 table(treats16s == treatsITS) #yay
 
-flora <- read.csv(file = "./processedData/shannons_siteLevel_veg.csv",
-                  stringsAsFactors = F, header = T)
-flora$newdat.dat.siteLabel <- gsub("(\\d+_\\d+).*", "\\1", flora$newdat.dat.siteLabel)
-flora$newdat.dat.siteLabel <- gsub(".*(\\d+_\\d+)", "\\1", flora$newdat.dat.siteLabel)
-
-#dat <- read.csv("processedData/treatments_metadata.csv", stringsAsFactors = F)
-
-newdat <- merge(metadata, flora, by.y = "newdat.dat.siteLabel",
-                by.x = "region_site", all.x = T)
-names(newdat)
-dim(newdat)
-dim(metadata)
-names(newdat)[length(newdat)] <- "shannons_flora"
-
-#Densitometer
-denso <- read.csv(file = "./processedData/densitometer_mean_vs_site.csv",
-                  stringsAsFactors = F, header = T)
-denso$dat.siteLabel <- gsub("(\\d+_\\d+).*", "\\1", denso$dat.siteLabel)
-denso$dat.siteLabel <- gsub(".*(\\d+_\\d+)", "\\1", denso$dat.siteLabel)
-
-newdat <- merge(y = denso, x = newdat, 
-                by.x = "region_site",
-                by.y = "dat.siteLabel", all.x = T)
-names(newdat)[length(newdat)] <- "densitometer"
-dim(newdat)
-
-#latlong
-latlong <- read.csv(file = "./processedData/latlong_elevation_by_site.csv",
-                    stringsAsFactors = F, header = T)
-latlong$unique.dat.siteLabel. <- gsub("(\\d+_\\d+).*", "\\1", latlong$unique.dat.siteLabel.)
-latlong$unique.dat.siteLabel. <- gsub(".*(\\d+_\\d+)", "\\1", latlong$unique.dat.siteLabel.)
-
-
-newdat <- merge(y = latlong, x = newdat, 
-                by.x = "region_site",
-                by.y = "unique.dat.siteLabel.", all.x = T)
-names(newdat)[length(newdat)] <- "latlong"
-dim(newdat)
-
-mems <- read.csv("processedData/moransEigenVectors.csv", stringsAsFactors = F)
-newdat <- merge(y = mems, x = newdat, 
-                by.x = "region_site",
-                by.y = "unique.dat.label.", all.x = T)
-
-write.csv(newdat, file = "./processedData/metadata_2.csv")
+write.csv(metadata, file = "./processedData/metadata_2.csv")
 
 #checking to see if Ha26_ITSoC6 was PCRd twice
 # dat <- read.csv("./processedData/otuTables/its90_otuTableCLEAN", 
