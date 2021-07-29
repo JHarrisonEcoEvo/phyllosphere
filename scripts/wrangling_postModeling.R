@@ -80,6 +80,29 @@ table(metadat_reduced$sample == dat$sample)
 metadat_reduced$plant_vol <- metadat_reduced$plantMeasurements__height*
   metadat_reduced$plantMeasurements__width2*metadat_reduced$width
 
+metadat_reduced$habit[metadat_reduced$taxon_final == "Picea engelmannii"] <-  "tree"
+metadat_reduced$habit[metadat_reduced$taxon_final == "Juniperus communis"] <-  "shrub"
+metadat_reduced$habit[metadat_reduced$taxon_final == "Unknown fir"] <-  "tree"
+metadat_reduced$habit[metadat_reduced$taxon_final == "Juncus sp."] <-  "graminoid"
+metadat_reduced$habit[metadat_reduced$taxon_final == "Juncus balticus"] <-  "graminoid"
+metadat_reduced$habit[metadat_reduced$taxon_final == "Osmorhiza depauperata"] <-  "forb"
+metadat_reduced$habit[metadat_reduced$taxon_final == "Paxistima myrsinites"] <-  "shrub"
+metadat_reduced$habit[metadat_reduced$taxon_final == "Astragalus kentrophyta cf."] <-  "forb"
+metadat_reduced$habit[metadat_reduced$taxon_final == "Antennaria media"] <-  "forb"
+metadat_reduced$habit[metadat_reduced$taxon_final == "Frasera speciosa"] <-  "forb"
+metadat_reduced$habit[metadat_reduced$taxon_final == "Trifolium parryi var. montanense"] <-  "forb"
+metadat_reduced$habit[metadat_reduced$taxon_final == "Potentilla diversifolia"] <-  "forb"
+metadat_reduced$habit[metadat_reduced$taxon_final == "Sedum lanceolatum"] <-  "forb"
+metadat_reduced$habit[metadat_reduced$taxon_final == "Symphoricarpos albus"] <-  "shrub"
+metadat_reduced$habit[metadat_reduced$taxon_final == "Vaccinium membranaceum 2_1_6"] <-  "shrub"
+metadat_reduced$habit[metadat_reduced$taxon_final == "Artemisia tridentata"] <-  "shrub"
+metadat_reduced$habit[metadat_reduced$taxon_final == "Pinus contorta"] <-  "tree"
+metadat_reduced$taxon_final[metadat_reduced$taxon_final == "Vaccinium membranaceum 2_1_6"] <-"Vaccinium membranaceum"
+table(metadat_reduced$habit)
+table(metadat_reduced$taxon_final)
+
+
+
 #commence to doing analyses!
 write.csv(metadat_reduced, file = "./processedData/16smetadat_wrangled_for_post_modeling_analysis.csv", row.names = F)
 write.csv(dat, file = "./processedData/16sp_estimates_wrangled_for_post_modeling_analysis.csv", row.names = F)
@@ -174,6 +197,29 @@ table(metadat_reduced$sample == dat$sample)
 
 metadat_reduced$plant_vol <- metadat_reduced$plantMeasurements__height*
                               metadat_reduced$plantMeasurements__width2*metadat_reduced$width
+
+
+metadat_reduced$habit[metadat_reduced$taxon_final == "Picea engelmannii"] <-  "tree"
+metadat_reduced$habit[metadat_reduced$taxon_final == "Juniperus communis"] <-  "shrub"
+metadat_reduced$habit[metadat_reduced$taxon_final == "Unknown fir"] <-  "tree"
+metadat_reduced$habit[metadat_reduced$taxon_final == "Juncus sp."] <-  "graminoid"
+metadat_reduced$habit[metadat_reduced$taxon_final == "Juncus balticus"] <-  "graminoid"
+metadat_reduced$habit[metadat_reduced$taxon_final == "Osmorhiza depauperata"] <-  "forb"
+metadat_reduced$habit[metadat_reduced$taxon_final == "Paxistima myrsinites"] <-  "shrub"
+metadat_reduced$habit[metadat_reduced$taxon_final == "Astragalus kentrophyta cf."] <-  "forb"
+metadat_reduced$habit[metadat_reduced$taxon_final == "Antennaria media"] <-  "forb"
+metadat_reduced$habit[metadat_reduced$taxon_final == "Frasera speciosa"] <-  "forb"
+metadat_reduced$habit[metadat_reduced$taxon_final == "Trifolium parryi var. montanense"] <-  "forb"
+metadat_reduced$habit[metadat_reduced$taxon_final == "Potentilla diversifolia"] <-  "forb"
+metadat_reduced$habit[metadat_reduced$taxon_final == "Sedum lanceolatum"] <-  "forb"
+metadat_reduced$habit[metadat_reduced$taxon_final == "Symphoricarpos albus"] <-  "shrub"
+metadat_reduced$habit[metadat_reduced$taxon_final == "Vaccinium membranaceum 2_1_6"] <-  "shrub"
+metadat_reduced$habit[metadat_reduced$taxon_final == "Artemisia tridentata"] <-  "shrub"
+metadat_reduced$habit[metadat_reduced$taxon_final == "Pinus contorta"] <-  "tree"
+metadat_reduced$taxon_final[metadat_reduced$taxon_final == "Vaccinium membranaceum 2_1_6"] <-"Vaccinium membranaceum"
+table(metadat_reduced$habit)
+table(metadat_reduced$taxon_final)
+
 #commence to doing analyses!
 write.csv(metadat_reduced, file = "./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv", row.names = F)
 write.csv(dat, file = "./processedData/ITSp_estimates_wrangled_for_post_modeling_analysis.csv", row.names = F)
