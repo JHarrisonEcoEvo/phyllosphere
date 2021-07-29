@@ -44,9 +44,9 @@ import pandas as pd
 from hyperopt import tpe
 
 from hpsklearn import HyperoptEstimator,random_forest_regression
-# from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import r2_score #,make_scorer, mean_squared_error
-from sklearn.model_selection import StratifiedShuffleSplit
+from sklearn.model_selection import StratifiedKFold, StratifiedShuffleSplit
 
 # from sklearn.model_selection import cross_val_score, KFold, StratifiedShuffleSplit, RandomizedSearchCV
 # from sklearn.utils import check_random_state
@@ -70,6 +70,10 @@ if __name__ == '__main__':
     focal_integer = int(sys.argv[1]) - 1 #because of Pythonic indexing, subtract one from value
     
     eval_runs = sys.argv[2]
+    
+    #for debugging
+    focal_integer = 2
+    eval_runs = 10
     
     possibles = pd.read_csv("./processedData/ITS_taxa_to_model_via_randomforest.csv")
     focal_taxon = possibles['taxa_its'][focal_integer]
@@ -117,358 +121,337 @@ if __name__ == '__main__':
     X_taxa['focal_taxon_onehot'] = 0
     X_taxa.loc[res, 'focal_taxon_onehot'] = 1
     
-    #Code from Geron. 
-    
-    #Handy code for stratified test/train splitting with a random number 
-    #generator used for reproducibility
-    #To do a nested stratification of compartment and the presence of focal taxon,
-    #I am pasting the two together intoa a new feature. As others have said online
-    #this is a brutal hack. 
-    
     X_taxa['brutal_hack'] = X_taxa["EN"] + X_taxa['focal_taxon_onehot']
     
-    split = StratifiedShuffleSplit(n_splits=1, test_size=(0.3), random_state=(666))
-    for train_index, test_index in split.split(X_taxa, X_taxa['brutal_hack']):
+    
+    #Do stratified K fold sampling, but first split off some training data that I can use for the meta model
+    tt_split = StratifiedShuffleSplit(n_splits=1, test_size=(0.2), random_state=(125))
+
+    for train_index, test_index in tt_split.split(X_taxa, X_taxa['brutal_hack']):
+        strat_train_set = X_taxa.loc[train_index]
+        strat_test_set_fundamental = X_taxa.loc[test_index]
+        
+        strat_test_set_fundamental = strat_test_set_fundamental.drop(['focal_taxon_onehot', 'brutal_hack', 'sample',
+         'region_site',
+         'compartment',
+         'Unnamed: 0',
+         'X',
+         'taxon.x',
+         'region_site_plant',
+         'plant.x',
+         'forward_barcode',
+         'reverse_barcode',
+         'locus',
+         'samplename'], axis=1)
+    
+    #Now we split the fundamental splits training data and build ten models from it. We will combine these models.
+    ksplit = StratifiedKFold(n_splits=10, shuffle = True, random_state=(61))
+    strat_splits = []
+    
+    #the split method takes the data as first argument then the variable to stratify on as the second argument
+    #Recall the response are the proportions for a focal taxon
+    
+    for train_index, test_index in ksplit.split(strat_train_set, strat_train_set['brutal_hack']):
         strat_train_set = X_taxa.loc[train_index]
         strat_test_set = X_taxa.loc[test_index]
     
-    #define response/predictor split
-    #First drop various book keeping columns
-    testsamples = strat_test_set['samplename']
-    trainsamples = strat_train_set['samplename']
+        #define response/predictor split
+        #First drop various book keeping columns
+        testsamples = strat_test_set['samplename']
+        trainsamples = strat_train_set['samplename']
+        
+        strat_test_set = strat_test_set.drop(['focal_taxon_onehot', 'brutal_hack', 'sample',
+         'region_site',
+         'compartment',
+         'Unnamed: 0',
+         'X',
+         'taxon.x',
+         'region_site_plant',
+         'plant.x',
+         'forward_barcode',
+         'reverse_barcode',
+         'locus',
+         'samplename'], axis=1)
+        
+        strat_train_set = strat_train_set.drop(['focal_taxon_onehot', 'brutal_hack', 'sample',
+         'region_site',
+         'Unnamed: 0',
+         'compartment',
+         'X',
+         'taxon.x',
+         'region_site_plant',
+         'plant.x',
+         'forward_barcode',
+         'reverse_barcode',
+         'locus',
+         'samplename'], axis=1)
+        
+        X_array = np.array(strat_train_set.loc[:, strat_train_set.columns != focal_taxon])
+        Y_array = np.array(strat_train_set[focal_taxon]).reshape(-1,1)
+        
+        Xtest_array = np.array(strat_test_set.loc[:, strat_test_set.columns != focal_taxon])
+        Ytest_array = np.array(strat_test_set[focal_taxon]).reshape(-1,1)
+        
+        newsplit = [X_array, Y_array, Xtest_array, Ytest_array]
+        strat_splits.append(newsplit)
+        
     
-    strat_test_set = strat_test_set.drop(['focal_taxon_onehot', 'brutal_hack', 'sample',
-     'region_site',
-     'compartment',
-     'Unnamed: 0',
-     'X',
-     'taxon.x',
-     'region_site_plant',
-     'plant.x',
-     'forward_barcode',
-     'reverse_barcode',
-     'locus',
-     'samplename'], axis=1)
+    #Define model
+    rf_model = RandomForestRegressor()
     
-    strat_train_set = strat_train_set.drop(['focal_taxon_onehot', 'brutal_hack', 'sample',
-     'region_site',
-     'Unnamed: 0',
-     'compartment',
-     'X',
-     'taxon.x',
-     'region_site_plant',
-     'plant.x',
-     'forward_barcode',
-     'reverse_barcode',
-     'locus',
-     'samplename'], axis=1)
+    #Train the model on the subsets of the data
+    models = []
+    scores = []
     
-    X_array = np.array(strat_train_set.loc[:, strat_train_set.columns != focal_taxon])
-    Y_array = np.array(strat_train_set[focal_taxon]).reshape(-1,1)
+    for i in range(len(strat_splits)): 
+        models.append(rf_model.fit(strat_splits[i][0], strat_splits[i][1].ravel()))
+        yhat = rf_model.predict(strat_splits[i][2])
+        scores.append(r2_score(yhat,strat_splits[i][3]))
     
-    Xtest_array = np.array(strat_test_set.loc[:, strat_test_set.columns != focal_taxon])
-    Ytest_array = np.array(strat_test_set[focal_taxon]).reshape(-1,1)
+    #Loop through models and combine all the trees
+    def combine_rfs(models):
+        for i in range(len(models)):
+            models[0].estimators_ += models[i].estimators_
+        models[0].n_estimators = len(models[0].estimators_)
+        return models[0]
+
+    comborf = combine_rfs(models)
+
+    #predict to test data
+    xtestf = np.array(strat_test_set_fundamental.loc[:, strat_test_set_fundamental.columns != focal_taxon])
+    ytestf = np.array(strat_test_set_fundamental[focal_taxon]).reshape(-1,1)
+    yhat = comborf.predict(xtestf)
+    r2_score(ytestf,yhat)
     
-    strat_test_set.shape  
-    strat_train_set.shape
+    #QC
+    #What is the average of scores? And, how is this not a built in method??
+    # def Average(lst):
+    #     return sum(lst) / len(lst)
+    # Average(scores) #in test case the combo model did better
     
-    ###############################
-    # hyperparameter optimization #
-    ###############################
+    ############################################
+    # hyperparameter optimization, relic code #
+    ###########################################
     
-    #Two options are included here. The first uses
-    # Bayesian Sequential Model-based Optimization (SMBO) using HyperOpt. 
-    # 
-    
-    #The second is a random search with scikit
-    
-    #Note that I am using an easy to use AutoML wrapper for hyperopt called hpsklearn
-    #using hyperopt itself is a bit trickier, but not too bad. This way is much
-    #simpler though.
-    # refit the model
-    
-    
-    model_random = HyperoptEstimator(regressor=random_forest_regression('random_forest_regression'),
-                          algo=tpe.suggest, 
-                          max_evals=int(eval_runs), 
-                          trial_timeout=30)
-    
-    # perform the search
-    model_random.fit(X=X_array, y=Y_array.ravel())
-    
-    # FOR RANDOM SEARCH OF HYPERPARAMETERS
-    #Code modified from: https://towardsdatascience.com/hyperparameter-tuning-the-random-forest-in-python-using-scikit-learn-28d2aa77dd74
-    
-    # from sklearn.model_selection import RandomizedSearchCV
-    
-    # n_estimators = [int(x) for x in np.linspace(start = 200, stop = 500, num = 10)]
-    
-    # # Number of features to consider at every split
-    # max_features = ['auto', 'sqrt']
-    
-    # # Maximum number of levels in tree
-    # max_depth = [int(x) for x in np.linspace(4, 50, num = 2)]
-    # max_depth.append(None)
-    
-    # # Minimum number of samples required to split a node
-    # min_samples_split = [2, 5, 10]
-    # # Minimum number of samples required at each leaf node
-    # min_samples_leaf = [1, 2, 4]
-    # # Method of selecting samples for training each tree
-    # bootstrap = [True, False]
-    # # Create the random grid
-    # random_grid = {'n_estimators': n_estimators,
-    #                 'max_features': max_features,
-    #                 'max_depth': max_depth,
-    #                 'min_samples_split': min_samples_split,
-    #                 'min_samples_leaf': min_samples_leaf,
-    #                 'bootstrap': bootstrap}
-    
-    # from pprint import pprint
-    # pprint(random_grid)
-    
-    # {'bootstrap': [True, False],
-    #                 'max_depth': [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, None],
-    #   'max_features': ['auto', 'sqrt'],
-    #   'min_samples_leaf': [1, 2, 4],
-    #   'min_samples_split': [2, 5, 10],
-    #   'n_estimators': [200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000]}
-    
-    
-    # # define the model
-    # model = RandomForestRegressor(
-    #                               criterion = 'mse',
-    #                               random_state = 666,
-    #                               n_jobs = -1
-    #                               )
-     
-    # # FOR RANDOM SEARCH OF HYPERPARAMETERS
-    # # # Random search of hyper parameters, using 3 fold cross validation, 
-    # # # search across 100 different combinations, and use all available cores
-    # model_random = RandomizedSearchCV(estimator = model, 
-    #                                 param_distributions = random_grid, 
-    #                                 n_iter = 5, #EDIT
-    #                                 cv = 3, 
-    #                                 verbose=2, 
-    #                                 random_state=666, 
-    #                                 n_jobs = -1) #-1 means use all processers
-    
-    #Convert the RandomizedSearchCV object to a randomForestRegressor object
-    # tuned_model = RandomForestRegressor(**model_random.best_model())
-    
-    # #sanity check
-    # # yhat = model_random.predict(Xtest_array[:,10:])
-    # tuned_model.fit(X=X_array[:,10:], y=Y_array.ravel())
-    # yhat2 = tuned_model.predict(Xtest_array[:,10:])
-    # r2 = r2_score(Ytest_array,yhat2)
-    # r2
+    #Since the model is an ensemble of ensembles hyper parameter tuning
+    #doesn't make much sense now. E.g., these parameters would influence
+    #The trees in the base models that have been combined. 
+    #I have decided to not pursue tuning of all base models as i think this
+    #might cross into very limited returns for time invested.
+ 
     
     ##############
-    # model eval #
+    # save the model #
     ##############
     
-    mae = model_random.score(X_array, Y_array.ravel())
-    print("MAE: %.3f" % mae)
-    
-    # summarize the best model
-    print(model_random.best_model())
-    
-    yhat = model_random.predict(Xtest_array)
-    
-    r2 = r2_score(Ytest_array,yhat)
-    r2
-    
-    #save the model
-    
-    joblib.dump(model_random, './models/rf_model_object_' + focal_taxon)
+    joblib.dump(comborf, './models/rf_model_object_' + focal_taxon)
     
     #To load use this syntax
     #model_random = joblib.load("PATH")
     
+    
+    from sklearn.inspection import permutation_importance
+    import time
+    start_time = time.time()
+    result = permutation_importance(
+        comborf, 
+        xtestf, 
+        ytestf, 
+        n_repeats=10, 
+        random_state=42, 
+        n_jobs=2)
+    
+    elapsed_time = time.time() - start_time
+    print(f"Elapsed time to compute the importances: "
+      f"{elapsed_time:.3f} seconds")
+    list_of_labels = strat_test_set_fundamental.columns[strat_test_set_fundamental.columns != focal_taxon]
+
+    forest_importances = pd.Series(result.importances_mean, index=list_of_labels)
+
+
     ##############
     #SHAP values
     ############
     
     # Create Tree Explainer object that can calculate shap values
-    explainer = shap.TreeExplainer(model_random.best_model()['learner'])
+    # explainer = shap.TreeExplainer(comborf)
     
-    shap_values = explainer.shap_values(X = X_array)
-    list_of_labels = list(strat_train_set.loc[:, strat_train_set.columns != focal_taxon].columns)
+    # shap_values = explainer.shap_values(xtrainf)
     
     # shap.summary_plot(shap_values, 
     #                   X_array,
     #                   feature_names=list_of_labels)
     
     # #Extract SHAP values and then remove some features and try rerunning model
-    shapValues = pd.DataFrame(shap_values, columns=list_of_labels, 
-                              index = trainsamples)
+    # shapValues = pd.DataFrame(shap_values, columns=list_of_labels, 
+    #                           index = trainsamples)
     
-    #write SHAP values to disk. 
-    shapValues.to_csv(path_or_buf=("./models/shap_values_randomforest_" + focal_taxon + ".csv"))
+    # #write SHAP values to disk. 
+    # shapValues.to_csv(path_or_buf=("./models/shap_values_randomforest_" + focal_taxon + ".csv"))
     
-    ###############################################
-    #Feature removal following SHAP value creation
-    ###############################################
+    # ###############################################
+    # #Feature removal following SHAP value creation
+    # ###############################################
     
-    #Figure out unimportant features
-    duds = shapValues.sum(axis = 0)[abs(shapValues.sum(axis = 0)) < 0.2]
+    # #Figure out unimportant features
+    # duds = shapValues.sum(axis = 0)[abs(shapValues.sum(axis = 0)) < 0.2]
     
-    #Here I am searching for taxa in this list of useless features, bc
-    #I WANT to keep all taxa
-    l = duds.index.tolist()
-    r = re.compile(r'.*\s+.*')
-    newlist = list(filter(r.match, l))
-    #print(newlist)
+    # #Here I am searching for taxa in this list of useless features, bc
+    # #I WANT to keep all taxa
+    # l = duds.index.tolist()
+    # r = re.compile(r'.*\s+.*')
+    # newlist = list(filter(r.match, l))
+    # #print(newlist)
     
-    #Remove taxa from list of features to remove. Thus keeping taxa.
-    for i in newlist:
-        l.remove(i)
+    # #Remove taxa from list of features to remove. Thus keeping taxa.
+    # for i in newlist:
+    #     l.remove(i)
     
-    #Now we have a list, l, that has features to be removed. Lets remove them and rerun the model 
-    ###########################################
-    # Running model again after removing useless features #
-    ###########################################
+    # #Now we have a list, l, that has features to be removed. Lets remove them and rerun the model 
+    # ###########################################
+    # # Running model again after removing useless features #
+    # ###########################################
     
-    #remove a few things, just to be safe. 
-    del X, X_array, Y_array, Ytest_array, split, strat_test_set, strat_train_set
+    # #remove a few things, just to be safe. 
+    # del X, X_array, Y_array, Ytest_array, split, strat_test_set, strat_train_set
     
-    #Note that the reason to do this is because if one has a bunch of shit features
-    #they will get picked during feature bagging while training the model, thus
-    #diluting the effect of the better features. 
+    # #Note that the reason to do this is because if one has a bunch of shit features
+    # #they will get picked during feature bagging while training the model, thus
+    # #diluting the effect of the better features. 
     
-    X = pd.read_csv("./processedData/imputed_scaled_ITS_metadata.csv")
+    # X = pd.read_csv("./processedData/imputed_scaled_ITS_metadata.csv")
     
-    #Remove features that we have deemed not helpful
-    for i in l:
-        X.drop(i, inplace=True, axis=1)
+    # #Remove features that we have deemed not helpful
+    # for i in l:
+    #     X.drop(i, inplace=True, axis=1)
     
-    # Remove diversity from features
-    #X.columns.values
-    X = X.loc[:,X.columns != 'shannonsISD']
+    # # Remove diversity from features
+    # #X.columns.values
+    # X = X.loc[:,X.columns != 'shannonsISD']
     
-    if 'EN' in X.columns:
-        X['compartment'] = X['EN'].map({1: 'EN', 0: 'EP'})
-        X['sample'] = X['plant.x'].str.cat(X['compartment'], sep='_')
-    else:
-         X['sample'] = X['plant.x']
-         #bc compartment not included have to strip it off the sample field for merge
-         taxa['sample'].replace(to_replace="_E[NP]", value="", regex=True, inplace=True)
+    # if 'EN' in X.columns:
+    #     X['compartment'] = X['EN'].map({1: 'EN', 0: 'EP'})
+    #     X['sample'] = X['plant.x'].str.cat(X['compartment'], sep='_')
+    # else:
+    #      X['sample'] = X['plant.x']
+    #      #bc compartment not included have to strip it off the sample field for merge
+    #      taxa['sample'].replace(to_replace="_E[NP]", value="", regex=True, inplace=True)
          
-    X_taxa = pd.merge(X, taxa, on='sample')
+    # X_taxa = pd.merge(X, taxa, on='sample')
     
-    N = 100
-    res = sorted(range(len(X_taxa[focal_taxon])), key = lambda sub: X_taxa[focal_taxon][sub])[-N:]
+    # N = 100
+    # res = sorted(range(len(X_taxa[focal_taxon])), key = lambda sub: X_taxa[focal_taxon][sub])[-N:]
     
-    X_taxa['focal_taxon_onehot'] = 0
-    X_taxa.loc[res, 'focal_taxon_onehot'] = 1
+    # X_taxa['focal_taxon_onehot'] = 0
+    # X_taxa.loc[res, 'focal_taxon_onehot'] = 1
     
-    #Code from Geron. 
-    if 'EN' in X.columns:
-        X_taxa['brutal_hack'] = X_taxa["EN"] + X_taxa['focal_taxon_onehot']
-        split = StratifiedShuffleSplit(n_splits=1, test_size=(0.3), random_state=(666))
-        for train_index, test_index in split.split(X_taxa, X_taxa['brutal_hack']):
-            strat_train_set = X_taxa.loc[train_index]
-            strat_test_set = X_taxa.loc[test_index]
-    else: 
-        split = StratifiedShuffleSplit(n_splits=1, test_size=(0.3), random_state=(666))
-        for train_index, test_index in split.split(X_taxa, X_taxa['focal_taxon_onehot']):
-            strat_train_set = X_taxa.loc[train_index]
-            strat_test_set = X_taxa.loc[test_index]
+    # #Code from Geron. 
+    # if 'EN' in X.columns:
+    #     X_taxa['brutal_hack'] = X_taxa["EN"] + X_taxa['focal_taxon_onehot']
+    #     split = StratifiedShuffleSplit(n_splits=1, test_size=(0.3), random_state=(666))
+    #     for train_index, test_index in split.split(X_taxa, X_taxa['brutal_hack']):
+    #         strat_train_set = X_taxa.loc[train_index]
+    #         strat_test_set = X_taxa.loc[test_index]
+    # else: 
+    #     split = StratifiedShuffleSplit(n_splits=1, test_size=(0.3), random_state=(666))
+    #     for train_index, test_index in split.split(X_taxa, X_taxa['focal_taxon_onehot']):
+    #         strat_train_set = X_taxa.loc[train_index]
+    #         strat_test_set = X_taxa.loc[test_index]
     
-    #define response/predictor split
-    #First drop various book keeping columns
-    testsamples = strat_test_set['samplename']
-    trainsamples = strat_train_set['samplename']
+    # #define response/predictor split
+    # #First drop various book keeping columns
+    # testsamples = strat_test_set['samplename']
+    # trainsamples = strat_train_set['samplename']
     
-    strat_test_set = strat_test_set.drop(['focal_taxon_onehot', 'sample',
-     'region_site',
-     'Unnamed: 0',
-     'X',
-     'taxon.x',
-     'region_site_plant',
-     'plant.x',
-     'forward_barcode',
-     'reverse_barcode',
-     'locus',
-     'samplename'], axis=1)
+    # strat_test_set = strat_test_set.drop(['focal_taxon_onehot', 'sample',
+    #  'region_site',
+    #  'Unnamed: 0',
+    #  'X',
+    #  'taxon.x',
+    #  'region_site_plant',
+    #  'plant.x',
+    #  'forward_barcode',
+    #  'reverse_barcode',
+    #  'locus',
+    #  'samplename'], axis=1)
     
-    strat_train_set = strat_train_set.drop(['focal_taxon_onehot', 'sample',
-     'region_site',
-     'Unnamed: 0',
-     'X',
-     'taxon.x',
-     'region_site_plant',
-     'plant.x',
-     'forward_barcode',
-     'reverse_barcode',
-     'locus',
-     'samplename'], axis=1)
+    # strat_train_set = strat_train_set.drop(['focal_taxon_onehot', 'sample',
+    #  'region_site',
+    #  'Unnamed: 0',
+    #  'X',
+    #  'taxon.x',
+    #  'region_site_plant',
+    #  'plant.x',
+    #  'forward_barcode',
+    #  'reverse_barcode',
+    #  'locus',
+    #  'samplename'], axis=1)
     
-    if 'brutal_hack' in strat_train_set.columns:
-        strat_train_set = strat_train_set.drop(['brutal_hack', 'compartment'], axis=1)
-        strat_test_set = strat_test_set.drop(['brutal_hack', 'compartment'], axis=1)
+    # if 'brutal_hack' in strat_train_set.columns:
+    #     strat_train_set = strat_train_set.drop(['brutal_hack', 'compartment'], axis=1)
+    #     strat_test_set = strat_test_set.drop(['brutal_hack', 'compartment'], axis=1)
     
-    X_array = np.array(strat_train_set.loc[:, strat_train_set.columns != focal_taxon])
-    Y_array = np.array(strat_train_set[focal_taxon]).reshape(-1,1)
+    # X_array = np.array(strat_train_set.loc[:, strat_train_set.columns != focal_taxon])
+    # Y_array = np.array(strat_train_set[focal_taxon]).reshape(-1,1)
     
-    Xtest_array = np.array(strat_test_set.loc[:, strat_test_set.columns != focal_taxon])
-    Ytest_array = np.array(strat_test_set[focal_taxon]).reshape(-1,1)
+    # Xtest_array = np.array(strat_test_set.loc[:, strat_test_set.columns != focal_taxon])
+    # Ytest_array = np.array(strat_test_set[focal_taxon]).reshape(-1,1)
     
-    strat_test_set.shape  
-    strat_train_set.shape
+    # strat_test_set.shape  
+    # strat_train_set.shape
     
-    # refit the model
-    model_random_reducedFeatureSet = HyperoptEstimator(regressor=random_forest_regression('random_forest_regression'),
-                              algo=tpe.suggest, 
-                              max_evals=int(eval_runs), 
-                              trial_timeout=30)
+    # # refit the model
+    # model_random_reducedFeatureSet = HyperoptEstimator(regressor=random_forest_regression('random_forest_regression'),
+    #                           algo=tpe.suggest, 
+    #                           max_evals=int(eval_runs), 
+    #                           trial_timeout=30)
     
-    # perform the search
-    model_random_reducedFeatureSet.fit(X=X_array, y=Y_array.ravel())
+    # # perform the search
+    # model_random_reducedFeatureSet.fit(X=X_array, y=Y_array.ravel())
     
-    joblib.dump(model_random_reducedFeatureSet, './models/rf_model_object_reducedFeatureSet' + focal_taxon)
+    # joblib.dump(model_random_reducedFeatureSet, './models/rf_model_object_reducedFeatureSet' + focal_taxon)
     
-    ##############
-    #SHAP values
-    ############
+    # ##############
+    # #SHAP values
+    # ############
     
-    # Create Tree Explainer object that can calculate shap values
-    explainer = shap.TreeExplainer(model_random_reducedFeatureSet.best_model()['learner'])
+    # # Create Tree Explainer object that can calculate shap values
+    # explainer = shap.TreeExplainer(model_random_reducedFeatureSet.best_model()['learner'])
     
-    shap_values = explainer.shap_values(X = X_array)
-    list_of_labels = list(strat_train_set.loc[:, strat_train_set.columns != focal_taxon].columns)
+    # shap_values = explainer.shap_values(X = X_array)
+    # list_of_labels = list(strat_train_set.loc[:, strat_train_set.columns != focal_taxon].columns)
     
-    # shap.summary_plot(shap_values, 
-    #                   X_array,
-    #                   feature_names=list_of_labels)
+    # # shap.summary_plot(shap_values, 
+    # #                   X_array,
+    # #                   feature_names=list_of_labels)
     
-    # #Extract SHAP values and then remove some features and try rerunning model
-    shapValues = pd.DataFrame(shap_values, columns=list_of_labels, 
-                              index = trainsamples)
+    # # #Extract SHAP values and then remove some features and try rerunning model
+    # shapValues = pd.DataFrame(shap_values, columns=list_of_labels, 
+    #                           index = trainsamples)
     
-    #write SHAP values to disk. 
-    shapValues.to_csv(path_or_buf=("./models/shap_values_randomforest_reducedFeatureSet" + focal_taxon + ".csv"))
+    # #write SHAP values to disk. 
+    # shapValues.to_csv(path_or_buf=("./models/shap_values_randomforest_reducedFeatureSet" + focal_taxon + ".csv"))
     
-    #Write the taxon and new r2 to the results file
-    yhat = model_random_reducedFeatureSet.predict(Xtest_array)
+    # #Write the taxon and new r2 to the results file
+    # yhat = model_random_reducedFeatureSet.predict(Xtest_array)
     
-    r2_reduced = r2_score(Ytest_array,yhat)
-    r2_reduced
+    # r2_reduced = r2_score(Ytest_array,yhat)
+    # r2_reduced
     
-    List=[focal_taxon,'full model',r2,'reduced model', r2_reduced]
+    # List=[focal_taxon,'full model',r2,'reduced model', r2_reduced]
       
-    # Open our existing CSV file in append mode
-    # Create a file object for this file
-    with open('./models/randomForest_results_its.csv', 'a') as f_object:
+    # # Open our existing CSV file in append mode
+    # # Create a file object for this file
+    # with open('./models/randomForest_results_its.csv', 'a') as f_object:
       
-        # Pass this file object to csv.writer()
-        # and get a writer object
-        writer_object = writer(f_object)
+    #     # Pass this file object to csv.writer()
+    #     # and get a writer object
+    #     writer_object = writer(f_object)
       
-        # Pass the list as an argument into
-        # the writerow()
-        writer_object.writerow(List)
+    #     # Pass the list as an argument into
+    #     # the writerow()
+    #     writer_object.writerow(List)
       
-        #Close the file object
-        f_object.close()
+    #     #Close the file object
+    #     f_object.close()
 
