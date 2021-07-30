@@ -3,10 +3,13 @@ rm(list = ls())
 dat <- read.csv("./processedData/16s_p_estimates.csv",
                 stringsAsFactors = F)
 dat[1:3,1:3]
-dim(dat)
+dim(dat$sample)
 
 metadat <- read.csv("./processedData/metadata_2.csv",
                     stringsAsFactors = F)
+table(is.na(metadat$habit))
+
+dim(metadat)
 
 metadat[metadat$plant == "1_1_1_1",] #still good
 
@@ -14,6 +17,7 @@ metadat[metadat$plant == "1_1_1_1",] #still good
 metadat <- metadat[metadat$locus == "16S",]
 
 dat$sample <- gsub("X", "",dat$sample)
+dim(metadat)
 
 #Need to get metadata into the same order as the modeled data
 metadat$sample <- gsub("_16S_[1,2]_\\w+$", "",metadat$sample)
@@ -22,6 +26,8 @@ metadat$sample <- gsub("dupe_", "",metadat$sample)
 metadat$sample <- gsub("_rewash$", "",metadat$sample)
 metadat$sample <- gsub("(E[NP]).*$", "\\1",metadat$sample)
 metadat$sample <- gsub("(\\d+)(E[NP])$", "\\1_\\2",metadat$sample)
+
+metadat$samplename[grep("7_1_1_4", metadat$samplename)]
 
 #Remove soil
 metadat <- metadat[metadat$substrate == "plant",]
@@ -49,15 +55,14 @@ setdiff(metadat_reduced$sample, dat$sample)
 #They were cross-contaminated.
 setdiff(dat$sample, metadat_reduced$sample) #nada
 
+
 samplemeta <- read.csv("./processedData/treatments_metadata.csv",
                        stringsAsFactors = F)
 
 #Prior to merge, we are good
-metadat_reduced[metadat_reduced$plant == "1_1_1_1",] #still good, but lots of duplicates
+metadat_reduced[metadat_reduced$plant == "1_1_1_1",] #
 samplemeta[samplemeta$plant == "1_1_1",]
 
-#but after merge we double our samples. 
-#we need to remove dupes from sample meta and the compartment column
 names(samplemeta)[names(samplemeta) %in% names(metadat_reduced)]
 samplemeta <- samplemeta[,names(samplemeta) !="compartment"]
 samplemeta <- samplemeta[!duplicated(samplemeta$plant),]
@@ -119,8 +124,19 @@ metadat_reduced3$habit[metadat_reduced3$taxon_final == "Vaccinium membranaceum 2
 metadat_reduced3$habit[metadat_reduced3$taxon_final == "Artemisia tridentata"] <-  "shrub"
 metadat_reduced3$habit[metadat_reduced3$taxon_final == "Pinus contorta"] <-  "tree"
 metadat_reduced3$taxon_final[metadat_reduced3$taxon_final == "Vaccinium membranaceum 2_1_6"] <-"Vaccinium membranaceum"
+metadat_reduced3$taxon_final[metadat_reduced3$taxon_final == "Astragalus kentrophyta cf. "] <-  "Astragalus kentrophyta"
+
 table(metadat_reduced3$habit)
 table(metadat_reduced3$taxon_final)
+table(is.na(metadat_reduced3$taxon_final))
+table(is.na(metadat_reduced3$habit))
+table(is.na(metadat_reduced3$compartment))
+
+#Try and fill in the missing compartments
+metadat_reduced3$compartment[is.na(metadat_reduced3$compartment)]  <- gsub("[0-9_]*(E[NP])[0-9_ITS]*","\\1",
+      metadat_reduced3$samplename[is.na(metadat_reduced3$compartment)])
+
+table(is.na(metadat_reduced3$compartment))
 
 #commence to doing analyses!
 write.csv(metadat_reduced3, file = "./processedData/16smetadat_wrangled_for_post_modeling_analysis.csv", row.names = F)
@@ -134,10 +150,13 @@ rm(list = ls())
   dat <- read.csv("./processedData/ITS_multinomial_p_estimates.csv",
                 stringsAsFactors = F)
   dat[1:3,1:3]
-  dim(dat)
+  dim(dat$sample)
   
   metadat <- read.csv("./processedData/metadata_2.csv",
                       stringsAsFactors = F)
+  table(is.na(metadat$habit))
+  
+  dim(metadat)
   
   metadat[metadat$plant == "1_1_1_1",] #still good
   
@@ -145,14 +164,17 @@ rm(list = ls())
   metadat <- metadat[metadat$locus == "ITS",]
   
   dat$sample <- gsub("X", "",dat$sample)
+  dim(metadat)
   
   #Need to get metadata into the same order as the modeled data
   metadat$sample <- gsub("_ITS_[1,2]_\\w+$", "",metadat$sample)
-  metadat$sample <- gsub("_ITS$", "",metadat$sample)
+  metadat$sample <- gsub("_iTS$", "",metadat$sample)
   metadat$sample <- gsub("dupe_", "",metadat$sample)
   metadat$sample <- gsub("_rewash$", "",metadat$sample)
   metadat$sample <- gsub("(E[NP]).*$", "\\1",metadat$sample)
   metadat$sample <- gsub("(\\d+)(E[NP])$", "\\1_\\2",metadat$sample)
+  
+  metadat$samplename[grep("7_1_1_4", metadat$samplename)]
   
   #Remove soil
   metadat <- metadat[metadat$substrate == "plant",]
@@ -180,15 +202,14 @@ rm(list = ls())
   #They were cross-contaminated.
   setdiff(dat$sample, metadat_reduced$sample) #nada
   
+  
   samplemeta <- read.csv("./processedData/treatments_metadata.csv",
                          stringsAsFactors = F)
   
   #Prior to merge, we are good
-  metadat_reduced[metadat_reduced$plant == "1_1_1_1",] #still good, but lots of duplicates
+  metadat_reduced[metadat_reduced$plant == "1_1_1_1",] #
   samplemeta[samplemeta$plant == "1_1_1",]
   
-  #but after merge we double our samples. 
-  #we need to remove dupes from sample meta and the compartment column
   names(samplemeta)[names(samplemeta) %in% names(metadat_reduced)]
   samplemeta <- samplemeta[,names(samplemeta) !="compartment"]
   samplemeta <- samplemeta[!duplicated(samplemeta$plant),]
@@ -250,8 +271,19 @@ rm(list = ls())
   metadat_reduced3$habit[metadat_reduced3$taxon_final == "Artemisia tridentata"] <-  "shrub"
   metadat_reduced3$habit[metadat_reduced3$taxon_final == "Pinus contorta"] <-  "tree"
   metadat_reduced3$taxon_final[metadat_reduced3$taxon_final == "Vaccinium membranaceum 2_1_6"] <-"Vaccinium membranaceum"
+  metadat_reduced3$taxon_final[metadat_reduced3$taxon_final == "Astragalus kentrophyta cf. "] <-  "Astragalus kentrophyta"
+  
   table(metadat_reduced3$habit)
   table(metadat_reduced3$taxon_final)
+  table(is.na(metadat_reduced3$taxon_final))
+  table(is.na(metadat_reduced3$habit))
+  table(is.na(metadat_reduced3$compartment))
+  
+  #Try and fill in the missing compartments
+  metadat_reduced3$compartment[is.na(metadat_reduced3$compartment)]  <- gsub("[0-9_]*(E[NP])[0-9_ITS]*","\\1",
+                                                                             metadat_reduced3$samplename[is.na(metadat_reduced3$compartment)])
+  
+  table(is.na(metadat_reduced3$compartment))
   
 #commence to doing analyses!
 write.csv(metadat_reduced, file = "./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv", row.names = F)
