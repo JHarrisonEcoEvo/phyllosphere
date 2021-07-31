@@ -138,6 +138,25 @@ metadat_reduced3$compartment[is.na(metadat_reduced3$compartment)]  <- gsub("[0-9
 
 table(is.na(metadat_reduced3$compartment))
 
+#add densitomter data
+denso <- read.csv("processedData/densitometer_mean_vs_site.csv")
+denso$dat.siteLabel <- gsub("([1-9]_[1-9]).*","\\1", denso$dat.siteLabel)
+denso$dat.siteLabel <- gsub(".*([1-9]_[1-9])","\\1", denso$dat.siteLabel)
+dim(metadat_reduced3)
+
+metadat_reduced3 <-
+  merge(metadat_reduced3, denso, by.x = "region_site", by.y = "dat.siteLabel", all.x = T)
+
+#Add floral diversity data
+veg <- read.csv("processedData/shannons_siteLevel_veg.csv")
+veg$newdat.dat.siteLabel <- gsub("([1-9]_[1-9]).*","\\1", veg$newdat.dat.siteLabel)
+veg$newdat.dat.siteLabel <- gsub(".*([1-9]_[1-9])","\\1", veg$newdat.dat.siteLabel)
+
+dim(metadat_reduced3)
+
+metadat_reduced3 <-
+  merge(metadat_reduced3, veg, by.x = "region_site", by.y = "newdat.dat.siteLabel", all.x = T)
+
 #commence to doing analyses!
 write.csv(metadat_reduced3, file = "./processedData/16smetadat_wrangled_for_post_modeling_analysis.csv", row.names = F)
 write.csv(dat, file = "./processedData/16sp_estimates_wrangled_for_post_modeling_analysis.csv", row.names = F)
@@ -282,9 +301,28 @@ rm(list = ls())
   #Try and fill in the missing compartments
   metadat_reduced3$compartment[is.na(metadat_reduced3$compartment)]  <- gsub("[0-9_]*(E[NP])[0-9_ITS]*","\\1",
                                                                              metadat_reduced3$samplename[is.na(metadat_reduced3$compartment)])
-  
   table(is.na(metadat_reduced3$compartment))
   
+  
+  #add densitomter data
+  denso <- read.csv("processedData/densitometer_mean_vs_site.csv")
+  denso$dat.siteLabel <- gsub("([1-9]_[1-9]).*","\\1", denso$dat.siteLabel)
+  denso$dat.siteLabel <- gsub(".*([1-9]_[1-9])","\\1", denso$dat.siteLabel)
+  dim(metadat_reduced3)
+  
+  metadat_reduced3 <-
+    merge(metadat_reduced3, denso, by.x = "region_site", by.y = "dat.siteLabel", all.x = T)
+  
+  #Add floral diversity data
+  veg <- read.csv("processedData/shannons_siteLevel_veg.csv")
+  veg$newdat.dat.siteLabel <- gsub("([1-9]_[1-9]).*","\\1", veg$newdat.dat.siteLabel)
+  veg$newdat.dat.siteLabel <- gsub(".*([1-9]_[1-9])","\\1", veg$newdat.dat.siteLabel)
+  
+  dim(metadat_reduced3)
+  
+  metadat_reduced3 <-
+    merge(metadat_reduced3, veg, by.x = "region_site", by.y = "newdat.dat.siteLabel", all.x = T)
+  
 #commence to doing analyses!
-write.csv(metadat_reduced, file = "./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv", row.names = F)
+write.csv(metadat_reduced3, file = "./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv", row.names = F)
 write.csv(dat, file = "./processedData/ITSp_estimates_wrangled_for_post_modeling_analysis.csv", row.names = F)
