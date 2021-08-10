@@ -4,9 +4,8 @@ rm(list=ls())
 its <- read.csv("./processedData/ITSp_estimates_wrangled_for_post_modeling_analysis_divided_by_ISD.csv")
 #its_nonISd <- read.csv("./processedData/ITS_multinomial_p_estimates.csv")
 meta <- read.csv("./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv", stringsAsFactors = F, header = T)
-
-dim(its)
-dim(meta)
+meta$shannonsISD <- NA
+meta$simpsonsISD <- NA
 
 for(i in 1:dim(its)[1]){
   meta$shannonsISD[i] <- exp(vegan::diversity(its[i,grep("Zotu", names(its))], index = "shannon"))
