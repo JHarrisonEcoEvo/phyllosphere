@@ -23,7 +23,7 @@ write.csv(meta, file = "./processedData/ITSmetadat_wrangled_for_post_modeling_an
 rm(list=ls())
 
 #Bring in data, packages, set up color scheme
-sixs <- read.csv("./processedData/16sp_estimates_wrangled_for_post_modeling_analysis_divided_by_ISD.csv")
+sixs <- read.csv("./processedData/16sp_estimates_wrangled_for_post_modeling_analysis.csv")
 #sixs_nonISd <- read.csv("./processedData/16sp_estimates_wrangled_for_post_modeling_analysis.csv")
 meta <- read.csv("./processedData/16smetadat_wrangled_for_post_modeling_analysis.csv", stringsAsFactors = F, header = T)
 
