@@ -8,11 +8,13 @@ library("mlr3hyperband")
 library(fastDummies)
 library(randomForest)
 library(caret)
-
+library(ranger)
 
 set.seed(666)
 
+#CHOOSE INPUT 
 X<- read.csv("./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv")
+#X<- read.csv("./processedData/16smetadat_wrangled_for_post_modeling_analysis.csv")
 
 X <- X[X$substrate == "plant",]
 
@@ -43,8 +45,9 @@ X <- dummy_cols(.data = X, select_columns = categoricals)
 
 #remove our bookkeeping data and various unneeded fields
 X <- X[,names(X) %in%
-                           c("response_taxon"                                           
-                             , "sample"                                                   
+                           c("shannonsISD",
+                             "simpsonsISD",
+                             "sample"
                              , "area_cm2"                                                 
                              , "mass_extracted_g"                                         
                              , "leaves_extracted"                                         
@@ -171,71 +174,85 @@ X <- X[,names(X) %in%
                              , "phenology_vegetative"                                     
                            )]
 
+#scale and center (now doing this in pipeline to avoid leakage)
+#X[,c(1:46,48:52, 55)] <- scale(X[,c(1:46,48:52, 55)], scale = T, center = T)
 
-#impute
-merged_dat[,
-           c(1,3:(length(merged_dat)-2))] <- randomForest::rfImpute(response_taxon ~ .,
-                                                                    iter=5, 
-                                                                    ntree=300,
-                                                                    data = merged_dat[,
-                                                                                      c(1,3:(length(merged_dat)-2))])
+X <- X[, -which(names(X) == "simpsonsISD")]
+X <- X[, -which(names(X) == "sample")]
+#X$sample <- as.character(X$sample)
 
-#scale and center
-merged_dat[,3:54] <- scale(merged_dat[,3:54], scale = T, center = T)
-
+#Convert to numeric (makes it easier when doing imputing)
+for(i in 1:length(X)){
+  X[,i] <- as.numeric(X[,i])  
+}
 
 #########################################
-#Use mlr to define a task and a learner#
+#Use mlr to define a pipeline, task and a learner#
 ########################################
 
-#Tasks are a way to organize data and the learner is th emodel 
+#Tasks are a way to organize data and the learner is the model 
 #see: https://mlr3book.mlr-org.com/tasks.html
-phyllo_task = as_task_regr(merged_dat
-                           , target = "response_taxon", id = "phyllo_data")
+phyllo_task = as_task_regr(X
+                           , target = "shannonsISD", id = "phyllo_data")
 
 #Define roles for all features
-phyllo_task$col_roles$feature <- names(merged_dat)[which(names(merged_dat)=="area_cm2") : which(names(merged_dat)=="phenology_vegetative")]
+#phyllo_task$col_roles$name <- "sample" 
 
-#QC only
-#phyllo_task$col_roles$feature <- c(names(merged_dat)[which(names(merged_dat)=="area_cm2") : which(names(merged_dat)=="phenology_vegetative")], "simmed")
-
-phyllo_task$col_roles$stratum <- "stratify"
-phyllo_task$col_roles$name <- "sample" 
+phyllo_task$col_roles$features <-  names(X)[!(names(X) %in% c("sample", "shannonsISD"))]
 
 
-#XGBoost
-# learner <- lrn("regr.xgboost", 
-#                objective = "reg:squarederror")
+#Build pipeline for scaling and imputation
+imp_missind <- po("missind")
 
-#random forest
-# learner <- lrn("regr.ranger", importance = "permutation") # should search for available CPUs
+#Note that imputation of numeric will NOT work with integer class features. 
+#Vice versa doesn't work either
+imp_num <- po("imputehist", param_vals = list(affect_columns = selector_type("numeric")))
 
-#lasso regression. I guess this does cv automatically
-learner <- lrn("regr.cv_glmnet", alpha = 1, family = 'gaussian')
+#simple pipe
+#graph <-  po("imputehist", param_vals = list(affect_columns = selector_type("numeric"))) %>>% 
+ # po("scale") #pass to learner
+#graph$plot()
+
+
+###########
+# XGBoost #
+###########
+
+#make a graph learner
+graph <-  po("imputehist", param_vals = list(affect_columns = selector_type("numeric"))) %>>% 
+  po("scale") %>>%
+  po( lrn("regr.xgboost", objective = "reg:squarederror"))
+
+g1 <- GraphLearner$new(graph)
+
 
 ##########
 # tuning #
 ##########
+#see https://mlr3gallery.mlr-org.com/posts/2021-03-10-practical-tuning-series-tune-a-preprocessing-pipeline/
 
-#For xgboost
-#define hyperparameters to check via CV
-# params <- ps(
-#   eta = p_dbl(lower = 0.1, upper = 0.3),
-#   nrounds = p_int(lower = 1, upper = 16, tags = "budget"),
-#   booster = p_fct(levels = c("gbtree", "gblinear", "dart")),
-#   gamma = p_int(lower = 0, upper = 15),
-#   max_depth = p_int(lower = 4, upper = 15),
-#   min_child_weight = p_int(lower = 1, upper = 10),
-#   subsample = p_dbl(lower = 0.5, upper = 0.8),
-#   colsample_bytree = p_dbl(lower = 0.5, upper = 1)
-# )
+#For xgboost, 
+#define hyperparameters to check
+#Note the prefix of regr.xgboost which gets added since I am passing in a complicated learner
+#that has parameters for the imputer too. 
+#suse as.data.table(g1$param_set) to see what parameters to use. 
+params <- ps(
+  regr.xgboost.eta = p_dbl(lower = 0.1, upper = 0.3),
+  regr.xgboost.nrounds = p_int(lower = 1, upper = 16, tags = "budget"),
+  regr.xgboost.booster = p_fct(levels = c("gbtree", "gblinear", "dart")),
+  regr.xgboost.gamma = p_int(lower = 0, upper = 15),
+  regr.xgboost.max_depth = p_int(lower = 4, upper = 15),
+  regr.xgboost.min_child_weight = p_int(lower = 1, upper = 10),
+  regr.xgboost.subsample = p_dbl(lower = 0.5, upper = 0.8),
+  regr.xgboost.colsample_bytree = p_dbl(lower = 0.5, upper = 1)
+)
 
 ###################################################
 # Nested resampling to estimate model performance #
 ###################################################
 
 at = AutoTuner$new(
-  learner = learner,
+  learner = g1,
   resampling = rsmp("cv", folds = 3),
   measure = msr("regr.rsq"),
   terminator = trm("none"),
@@ -254,13 +271,61 @@ outer_resampling$instantiate(phyllo_task)
 extract_inner_tuning_results(rr)
 
 # #outer tuning results
+#rr$score()
+
+#This is the unbiased estimate of model performance
+rr$aggregate( measure = msr("regr.rsq")) #can swap out different measures
+rr$aggregate(measure = msr("regr.mse") ) #can swap out different measures
+
+
+##################################################################
+# try with random forest
+##################################################################
+
+graph <-  po("imputehist", param_vals = list(affect_columns = selector_type("numeric"))) %>>% 
+  po("scale") %>>%
+  po( lrn("regr.ranger", importance = "permutation"))
+
+g1 <- GraphLearner$new(graph)
+
+##########
+# tuning #
+##########
+
+ #For ranger (randomforest)
+ params <- ps(
+   regr.ranger.num.trees = p_int(lower = 50, upper = 400, tags = "budget"), #number of trees in the dark forest
+   regr.ranger.sample.fraction = p_dbl(lower = 0.01, upper = 0.3), #The sample.fraction parameter specifies the fraction of observations to be used in each tree. Smaller fractions lead to greater diversity, and thus less correlated trees which often is desirable.
+   regr.ranger.splitrule = p_fct(levels = c("extratrees", "variance")),
+   regr.ranger.min.node.size = p_int(lower = 1, upper = 25)
+ )
+
+###################################################
+# Nested resampling to estimate model performance #
+###################################################
+
+at <- AutoTuner$new(
+  learner = g1,
+  resampling = rsmp("cv", folds = 3),
+  measure = msr("regr.rsq"),
+  terminator = trm("none"),
+  tuner = tnr("hyperband", eta = 3),
+  search_space = params)
+
+#pass back to resampling for nested resampling
+outer_resampling <- rsmp("cv", folds = 10)
+rr <- resample(task = phyllo_task, 
+              learner = at, 
+              outer_resampling, 
+              store_models = TRUE)
+
+outer_resampling$instantiate(phyllo_task)
+
+extract_inner_tuning_results(rr)
+
+# #outer tuning results
 rr$score()
 
 #This is the unbiased estimate of model performance
-rsq <- rr$aggregate( measure = msr("regr.rsq")) #can swap out different measures
-mse <- rr$aggregate(measure = msr("regr.mse") ) #can swap out different measures
-
-
-##################################################################
-# Extract important features
-##################################################################
+rr$aggregate(measure = msr("regr.rsq")) #can swap out different measures
+rr$aggregate(measure = msr("regr.mse") ) #can swap out different measures
