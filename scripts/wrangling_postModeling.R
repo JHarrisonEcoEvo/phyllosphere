@@ -1,6 +1,6 @@
 #two part script one part for each locus
 rm(list = ls())
-dat <- read.csv("./processedData/16s_p_estimates.csv",
+dat <- read.csv("./processedData/16sp_estimates_wrangled_for_post_modeling_analysis.csv",
                 stringsAsFactors = F)
 dat[1:3,1:3]
 dim(dat$sample)
@@ -131,6 +131,17 @@ table(metadat_reduced3$taxon_final)
 table(is.na(metadat_reduced3$taxon_final))
 table(is.na(metadat_reduced3$habit))
 table(is.na(metadat_reduced3$compartment))
+
+#Convert unknown hosts to known hosts. 
+#This should not matter for modeling, since we modeled these separately and these would have been
+#an unusual tree at each site, so shouldn't probably have been lumped with other samples
+
+#EDIT: turns out the unknown stuff matches multiple things that could have been present so the
+#cpDNA is not good enough to do a strong ID, at least for some taxa. i didn't look up each one 
+#as it is a pain, just did a couple
+
+#metadat_reduced3$sample[metadat_reduced3$taxon_final == "Unknown fir"]
+#metadat_reduced3$taxon_final[grep("1_3_1_\\d+_E[NP]",metadat_reduced3$sample)] <- 
 
 #Try and fill in the missing compartments
 metadat_reduced3$compartment[is.na(metadat_reduced3$compartment)]  <- gsub("[0-9_]*(E[NP])[0-9_ITS]*","\\1",
