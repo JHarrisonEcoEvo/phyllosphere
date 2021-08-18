@@ -3,7 +3,7 @@ rm(list = ls())
 dat <- read.csv("./processedData/16sp_estimates_wrangled_for_post_modeling_analysis.csv",
                 stringsAsFactors = F)
 dat[1:3,1:3]
-dim(dat$sample)
+dim(dat)
 
 metadat <- read.csv("./processedData/metadata_2.csv",
                     stringsAsFactors = F)
@@ -54,7 +54,8 @@ setdiff(metadat_reduced$sample, dat$sample)
 #I spot checked some of these missing things and I removed them during wrangling becaaues
 #They were cross-contaminated.
 setdiff(dat$sample, metadat_reduced$sample) #nada
-
+dim(dat)
+dim(metadat_reduced)
 
 samplemeta <- read.csv("./processedData/treatments_metadata.csv",
                        stringsAsFactors = F)
