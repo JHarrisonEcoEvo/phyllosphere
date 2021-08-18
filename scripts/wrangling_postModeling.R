@@ -303,7 +303,8 @@ rm(list = ls())
   metadat_reduced3$habit[metadat_reduced3$taxon_final == "Pinus contorta"] <-  "tree"
   metadat_reduced3$taxon_final[metadat_reduced3$taxon_final == "Vaccinium membranaceum 2_1_6"] <-"Vaccinium membranaceum"
   metadat_reduced3$taxon_final[metadat_reduced3$taxon_final == "Astragalus kentrophyta cf. "] <-  "Astragalus kentrophyta"
-  
+  metadat_reduced3$taxon_final[metadat_reduced3$taxon_final == "Unknown spruce"] <-  "Unknown Spruce"
+
   table(metadat_reduced3$habit)
   table(metadat_reduced3$taxon_final)
   table(is.na(metadat_reduced3$taxon_final))
