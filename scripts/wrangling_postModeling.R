@@ -168,7 +168,7 @@ dim(metadat_reduced3)
 
 metadat_reduced3 <-
   merge(metadat_reduced3, veg, by.x = "region_site", by.y = "newdat.dat.siteLabel", all.x = T)
-
+dim(metadat_reduced3)
 #commence to doing analyses!
 write.csv(metadat_reduced3, file = "./processedData/16smetadat_wrangled_for_post_modeling_analysis.csv", row.names = F)
 write.csv(dat, file = "./processedData/16sp_estimates_wrangled_for_post_modeling_analysis.csv", row.names = F)
@@ -178,7 +178,7 @@ write.csv(dat, file = "./processedData/16sp_estimates_wrangled_for_post_modeling
 ############
 
 rm(list = ls())
-  dat <- read.csv("./processedData/ITS_multinomial_p_estimates.csv",
+  dat <- read.csv("./processedData/ITSp_estimates_wrangled_for_post_modeling_analysis_divided_by_ISD.csv",
                 stringsAsFactors = F)
   dat[1:3,1:3]
   dim(dat$sample)
