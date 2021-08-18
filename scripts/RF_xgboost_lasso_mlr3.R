@@ -8,7 +8,7 @@ library(mlr3fselect)
 library("mlr3hyperband")
 library(fastDummies)
 #library(mlr3pipelines)
-library(randomForest)
+library(ranger)
 library(caret)
 
 #library(doParallel)
@@ -36,100 +36,23 @@ taxa <- read.csv(inargs[2]) #./ITSp_estimates_wrangled_for_post_modeling_analysi
 possibles <- read.csv(inargs[4]) # "./processedData/ITS_taxa_to_model_via_randomforest.csv"
 focal_taxon <- possibles[inargs[3],]
 
-#stdout qc
-for(i in 1:4){
-  print(inargs[i])
-}
-print(focal_taxon)
-# 
 #Debugging stuff
 taxa <- read.csv("./processedData//ITSp_estimates_wrangled_for_post_modeling_analysis_divided_by_ISD.csv")
- possibles <- read.csv("./processedData/ITS_taxa_to_model_via_randomforest.csv")
- focal_taxon <- possibles[1,]
-#
-  X<- read.csv("./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv")
-#
-  
+possibles <- read.csv("./processedData/ITS_taxa_to_model_via_randomforest.csv")
+focal_taxon <- possibles[1,]
+
+X<- read.csv("./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv")
+
 #######################
 # Feature engineering #
  ######################
   
 X <- X[X$substrate == "plant",]
   
-X <- X[,names(X) != "shannonsISD"] #remove microbial diversity
-
 #Make a leaf density variable
 X$sla = X$mass_extracted_g / X$area_cm2
 
 X$sla[is.infinite(X$sla)] <- NA
-
-#Select only the features that I care about
-#only a single one of a group of highly correlated features was chosen
-#e.g., absorbance measurements were redundant in some cases.
-#See the correlagram.R script
-X <- X[,names(X) %in% c(
-  "absorbance_420",
-  "absorbance_940", 
-  "area_cm2",
-  "Ambient_Humidity",
-  "Ambient_Temperature",
-  "B",
-  #"canopyCover" , #Not sure where my measurement of this went. Maybe I didn't mak them?
-  "circumStem",
-  "compartment", #check this out
-  "contactless_temp",
-  "deadDown",
-  "densitometer",
-  "ecs_initial",
-  "ecs_max",
-  "elev_m",
-  "FmPrime",
-  "FoPrime",
-  "Fs",
-  "FvP.FmP",
-  "G",
-  "gH.",
-  "habit", 
-  "height_sample",
-  "julianDate",
-  "lat",
-  "Leaf_Temp_Differential",
-  "LEF",
-  "leaves_extracted",
-  "Light_Intensity..PAR.",
-  "long",
-  "mass_extracted_g",
-  "mean_temp_april.y" ,          
-  "MEM1.y",
-  "MEM2.y",
-  "NPQt_MPF",
-  "phenology",
-  "Phi2",
-  "PhiNO",
-  "PhiNPQ",
-  "plant_vol",
-  "precip_april_in.x",
-  "pressure",
-  "qL",
-  "R",
-  "Rel_Chl_intensity",
-  "Relative_Chlorophyll",
-  "RFd",
-  "sample",
-  "shannons_flora",
-  "shrubRich",
-  #"sidePlantSampled",
-  "sla",
-  "slope_perc",
-  "SPAD_420_intensity",
-  "SPAD_420",
-  "thickness",
-  "TimeofDay",
-  "taxon_final",
-  "toughness",
-  "treeRich",
-  "waterRetention"
-)]
 
 #Convert partial leaf to 0.5
 X$leaves_extracted <- (as.character(X$leaves_extracted))
@@ -151,26 +74,150 @@ categoricals <- c(
 )
 X <- dummy_cols(.data = X, select_columns = categoricals)
 
+#the missing stuff were things I removed due to poor sequencing
 table(X$sample %in% taxa$sample)
 table(taxa$sample %in%  X$sample )
 
-#the missing stuff were things I removed due to poor sequencing
-dim(X)
-dim(taxa)
 merged_dat <- merge(X, taxa, by.x = "sample", by.y = "sample", all.y = T)
-dim(merged_dat)
 
-#Making a response object for readability
-response_taxon <- merged_dat[, names(merged_dat) == focal_taxon]
+#For convenience make response variable
+response_taxon <- merged_dat[,names(merged_dat) == focal_taxon]
 
 #Get rid of stuff we don't need in merged_dat 
-#( all the bogus stuff was from merging with taxa, so we can index by og dimensions)
-merged_dat <- data.frame(response_taxon,
-                         merged_dat[,1:length(names(X))])
-#Doublecheck that samples are all present.
-table(merged_dat$sample %in% taxa$sample)
+merged_dat <- merged_dat[,names(merged_dat) %in%
+         c(as.character(focal_taxon),
+           "sample"
+           , "area_cm2"                                                 
+           , "mass_extracted_g"                                         
+           , "leaves_extracted"                                         
+           , "circumStem"                                               
+           , "height_sample"                                            
+           , "Ambient_Humidity"                                         
+           , "Ambient_Temperature"                                      
+           , "Leaf_Temp_Differential"                                   
+           , "LEF"                                                      
+           , "Light_Intensity..PAR."                                    
+           , "Phi2"                                                     
+           , "PhiNO"                                                    
+           , "PhiNPQ"                                                   
+           , "Relative_Chlorophyll"                                     
+           , "thickness"                                                
+           , "absorbance_420"                                           
+           , "absorbance_940"                                           
+           , "B"                                                        
+           , "contactless_temp"                                         
+           , "ecs_initial"                                              
+           , "ecs_max"                                                  
+           , "FmPrime"                                                  
+           , "FoPrime"                                                  
+           , "Fs"                                                       
+           , "FvP.FmP"                                                  
+           , "G"                                                        
+           , "gH."                                                      
+           , "NPQt_MPF"                                                 
+           , "pressure"                                                 
+           , "qL"                                                       
+           , "R"                                                        
+           , "Rel_Chl_intensity"                                        
+           , "RFd"                                                      
+           , "SPAD_420"                                                 
+           , "SPAD_420_intensity"                                       
+           , "TimeofDay"                                                
+           , "lat"                                                 
+           , "long"                                                
+           , "waterRetention"                                           
+           , "toughness"                                                
+           , "elev_m"                                                   
+           , "slope_perc"                                               
+           , "treeRich"                                                 
+           , "shrubRich"                                                
+           , "deadDown"                                                 
+           , "precip_april_in.x"                                        
+           , "densitometer"                                             
+           , "shannons_flora"
+           , "shannonsISD"
+           , "julianDate"                                               
+           , "mean_temp_april.y"                                        
+           , "plant_vol"                                                
+           , "sla"                                                      
+           , "habit_forb"                                               
+           , "habit_graminoid"                                          
+           , "habit_shrub"                                              
+           , "habit_tree"                                               
+           , "compartment_EN"                                           
+           , "compartment_EP"                                           
+           , "taxon_final_Abies concolor"                               
+           , "taxon_final_Abies grandis"                                
+           , "taxon_final_Antennaria media"                             
+           , "taxon_final_Aquilegia caerula"                            
+           , "taxon_final_Arnica cordifolia"                            
+           , "taxon_final_Artemisia tridentata"                         
+           , "taxon_final_Astragalus alpinus"                           
+           , "taxon_final_Astragalus kentrophyta"                       
+           , "taxon_final_Astragalus miser"                             
+           , "taxon_final_Bistorta bistortoides"                        
+           , "taxon_final_Carex paysonis"                               
+           , "taxon_final_Carex scopulorum var. bracteosa"              
+           , "taxon_final_Chamaenerion angustifolium var. angustifolium"
+           , "taxon_final_Delphinium occidentale"                       
+           , "taxon_final_Erigeron glacialis"                           
+           , "taxon_final_Eriogonum umbellatum"                         
+           , "taxon_final_Eucephalus elegans"                           
+           , "taxon_final_Eucephalus engelmannii"                       
+           , "taxon_final_Fragaria virginiana"                          
+           , "taxon_final_Frasera speciosa"                             
+           , "taxon_final_Geranium viscossimum var. viscosissimum"      
+           , "taxon_final_Helianthella uniflora"                        
+           , "taxon_final_Heracleum maximum"                            
+           , "taxon_final_Juncus balticus."                             
+           , "taxon_final_Juncus parryi"                                
+           , "taxon_final_Juncus sp."                                   
+           , "taxon_final_Juniperus communis"                           
+           , "taxon_final_Ligusticum filicinum"                         
+           , "taxon_final_Lupinus argenteus"                            
+           , "taxon_final_Mahonia repens"                               
+           , "taxon_final_Mertensiana ciliata var. ciliata"             
+           , "taxon_final_Minuartia obtusiloba"                         
+           , "taxon_final_Osmorhiza depauperata"                        
+           , "taxon_final_Oxyria digyna"                                
+           , "taxon_final_Paxistima myrsinites"                         
+           , "taxon_final_Picea engelmannii"                            
+           , "taxon_final_Pinus albicaulis"                             
+           , "taxon_final_Pinus contorta"                               
+           , "taxon_final_Poa pratensis"                                
+           , "taxon_final_Poa wheeleri"                                 
+           , "taxon_final_Polemonium viscosum"                          
+           , "taxon_final_Populus angustifolium"                        
+           , "taxon_final_Populus tremulloides"                         
+           , "taxon_final_Potentilla diversifolia"                      
+           , "taxon_final_Potentilla fruticosa"                         
+           , "taxon_final_Potentilla pulcherrima"                       
+           , "taxon_final_Primula parryi"                               
+           , "taxon_final_Pseudotsuga menziesii"                        
+           , "taxon_final_Ribes montigenum"                             
+           , "taxon_final_Salix glauca var. villosa"                    
+           , "taxon_final_Salix reticulata var. nana"                   
+           , "taxon_final_Sedum lanceolatum"                            
+           , "taxon_final_Symphoricarpos albus"                         
+           ,"taxon_final_Symphyotrichum foliaceum var. apricum"        
+           , "taxon_final_Thalictrum occidentale"                       
+           , "taxon_final_Trifolium parryi var. montanense"             
+           , "taxon_final_Unknown fir"                                  
+           , "taxon_final_Unknown pine"                                 
+           , "taxon_final_Unknown Spruce"                               
+           , "taxon_final_Vaccinium membranaceum"                       
+           , "taxon_final_Vaccinium scoparium"                          
+           , "taxon_final_Wyethia amplexicaulis"                        
+           , "phenology_flowering"                                      
+           , "phenology_fruiting"                                       
+           , "phenology_vegetative"                                     
+         )]
 
-#names(merged_dat)
+#Convert to numeric (makes it easier when doing imputing)
+for(i in 2:length(merged_dat)){
+  merged_dat[,i] <- as.numeric(merged_dat[,i])  
+}
+
 #######################
 # Making variable for stratification #
 ######################
@@ -185,166 +232,34 @@ table(merged_dat$focal_one_hot)
 
 merged_dat$stratify <- paste(merged_dat$compartment, merged_dat$focal_one_hot)
 
-#remove our bookkeeping data and various unneeded fields
-merged_dat <- merged_dat[,names(merged_dat) %in%
-                          c("response_taxon"                                           
-                            , "sample"                                                   
-                            , "area_cm2"                                                 
-                            , "mass_extracted_g"                                         
-                            , "leaves_extracted"                                         
-                            , "circumStem"                                               
-                            , "height_sample"                                            
-                            , "Ambient_Humidity"                                         
-                            , "Ambient_Temperature"                                      
-                            , "Leaf_Temp_Differential"                                   
-                            , "LEF"                                                      
-                            , "Light_Intensity..PAR."                                    
-                            , "Phi2"                                                     
-                            , "PhiNO"                                                    
-                            , "PhiNPQ"                                                   
-                            , "Relative_Chlorophyll"                                     
-                            , "thickness"                                                
-                            , "absorbance_420"                                           
-                            , "absorbance_940"                                           
-                            , "B"                                                        
-                            , "contactless_temp"                                         
-                            , "ecs_initial"                                              
-                            , "ecs_max"                                                  
-                            , "FmPrime"                                                  
-                            , "FoPrime"                                                  
-                            , "Fs"                                                       
-                            , "FvP.FmP"                                                  
-                            , "G"                                                        
-                            , "gH."                                                      
-                            , "NPQt_MPF"                                                 
-                            , "pressure"                                                 
-                            , "qL"                                                       
-                            , "R"                                                        
-                            , "Rel_Chl_intensity"                                        
-                            , "RFd"                                                      
-                            , "SPAD_420"                                                 
-                            , "SPAD_420_intensity"                                       
-                            , "TimeofDay"                                                
-                            , "lat"                                                 
-                            , "long"                                                
-                            , "waterRetention"                                           
-                            , "toughness"                                                
-                            , "elev_m"                                                   
-                            , "slope_perc"                                               
-                            , "treeRich"                                                 
-                            , "shrubRich"                                                
-                            , "deadDown"                                                 
-                            , "precip_april_in.x"                                        
-                            , "densitometer"                                             
-                            , "shannons_flora"                                           
-                            , "julianDate"                                               
-                            , "mean_temp_april.y"                                        
-                            , "plant_vol"                                                
-                            , "sla"                                                      
-                            , "habit_forb"                                               
-                            , "habit_graminoid"                                          
-                            , "habit_shrub"                                              
-                            , "habit_tree"                                               
-                            , "compartment_EN"                                           
-                            , "compartment_EP"                                           
-                            , "taxon_final_Abies.concolor"                               
-                            , "taxon_final_Abies.grandis"                                
-                            , "taxon_final_Antennaria.media"                             
-                            , "taxon_final_Aquilegia.caerula"                            
-                            , "taxon_final_Arnica.cordifolia"                            
-                            , "taxon_final_Artemisia.tridentata"                         
-                            , "taxon_final_Astragalus.alpinus"                           
-                            , "taxon_final_Astragalus.kentrophyta"                       
-                            , "taxon_final_Astragalus.miser"                             
-                            , "taxon_final_Bistorta.bistortoides"                        
-                            , "taxon_final_Carex.paysonis"                               
-                            , "taxon_final_Carex.scopulorum.var..bracteosa"              
-                            , "taxon_final_Chamaenerion.angustifolium.var..angustifolium"
-                            , "taxon_final_Delphinium.occidentale"                       
-                            , "taxon_final_Erigeron.glacialis"                           
-                            , "taxon_final_Eriogonum.umbellatum"                         
-                            , "taxon_final_Eucephalus.elegans"                           
-                            , "taxon_final_Eucephalus.engelmannii"                       
-                            , "taxon_final_Fragaria.virginiana"                          
-                            , "taxon_final_Frasera.speciosa"                             
-                            , "taxon_final_Geranium.viscossimum.var..viscosissimum"      
-                            , "taxon_final_Helianthella.uniflora"                        
-                            , "taxon_final_Heracleum.maximum"                            
-                            , "taxon_final_Juncus.balticus."                             
-                            , "taxon_final_Juncus.parryi"                                
-                            , "taxon_final_Juncus.sp."                                   
-                            , "taxon_final_Juniperus.communis"                           
-                            , "taxon_final_Ligusticum.filicinum"                         
-                            , "taxon_final_Lupinus.argenteus"                            
-                            , "taxon_final_Mahonia.repens"                               
-                            , "taxon_final_Mertensiana.ciliata.var..ciliata"             
-                            , "taxon_final_Minuartia.obtusiloba"                         
-                            , "taxon_final_Osmorhiza.depauperata"                        
-                            , "taxon_final_Oxyria.digyna"                                
-                            , "taxon_final_Paxistima.myrsinites"                         
-                            , "taxon_final_Picea.engelmannii"                            
-                            , "taxon_final_Pinus.albicaulis"                             
-                            , "taxon_final_Pinus.contorta"                               
-                            , "taxon_final_Poa.pratensis"                                
-                            , "taxon_final_Poa.wheeleri"                                 
-                            , "taxon_final_Polemonium.viscosum"                          
-                            , "taxon_final_Populus.angustifolium"                        
-                            , "taxon_final_Populus.tremulloides"                         
-                            , "taxon_final_Potentilla.diversifolia"                      
-                            , "taxon_final_Potentilla.fruticosa"                         
-                            , "taxon_final_Potentilla.pulcherrima"                       
-                            , "taxon_final_Primula.parryi"                               
-                            , "taxon_final_Pseudotsuga.menziesii"                        
-                            , "taxon_final_Ribes.montigenum"                             
-                            , "taxon_final_Salix.glauca.var..villosa"                    
-                            , "taxon_final_Salix.reticulata.var..nana"                   
-                            , "taxon_final_Sedum.lanceolatum"                            
-                            , "taxon_final_Symphoricarpos.albus"                         
-                            ,"taxon_final_Symphyotrichum.foliaceum.var..apricum"        
-                            , "taxon_final_Thalictrum.occidentale"                       
-                            , "taxon_final_Trifolium.parryi.var..montanense"             
-                            , "taxon_final_Unknown.fir"                                  
-                            , "taxon_final_Unknown.pine"                                 
-                            , "taxon_final_Unknown.Spruce"                               
-                            , "taxon_final_Vaccinium.membranaceum"                       
-                            , "taxon_final_Vaccinium.scoparium"                          
-                            , "taxon_final_Wyethia.amplexicaulis"                        
-                            , "phenology_flowering"                                      
-                            , "phenology_fruiting"                                       
-                            , "phenology_vegetative"                                     
-                            , "focal_one_hot"                                            
-                            , "stratify"           
-                         )]
+#########################################
+#Use mlr to define a pipeline, task and a learner#
+########################################
+
+names(merged_dat) <- gsub("\\s", "_", names(merged_dat))
+
+#Tasks are a way to organize data and the learner is the model 
+#see: https://mlr3book.mlr-org.com/tasks.html
+phyllo_task = TaskRegr$new(backend = merged_dat
+                           , target = as.character(focal_taxon),
+                           id = "phyllo_data")
+
+#Define roles for all features
+phyllo_task$set_col_roles("sample", roles = "name")
+phyllo_task$set_col_roles("stratify", roles = "stratum")
+
+phyllo_task$col_roles$feature <-  names(merged_dat)[!(names(merged_dat) %in% c("sample",
+                                                              "focal_one_hot",
+                                                              "stratify",
+                                                              as.character(focal_taxon)))]
 
 
-#Do stratified train and test split
-# splitTrain <- createDataPartition(merged_dat$stratify, p = .8, list = F)
+#Build pipeline for scaling and imputation
+imp_missind <- po("missind")
 
-# splitTest <- setdiff( seq_len(nrow(merged_dat)), splitTrain)
-# 
-# length(splitTrain)
-# length(splitTest)
-
-#Then impute seperately for each of these two splits. 
-merged_dat[,
-           c(1,3:(length(merged_dat)-2))] <- randomForest::rfImpute(response_taxon ~ .,
-                       iter=5, 
-                       ntree=300,
-                       data = merged_dat[,
-                                         c(1,3:(length(merged_dat)-2))])
-
-
-# merged_dat[splitTest,
-#            c(1,3:(length(merged_dat)-2))] <- randomForest::rfImpute(response_taxon ~ .,
-#                        iter=5, 
-#                        ntree=300,
-#                        data = merged_dat[splitTest,
-#                                          c(1,3:(length(merged_dat)-2))])
-
-#then scale and center. No need to do this separately for each split, since the point is to just
-#put things on the same scale
-
-merged_dat[,3:54] <- scale(merged_dat[,3:54], scale = T, center = T)
+#Note that imputation of numeric will NOT work with integer class features. 
+#Vice versa doesn't work either
+imp_num <- po("imputehist", param_vals = list(affect_columns = selector_type("numeric")))
 
 
 ######
@@ -355,183 +270,49 @@ merged_dat[,3:54] <- scale(merged_dat[,3:54], scale = T, center = T)
 # merged_dat$simmed <- merged_dat$response_taxon * rnorm(mean = 0, sd = 100, n = length(merged_dat$response_taxon))
 # merged_dat$simmed <- merged_dat$response_taxon * rnorm(mean = 0, sd = 10, n = length(merged_dat$response_taxon))
 
-#########################################
-#Use mlr to define a task and a learner#
-########################################
+##########
+# RF #
+##########
 
-#Tasks are a way to organize data and the learner is th emodel 
-#see: https://mlr3book.mlr-org.com/tasks.html
-phyllo_task = as_task_regr(merged_dat
-                           , target = "response_taxon", id = "phyllo_data")
+graph <-  po("imputehist", param_vals = list(affect_columns = selector_type("numeric"))) %>>% 
+  po("scale") %>>%
+  po( lrn("regr.ranger", importance = "permutation"))
 
-#Define roles for all features
-phyllo_task$col_roles$feature <- names(merged_dat)[which(names(merged_dat)=="area_cm2") : which(names(merged_dat)=="phenology_vegetative")]
-
-#QC only
-#phyllo_task$col_roles$feature <- c(names(merged_dat)[which(names(merged_dat)=="area_cm2") : which(names(merged_dat)=="phenology_vegetative")], "simmed")
-
-phyllo_task$col_roles$stratum <- "stratify"
-phyllo_task$col_roles$name <- "sample" 
-
-
-#  use train indices ONLY for now
-#phyllo_task$row_roles$use <- splitTrain
-
-#Troubleshooting. Trying to figure out if xgboost can handle NAs when using mlr3
-#IT will train and predict, the feature selector gives an error where it wants a boolean
-#Who knows. 
-
-# pima <- mlr_tasks$get("pima")
-# pima <- data.frame(pima$data())
-# task = as_task_regr(data.frame(pima$insulin, pima$mass),
-#                             target = "pima.mass")
-
-############################
-# Create a learner#
-############################
-
-#XGBoost
-# learner <- lrn("regr.xgboost", 
-#                objective = "reg:squarederror")
-
-#random forest
-# learner <- lrn("regr.ranger", importance = "permutation") # should search for available CPUs
-
-#lasso regression. I guess this does cv automatically
-learner <- lrn("regr.cv_glmnet", alpha = 1, family = 'gaussian')
-
-learner$train(phyllo_task)
-learner$predict(phyllo_task)
-
-# Feature selection #
-#####################
-#Decided to use the embedded method, see later in the script. 
-
-#https://mlr3book.mlr-org.com/fs.html
-
-# feat_selector = FSelectInstanceSingleCrit$new(
-#   task = phyllo_task,
-#   learner = learner,
-#   resampling = rsmp("cv", folds = 3), 
-#   measure = msr("regr.rsq"),
-#   terminator = trm("evals", n_evals = 200)
-# )
-# #fselector = fs("rfe")
-# fselector = fs("sequential")
-# 
-# # reduce logging output
-# lgr::get_logger("bbotk")$set_threshold("warn")
-# 
-# fselector$optimize(feat_selector)
-# #See what we are left with
-# feat_selector$result_feature_set
-
-# #figure out the best features
-# filter = flt("importance", learner = learner)
-# filter$calculate(phyllo_task)
-# #as.data.table(filter)$feature[!is.na(as.data.table(filter)$score)]
-# 
-# #Select the best features
-# if(length(as.data.table(filter)$feature[!is.na(as.data.table(filter)$score)]) > 1){
-#   phyllo_task$select(as.data.table(filter)$feature[!is.na(as.data.table(filter)$score)])
-# }
-###############################
-#Desccribe resampling strategy. 
-##############################
-#Resampling is repeated splitting of ALL the data into different train and test sets. 
-#the model is trained on each of these training sets and used to predict each of the test sets
-#model performance is aggregated across each of these runs. 
-#the idea is that we will get a better estimate of model performance. 
-#We want to ensure that resampling selects data that are representative of the whole, hence we 
-#stratify sampling by important features. 
-#THIS IS NOT THE SAME as a train/test split for applying the model to real life data. 
-#It is a way to get as unbiased as possible an estimate of how good the model can probably do. 
-
-#Here is a good discussion: https://www.tidymodels.org/learn/work/nested-resampling/
-#AND here: https://mlr-org.com/docs/cv-vs-predict/
-
-# resampling = rsmp("cv", folds = 3)
-# #resampling = rsmp("loo")
-# 
-# resampling$instantiate(phyllo_task)
-
-#SANITY CHECK
-#check to see how well our stratification worked
-#.I is a data.table ism. I took this code from mlr3s website. Don't fully understand
-#the data.table isms, but it works.
-# dt = merge(resampling$instance, phyllo_task$data()[, row_id := .I], by = "row_id")
-# focal_one_hot <- ifelse(dt$response_taxon > median(dt$response_taxon), 1, 0)
-# stratificatioFeat <- paste(dt$EN,focal_one_hot)
-# table(dt$fold, stratificatioFeat)
-
-#Resample stratifies appropriately whether the stratification feature has role of "feature" or not.
+g1 <- GraphLearner$new(graph)
 
 ##########
 # tuning #
 ##########
 
-#For xgboost
-#define hyperparameters to check via CV
-# params <- ps(
-#   eta = p_dbl(lower = 0.1, upper = 0.3),
-#   nrounds = p_int(lower = 1, upper = 16, tags = "budget"),
-#   booster = p_fct(levels = c("gbtree", "gblinear", "dart")),
-#   gamma = p_int(lower = 0, upper = 15),
-#   max_depth = p_int(lower = 4, upper = 15),
-#   min_child_weight = p_int(lower = 1, upper = 10),
-#   subsample = p_dbl(lower = 0.5, upper = 0.8),
-#   colsample_bytree = p_dbl(lower = 0.5, upper = 1)
-# )
-
 #For ranger (randomforest)
-# params <- ps(
-#   num.trees = p_int(lower = 50, upper = 400, tags = "budget"), #number of trees in the dark forest
-#   sample.fraction = p_dbl(lower = 0.01, upper = 0.3), #The sample.fraction parameter specifies the fraction of observations to be used in each tree. Smaller fractions lead to greater diversity, and thus less correlated trees which often is desirable.
-#   splitrule = p_fct(levels = c("extratrees", "variance")),
-#   min.node.size = p_int(lower = 1, upper = 25)
-# )
+params <- ps(
+  regr.ranger.num.trees = p_int(lower = 50, upper = 400, tags = "budget"), #number of trees in the dark forest
+  regr.ranger.sample.fraction = p_dbl(lower = 0.01, upper = 0.3), #The sample.fraction parameter specifies the fraction of observations to be used in each tree. Smaller fractions lead to greater diversity, and thus less correlated trees which often is desirable.
+  regr.ranger.splitrule = p_fct(levels = c("extratrees", "variance")),
+  regr.ranger.min.node.size = p_int(lower = 1, upper = 25)
+)
 
-
-# instance = TuningInstanceSingleCrit$new(
-#   task = phyllo_task,
-#   learner = learner,
-#   resampling = resampling,
-#   measure = msr("regr.rsq"),
-#   search_space = params,
-#   terminator = trm("none") # hyperband terminates itself
-# )
-# 
-# tuner = tnr("hyperband", eta = 3) #eta is how many models advance to next round
-# 
-# #Do tuning
-# # reduce logging output
-# lgr::get_logger("bbotk")$set_threshold("warn")
-# 
-# tuner$optimize(instance)
-# 
-# #best results
-# instance$result
-# learner$param_set$values = instance$result_learner_param_vals
 
 ###################################################
 # Nested resampling to estimate model performance #
 ###################################################
 
-at = AutoTuner$new(
-  learner = learner,
+at <- AutoTuner$new(
+  learner = g1,
   resampling = rsmp("cv", folds = 3),
   measure = msr("regr.rsq"),
   terminator = trm("none"),
   tuner = tnr("hyperband", eta = 3),
-  search_space = params)
+  search_space = params, 
+  store_models = TRUE)
 
 #pass back to resampling for nested resampling
- outer_resampling = rsmp("cv", folds = 10)
- rr = resample(task = phyllo_task, 
+outer_resampling <- rsmp("cv", folds = 10)
+rr <- resample(task = phyllo_task, 
                learner = at, 
                outer_resampling, 
                store_models = TRUE)
- 
+
 outer_resampling$instantiate(phyllo_task)
 
 extract_inner_tuning_results(rr)
@@ -540,33 +321,183 @@ extract_inner_tuning_results(rr)
 rr$score()
 
 #This is the unbiased estimate of model performance
-rsq <- rr$aggregate( measure = msr("regr.rsq")) #can swap out different measures
+rsq <- rr$aggregate(measure = msr("regr.rsq")) #can swap out different measures
 mse <- rr$aggregate(measure = msr("regr.mse") ) #can swap out different measures
 
-#save.image(file = paste("./models/ITS_RF", focal_taxon, ".Rdata", sep = ""))
-#save.image(file = paste("./models/ITSxgboost", focal_taxon, ".Rdata", sep = ""))
 ##################################################################
 # Extract important features
 ##################################################################
-#good blog for intepreteting some of these metrics https://towardsdatascience.com/be-careful-when-interpreting-your-features-importance-in-xgboost-6e16132588e7
-#trained <- at$train(phyllo_task)
 
-#Only god knows how to get importance metrics from the lasso when running it through this mess
-#out <- data.frame( trained$learner$importance())
+#Extremely clunky to get the variable importance. This took me a lot of digging to even find
+#since you can't query the object effectively with str()
+
+tained_at <- at$train(phyllo_task)
+
+var.imp <- data.frame(tained_at$model$learner$model$regr.ranger$model$variable.importance)
 
 out <- data.frame(matrix(nrow = 1, ncol = 1))
 out$taxon <- focal_taxon
 out$rsq_nested_resampling <- rsq
 out$mse_nested_resampling <- mse
 
+write.csv(var.imp, file = paste("variableImportance", focal_taxon, "ITS.csv"), row.names = F)
 
-# phyllo_task$row_roles$use <- splitTest
-# 
-# at$predict(phyllo_task)
-# 
-# out$rsq_testSet <- cor.test(at$predict(phyllo_task)$truth,
-#                             at$predict(phyllo_task)$response)$estimate^2
+##########################################
+# Do over AFTER reducing the feature set#
+##########################################
 
-write.csv(out, file = paste("./models/ITS_lasso", focal_taxon, "results.csv", sep = ""))
+#####################
+# Feature selection #
+#####################
+#Note, I am going to do this prior to tuning, otherwise I would want to do 
+#this after tuning, then retune, which seems somewhat in the realm of
+#diminishing returns and would increase runtime.
+
+#https://mlr3book.mlr-org.com/fs.html
+
+feat_selector = FSelectInstanceSingleCrit$new(
+  task = phyllo_task,
+  learner = g1,
+  resampling = rsmp("cv", folds = 3),
+  measure = msr("regr.rsq"),
+  terminator = trm("evals", n_evals = 200)
+)
+#fselector = fs("rfe")
+fselector = fs("sequential")
+
+# reduce logging output
+lgr::get_logger("bbotk")$set_threshold("warn")
+
+fselector$optimize(feat_selector)
+#See what we are left with
+feat_selector$result_feature_set
+
+#Select the best features
+if(length(feat_selector$result_feature_set) > 1){
+  phyllo_task$select(feat_selector$result_feature_set)
+}
+
+
+###################################################
+# Nested resampling to estimate model performance #
+###################################################
+
+at_reduced <- AutoTuner$new(
+  learner = g1,
+  resampling = rsmp("cv", folds = 3),
+  measure = msr("regr.rsq"),
+  terminator = trm("none"),
+  tuner = tnr("hyperband", eta = 3),
+  search_space = params)
+
+#pass back to resampling for nested resampling
+outer_resampling <- rsmp("cv", folds = 10)
+rr <- resample(task = phyllo_task, 
+               learner = at_reduced, 
+               outer_resampling, 
+               store_models = TRUE)
+
+outer_resampling$instantiate(phyllo_task)
+
+#This is the unbiased estimate of model performance
+rsq_reduced <- rr$aggregate(measure = msr("regr.rsq")) #can swap out different measures
+mse_reduced <- rr$aggregate(measure = msr("regr.mse") ) #can swap out different measures
+
+out$rsq_reduced<- rsq_reduced
+out$mse_reduced <- mse_reduced
+
+tained_at_reduced <- at$train(phyllo_task)
+
+var.impR <- data.frame(tained_at_reduced$model$learner$model$regr.ranger$model$variable.importance)
+
+write.csv(var.impR, file = paste("variableImportanceReduced", focal_taxon, "ITS.csv"), row.names = F)
+
+write.csv(out, file = paste("results", focal_taxon, "ITS.csv"), row.names = F)
+
+
+
+
+
+
+###########
+# XGBoost #
+###########
+
+# #make a graph learner
+# graph <-  po("imputehist", param_vals = list(affect_columns = selector_type("numeric"))) %>>% 
+#   po("scale") %>>%
+#   po( lrn("regr.xgboost", objective = "reg:squarederror"))
+# 
+# g1 <- GraphLearner$new(graph)
+
+##########
+# tuning #
+##########
+#see https://mlr3gallery.mlr-org.com/posts/2021-03-10-practical-tuning-series-tune-a-preprocessing-pipeline/
+
+#For xgboost, 
+#define hyperparameters to check
+#Note the prefix of regr.xgboost which gets added since I am passing in a complicated learner
+#that has parameters for the imputer too. 
+#use as.data.table(g1$param_set) to see what parameters to use. 
+
+# params <- ps(
+#   regr.xgboost.eta = p_dbl(lower = 0.1, upper = 0.3),
+#   regr.xgboost.nrounds = p_int(lower = 1, upper = 16, tags = "budget"),
+#   regr.xgboost.booster = p_fct(levels = c("gbtree", "gblinear", "dart")),
+#   regr.xgboost.gamma = p_int(lower = 0, upper = 15),
+#   regr.xgboost.max_depth = p_int(lower = 4, upper = 15),
+#   regr.xgboost.min_child_weight = p_int(lower = 1, upper = 10),
+#   regr.xgboost.subsample = p_dbl(lower = 0.5, upper = 0.8),
+#   regr.xgboost.colsample_bytree = p_dbl(lower = 0.5, upper = 1)
+# )
+# 
+
+# 
+# ###################################################
+# # Nested resampling to estimate model performance #
+# ###################################################
+# 
+# at = AutoTuner$new(
+#   learner = g1,
+#   resampling = rsmp("cv", folds = 3),
+#   measure = msr("regr.rsq"),
+#   terminator = trm("none"),
+#   tuner = tnr("hyperband", eta = 3),
+#   search_space = params)
+# 
+# #pass back to resampling for nested resampling
+# outer_resampling = rsmp("cv", folds = 10)
+# rr = resample(task = phyllo_task, 
+#               learner = at, 
+#               outer_resampling, 
+#               store_models = TRUE)
+# 
+# outer_resampling$instantiate(phyllo_task)
+# 
+# extract_inner_tuning_results(rr)
+# 
+# # #outer tuning results
+# #rr$score()
+# 
+# #This is the unbiased estimate of model performance
+# rr$aggregate( measure = msr("regr.rsq")) #can swap out different measures
+# rr$aggregate(measure = msr("regr.mse") ) #can swap out different measures
+
+##################################################################
+# Extract important features
+##################################################################
+# #good blog for intepreteting some of these metrics https://towardsdatascience.com/be-careful-when-interpreting-your-features-importance-in-xgboost-6e16132588e7
+# 
+# # get the trained GraphLearner, with tuned hyperparameters
+# graphlearner <- at$learner
+# 
+# # get the untrained Learner
+# xgboostlearner <- graphlearner$graph$pipeops$regr.xgboost$learner
+# 
+# # put the trained model into the Learner
+# xgboostlearner$state <- graphlearner$model$regr.xgboost
+# 
+# xgboostlearner$importance()
 
 
