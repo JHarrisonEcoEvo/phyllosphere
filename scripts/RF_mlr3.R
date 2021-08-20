@@ -37,11 +37,11 @@ possibles <- read.csv(inargs[4]) # "./processedData/ITS_taxa_to_model_via_random
 focal_taxon <- possibles[inargs[3],]
 
 #Debugging stuff
-taxa <- read.csv("./processedData//ITSp_estimates_wrangled_for_post_modeling_analysis_divided_by_ISD.csv")
-possibles <- read.csv("./processedData/ITS_taxa_to_model_via_randomforest.csv")
-focal_taxon <- possibles[1,]
-
-X<- read.csv("./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv")
+# taxa <- read.csv("./processedData//ITSp_estimates_wrangled_for_post_modeling_analysis_divided_by_ISD.csv")
+# possibles <- read.csv("./processedData/ITS_taxa_to_model_via_randomforest.csv")
+# focal_taxon <- possibles[1,]
+# 
+# X<- read.csv("./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv")
 
 #######################
 # Feature engineering #
