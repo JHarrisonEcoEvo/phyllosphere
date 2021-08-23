@@ -172,6 +172,8 @@ dim(metadat_reduced3)
 #commence to doing analyses!
 write.csv(metadat_reduced3, file = "./processedData/16smetadat_wrangled_for_post_modeling_analysis.csv", row.names = F)
 write.csv(dat, file = "./processedData/16sp_estimates_wrangled_for_post_modeling_analysis.csv", row.names = F)
+dat[,4:length(dat)] <- dat[,4:length(dat)] / dat$ISD
+write.csv(dat, file = "./processedData/16sp_estimates_wrangled_for_post_modeling_analysis_divided_by_ISD.csv", row.names = F)
 
 ############
 #Do for ITS#
@@ -339,3 +341,5 @@ rm(list = ls())
 #commence to doing analyses!
 write.csv(metadat_reduced3, file = "./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv", row.names = F)
 write.csv(dat, file = "./processedData/ITSp_estimates_wrangled_for_post_modeling_analysis.csv", row.names = F)
+dat[,5:length(dat)] <- dat[,5:length(dat)] / dat$ISD
+write.csv(dat, file = "./processedData/ITSp_estimates_wrangled_for_post_modeling_analysis_divided_by_ISD.csv", row.names = F)
