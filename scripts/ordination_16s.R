@@ -1,6 +1,6 @@
 rm(list = ls())
 library(ecodist)
-dat <- read.csv("./processedData/16sp_estimates_wrangled_for_post_modeling_analysis.csv",
+dat <- read.csv("./processedData/16sp_estimates_wrangled_for_post_modeling_analysis_divided_by_ISD.csv",
                 stringsAsFactors = F)
 dat[1:3,1:5]
 tail(names(dat))
@@ -16,13 +16,14 @@ table(dat$sample == metadat$sample)
 
 #sanity check that I use the correct last index during BC calculation
 names(dat)[length(dat)-4]
+# 
+# #divide by ISD
+# normDat <- dat[,5:(length(dat)-4)] / dat$ISD
+# normDat[1:3,1:3]
+#dat_bc <- bcdist(normDat)
 
-#divide by ISD
-normDat <- dat[,5:(length(dat)-4)] / dat$ISD
-normDat[1:3,1:3]
+dat_bc <- bcdist(dat[,4:(length(dat)-4)])
 
-
-dat_bc <- bcdist(normDat)
 #dat_e <- dist(normDat,method = "euclidean")
 
 ord <- pco(x = dat_bc)

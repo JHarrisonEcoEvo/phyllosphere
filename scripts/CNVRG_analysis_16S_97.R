@@ -6,7 +6,7 @@ set.seed(666)
 #install.packages("CNVRG")
 library(rstan)
 library(CNVRG)
-dat <- read.csv("./processedData/smallmem97_16s_for_modeling", 
+dat <- read.csv("./processedData/otuTables/smallmem97_16s_for_modeling", 
                 fill = T, header = T, stringsAsFactors = F)
 
 #print dim to stdout
@@ -61,6 +61,7 @@ cbind(tdat$sample, treatments)
 #mistaken addition of too much ISD to certain plates. 
 #See the combine_pcr_dupes... script
 tdat$ISD <- round(tdat$ISD)
+write.csv(tdat, file = "./processedData/otuTables/smallmem97_16S_for_modeling_rearranged_for_CNVRG")
 
 write.csv(unique(treatments), file = "./processedData/treatments_for_modeling_16s.csv", 
           row.names = F)

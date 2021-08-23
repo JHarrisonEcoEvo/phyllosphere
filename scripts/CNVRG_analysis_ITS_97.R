@@ -5,7 +5,7 @@ rm(list=ls())
 library(CNVRG)
 #dat <- read.csv("./smallmem97_ITS_for_modeling",
 #                fill = T, header = T, stringsAsFactors = F)
-dat <- read.csv("./processedData/smallmem97_ITS_for_modeling",
+dat <- read.csv("./processedData/otuTables/smallmem97_ITS_for_modeling",
                 fill = T, header = T, stringsAsFactors = F)
 
 #print dim to stdout
@@ -55,6 +55,8 @@ tdat$sample <- as.character(tdat$sample)
 
 #sanity check
 cbind(tdat$sample, treatments)
+write.csv(tdat, file = "./processedData/otuTables/smallmem97_ITS_for_modeling_rearranged_for_CNVRG")
+
 write.csv(treatments, file = "./processedData/treatments_metadata.csv", row.names = F)
 
 #convert ISD to integers. It is a float because of how I modified the ISD to reflect
