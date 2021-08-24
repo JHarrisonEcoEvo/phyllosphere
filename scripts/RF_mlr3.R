@@ -37,11 +37,11 @@ possibles <- read.csv(inargs[4]) # "./processedData/ITS_taxa_to_model_via_random
 focal_taxon <- possibles[inargs[3],]
 
 #Debugging stuff
-# taxa <- read.csv("./processedData//ITSp_estimates_wrangled_for_post_modeling_analysis_divided_by_ISD.csv")
-# possibles <- read.csv("./processedData/ITS_taxa_to_model_via_randomforest.csv")
-# focal_taxon <- possibles[1,]
-# 
-# X<- read.csv("./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv")
+taxa <- read.csv("./processedData//ITSp_estimates_wrangled_for_post_modeling_analysis_divided_by_ISD.csv")
+possibles <- read.csv("./processedData/ITS_taxa_to_model_via_randomforest.csv")
+focal_taxon <- possibles[1,]
+
+X<- read.csv("./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv")
 
 #######################
 # Feature engineering #
@@ -324,6 +324,7 @@ rr$score()
 rsq <- rr$aggregate(measure = msr("regr.rsq")) #can swap out different measures
 mse <- rr$aggregate(measure = msr("regr.mse") ) #can swap out different measures
 
+
 ##################################################################
 # Extract important features
 ##################################################################
@@ -340,7 +341,7 @@ out$taxon <- focal_taxon
 out$rsq_nested_resampling <- rsq
 out$mse_nested_resampling <- mse
 
-write.csv(var.imp, file = paste("variableImportance", focal_taxon, "ITS.csv"), row.names = F)
+write.csv(var.imp, file = paste("variableImportance", focal_taxon, "ITS.csv"), row.names = T)
 
 ##########################################
 # Do over AFTER reducing the feature set#
@@ -410,7 +411,7 @@ tained_at_reduced <- at$train(phyllo_task)
 
 var.impR <- data.frame(tained_at_reduced$model$learner$model$regr.ranger$model$variable.importance)
 
-write.csv(var.impR, file = paste("variableImportanceReduced", focal_taxon, "ITS.csv"), row.names = F)
+write.csv(var.impR, file = paste("variableImportanceReduced", focal_taxon, "ITS.csv"), row.names = T)
 
 write.csv(out, file = paste("results", focal_taxon, "ITS.csv"), row.names = F)
 
