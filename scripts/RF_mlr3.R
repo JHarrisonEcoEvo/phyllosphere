@@ -135,7 +135,7 @@ merged_dat <- merged_dat[,names(merged_dat) %in%
            , "precip_april_in.x"                                        
            , "densitometer"                                             
            , "shannons_flora"
-           , "shannonsISD"
+          # , "shannonsISD"
            , "julianDate"                                               
            , "mean_temp_april.y"                                        
            , "plant_vol"                                                
