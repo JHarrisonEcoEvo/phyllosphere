@@ -12,8 +12,20 @@ rm(list=ls())
 #Note that smallmem* files are clustered ESVs
 dat <- read.csv("./processedData/otuTables/16s_97_smallmem_otuTableCLEAN",
                 fill = T, header = T, stringsAsFactors = F)
-dat <- read.csv("./processedData/otuTables/its97smallmem_otuTableCLEAN",
-               fill = T, header = T, stringsAsFactors = F)
+ # dat <- read.csv("./processedData/otuTables/its97smallmem_otuTableCLEAN",
+ #                fill = T, header = T, stringsAsFactors = F)
+
+#remove soil and other extraneous samples
+dat <- dat[,-(grep("[OM]$", names(dat)))]
+dat <- dat[,names(dat) != "rna16S_TTGGTAAGAA_CTGCAGACCA_3_3_3_10"]
+dat <- dat[,names(dat) != "rna16S_TCCTCTTGAA_CTGCAGACCA_3_3_3_10"]
+dat <- dat[, -grep("2_1_1_2", names(dat))] # Remove 2_1_1_2 as I don't know is EN and which EP. Got mislabeled. 
+dat <- dat[, -grep("p[23]", names(dat))]
+dat <- dat[, -grep("_19$", names(dat))]
+
+names(dat) <- gsub("(\\d+)E", "\\1_E", names(dat))
+#erasing dupes. These should get added together during the combining of duplicates part below
+names(dat) <- gsub("dupe", "", names(dat))
 
 #For ease I check for locus here and then wrap code below such that 
 #the correct version runs for each locus
@@ -123,7 +135,8 @@ dat <- dat[,!(names(dat) %in% contams)]
 dat_rewash <- dat[!(dat$OTUID %in% c("duds", "ISD", "mtDNA", "cpDNA")),]
 
 rewashes <- names(dat_rewash)[grep("rewash", names(dat_rewash))]
-length(rewashes) #84 rewashes for ITS; 82 for 16s
+length(rewashes) 
+
 
 #Compare the rewashes to the original samples. 
 #First. grep the prefix of the sample name to get all replicates of the sample.
@@ -163,88 +176,112 @@ pdf(width = 6, height = 6, file = paste("./visuals/rewashBoxplot_", locus,".pdf"
 boxplot(log(rewashTest$ens),
         log(rewashTest$eps),
         log(rewashTest$rewashes),
-        names = c("EN","EP","rewash"))
+        names = c("EN","EP","rewash"),
+        outline = F)
 dev.off()
 
 #Unexpected that rewashing led to more reads. 
 #Could be that the second wash was more of a good rinse and got more off?
-rm(dat_rewash)
+
+#Lets do an ordination. 
+#we might hypothesize the rewashes to be  in between EP and EN. 
+#This is true for 16s but not for ITS. Maybe more fungi grow both in and out of the leaf than do bacteria.
+
+#grep multiple patterns
+
+matches <- unique(grep(paste(rewashTest$sampleName,collapse="|"), 
+                        names(dat_rewash), value=TRUE))
+
+forord <- dat_rewash[,names(dat_rewash) %in% matches]
+library(vegan)
+
+#Transposing matrix so vegan functions work. 
+#It needs taxa as columns
+datr <-  decostand(t(forord), method = "hellinger")
+
+dat_e <- dist(datr,
+              method = "euclidean")
+
+ord <- cmdscale(dat_e, 
+                eig = TRUE, 
+                k = 2)
+
+cols <- vector(mode = "character", 
+              length = length(names(forord)))
+cols[grep("[Ee][Nn]",names(forord))] <- "orange"
+cols[grep("[Ee][Pp]",names(forord))] <- "turquoise"
+#Then colorize rewashes, thus overwriting the Ep color
+cols[grep("rewash",names(forord))] <- "purple"
+
+#Permanova
+adonisOut <- adonis2(dat_e ~ cols, 
+                     permutations = 999, method="euclidean")
+
+pdf(width = 8, height = 8, file = paste("./visuals/ordination_rewashes_", locus,".pdf", sep = ""))
+
+plot(ord$points[,1],ord$points[,2],
+     pch = 19,
+     col = cols,
+     ylab = "PCoA 2",
+     xlab = "PCoA 1")
+dev.off()
+
+#names(forord)[cols == ""]
 
 ###################################
 # Examine blanks#
 ###################################
 #these should have way fewer reads in them then non blanks. 
 
+#First remove duds and ISD
 
-#####################################################################
-#get rid of the dupes, make a name vector for removing John's stuff.# 
-#####################################################################
-dat <- dat[,-grep("dupe", names(dat))]
-dat <- dat[,-grep("triplicate", names(dat))]
+blanks <- names(dat_rewash)[grep("blank", names(dat_rewash))]
+length(blanks) #22 blanks
 
-#Clean up names
-names(dat) <- gsub("ep", "_EP", names(dat))
-names(dat) <- gsub("en", "_EN", names(dat))
-names(dat) <- gsub("^rna","", names(dat))
-names(dat) <- gsub("\\d+","", names(dat))
-#names(dat) <- gsub("ITS","", names(dat))
-names(dat) <- gsub("[Ee]","", names(dat))
-names(dat) <- gsub("[Pp]","", names(dat))
-names(dat) <- gsub("[Nn]","", names(dat))
-names(dat) <- gsub("primary","", names(dat))
-names(dat) <- gsub("primaryCHECKpostseq","", names(dat))
-names(dat) <- gsub("rimary","", names(dat))
+#Almost nothing. Excellent.
+colSums(dat_rewash[,names(dat_rewash) %in% blanks])
+#Lets try with everything but ISD.
+colSums(dat[dat$OTUID != "ISD",names(dat) %in% blanks])
 
-names(dat) <- gsub("_([ATCG]*_[ATCG]*)_.*","\\1", names(dat))
+rm(dat_rewash)
 
-#A few things missing. These things are from Calder's projects, so I will remove them here
+########################################################
+# Get the otu table in the same format as the metadata #
+########################################################
+
+#Will use this later
+otus <- dat$OTUID
 
 if(locus == "16s"){
   #sanity check
-  print(which(!(paste("16",names(dat), sep = "") %in% metadat$mid)))
-  dat <- dat[,which(paste("16",names(dat), sep = "") %in% metadat$mid)]
-  metadat <- metadat[metadat$mid %in% paste("16",names(dat), sep = ""),]
-  names(dat) <- paste("16",names(dat), sep = "")
+  names(dat)[which(!(gsub("rna", "",names(dat)) %in% metadat$combo))]
+  
+  dat <- dat[,which(gsub("rna", "",names(dat)) %in% metadat$combo)]
+  metadat <- metadat[metadat$combo %in% gsub("rna", "",names(dat)),]
+  #rearrange
+  dat2 <- dat[,match(metadat$combo, 
+                     gsub("rna", "",names(dat)))]
+  #sanity check to make sure rearrangement worked
+  table(gsub("rna", "",names(dat2)) == metadat$combo)
 }else if(locus == "its"){
   #For ITS
-  print(which(!( names(dat) %in% metadat$mid)))
-  dat <- dat[,which(names(dat) %in% metadat$mid)]
-  metadat <- metadat[metadat$mid %in% names(dat),]
-  }
-
-#Now cut stuff out of metadat so both dat and metadat$mid have the same stuff
-#Depending upon the OTU table (e.g., which locus it is for) this will remove
-#about half the data.
-
-#sanity check
-table(gsub("\\.\\d+","",names(dat)) %in% metadat$mid)
-setdiff(gsub("\\.\\d+","",names(dat)) , metadat$mid)
-setdiff( metadat$mid, gsub("\\.\\d+","",names(dat)))
-dim(dat)
-dim(metadat)
-
-#rearrange
-metadat <- metadat[metadat$mid %in% gsub("\\.\\d+","",names(dat)),]
-# dim(metadat)
-# #There are duplicated mids. Why is that?
-# metadat[(duplicated(metadat$mid)),]
-# #test case
-# metadat[grep("ITSTTACGCTCAA_TGAGCTGCCA", metadat$mid),]
-# #A: BECAUSE I SEQUENCED on several libraries. 
-
-
-dat2 <- dat[,match(metadat$mid, 
-                   gsub("\\.\\d+","",names(dat)))]
-
-#sanity check to make sure rearrangement worked
-table(gsub("\\.\\d+","",names(dat2)) == metadat$mid)
+  names(dat)[which(!( names(dat) %in% metadat$combo))]
+  dat <- dat[,which(names(dat) %in% metadat$combo)]
+  metadat <- metadat[metadat$combo %in% names(dat),]
+  #rearrange
+  dat2 <- dat[,match(metadat$combo,names(dat))]
+  #sanity check to make sure rearrangement worked
+  table(names(dat2) == metadat$combo)
+}
 
 #Remove soil samples (remove 100 samples)
 dat2 <- dat2[,metadat$substrate != "soil"]
 metadat <- metadat[metadat$substrate != "soil",]
-table(gsub("\\.\\d+","",names(dat2)) == metadat$mid)
 
-#combine PCR duplicates
+########################
+#combine PCR duplicates#
+########################
+
 #Nenames is in the same order as samplename in the metadata and the names of dat2
 newnames <- gsub("([0-9_]+[ENP]+).*","\\1",metadat$samplename)
 
@@ -255,7 +292,7 @@ checkthese <- NA
 for_names <- vector()
 for(i in unique(newnames)){
   if(i != "OTUID"){
-    #Make sure there are more than one row to add
+    #Make sure there is more than one row to add
     if(length(grep(paste("^",i,"$", sep = ""), newnames)) > 1){
       newdat[,k] <- rowSums(dat2[,grep(paste("^",i,"$", sep = ""), newnames)])
       for_names <- c(for_names, i)
@@ -272,8 +309,6 @@ contams <- rowSums(newdat[,grep("lank", names(newdat))])
 noncontams <- rowSums(newdat[,-grep("lank", names(newdat))])
 
 perc_contam <- contams / (contams + noncontams)
-otus[which(perc_contam > 0.01)]
-contams[which(perc_contam > 0.01)]
 
 #percentage of total reads that are likely to be contaminants and thus have been removed
 sum(contams[which(perc_contam > 0.01)]) /
@@ -283,12 +318,11 @@ sum(contams[which(perc_contam > 0.01)]) /
 newdat <- data.frame(otus, newdat)
 
 #Keep duds but remove other contaminants
-if(locus == "16s"){
-  newdat[-which(perc_contam > 0.01)[1:36],]
-}else if (locus == "its"){
-  newdat[-which(perc_contam > 0.01),]
-}
+duds <- newdat[which(as.character(newdat$otus) == "duds"),]
 
+newdat <- newdat[-which(perc_contam > 0.01),]
+newdat[1 + length(newdat$otus),] <- duds
+  
 otus <- newdat[,1]
 newdat <- newdat[,-1]
 newdat <- newdat[,-grep("lank", names(newdat))]
