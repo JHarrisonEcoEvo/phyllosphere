@@ -1,3 +1,4 @@
+rm(list=ls())
 #install.packages("corrplot")
 library(corrplot)
 
@@ -5,123 +6,131 @@ meta <- read.csv("./processedData/ITSmetadat_wrangled_for_post_modeling_analysis
                  stringsAsFactors = F, header = T)
 
 names(meta)
-predictors<-c(
-  "area_cm2",
-  "mass_g",
-  "mass_extracted_g",
-#  "leaves_extracted",
-  "circumStem",
-  "width",
-  "plantMeasurements__width2",
-  "plantMeasurements__height",
-  "height_sample",
-  "Ambient_Humidity",
-  "Ambient_Temperature",
-  "Leaf_Angle",
-  "Leaf_Temp_Differential",
-  "LEF",
-  "Light_Intensity..PAR.",
-  "NPQt",
+
+meta <- meta[,names(meta) %in% c("area_cm2"                                                 
+                             , "mass_extracted_g"                                         
+                             , "leaves_extracted"                                         
+                             , "circumStem"                                               
+                             , "height_sample"                                            
+                             , "Ambient_Humidity"                                         
+                             , "Ambient_Temperature"                                      
+                             , "Leaf_Temp_Differential"                                   
+                             , "LEF"                                                      
+                             , "Light_Intensity..PAR."                                    
+                             , "Phi2"                                                     
+                             , "PhiNO"                                                    
+                             , "PhiNPQ"                                                   
+                             , "Relative_Chlorophyll"                                     
+                             , "thickness"                                                
+                             , "absorbance_420"                                           
+                             , "absorbance_940"                                           
+                             , "B"                                                        
+                             , "contactless_temp"                                         
+                             , "ecs_initial"                                              
+                             , "ecs_max"                                                  
+                             , "FmPrime"                                                  
+                             , "FoPrime"                                                  
+                             , "Fs"                                                       
+                             , "FvP.FmP"                                                  
+                             , "G"                                                        
+                             , "gH."                                                      
+                             #, "NPQt_MPF"                                                 
+                             , "pressure"                                                 
+                             , "qL"                                                       
+                             , "R"                                                        
+                             , "Rel_Chl_intensity"                                        
+                             , "RFd"                                                      
+                             , "SPAD_420"                                                 
+                             , "SPAD_420_intensity"                                       
+                             , "TimeofDay"                                                
+                             , "lat"                                                 
+                             , "long"                                                
+                             , "waterRetention"                                           
+                             , "toughness"                                                
+                             , "elev_m"                                                   
+                             , "slope_perc"                                               
+                             , "treeRich"                                                 
+                             , "shrubRich"                                                
+                             , "deadDown"                                                 
+                             , "precip_april_in.x"                                        
+                             , "densitometer"                                             
+                             , "shannons_flora"
+                             # , "shannonsISD"
+                             , "julianDate"                                               
+                             , "mean_temp_april.y"                                        
+                             , "plant_vol"                                                
+                             , "sla"                                                      
+                           )]
+
+
+meta$leaves_extracted[meta$leaves_extracted == "partial"] <- 0.5
+
+meta$waterRetention <- as.numeric(meta$waterRetention)
+meta$leaves_extracted <- as.numeric(meta$leaves_extracted)
+
+for(i in names(meta)){
+  if(length(unique(meta[, names(meta) == i])) < 2){
+    print(i)
+  }
+}
+
+
+names(meta) <- c(
+  "Area cm^2",
+  "Mass extracted g",
+  "Leaves extracted",
+  "Circumference (trees only)",
+  "Height sample taken",
+  "Ambient humidity",
+  "Ambient temperature",
+  "Leaf temp. differential",
+  "Linear electron flow",
+  "Light intensity (PAR)",
   "Phi2",
   "PhiNO",
   "PhiNPQ",
-  "Relative_Chlorophyll",
-  "thickness",
-  "absorbance_420",
-  "absorbance_530",
-  "absorbance_605",
-  "absorbance_650",
-  "absorbance_730",
-  "absorbance_850",
-  "absorbance_880",
-  "absorbance_940",
- # "angle",
-  "contactless_temp",
-  "ecs_initial",
-  "ecs_max",
-  "ecs_r_squared",
-  #"flatten_slope",
-  "FmPrime",
-  "FoPrime",
+  "Rel. chlorophyll",
+  "Leaf thickness",
+  "Absorbance 420 nm",
+  "Absorbance 940 nm",
+  "Blueness",
+  "Leaf temperature",
+  "ECS initial",
+  "ECS max.",
+  "Fm prime",
+  "Fo prime",
   "Fs",
   "FvP.FmP",
-  "G",
-  "gH.",
-  "humidity",
-  # "humidity2",
-  # "light2_raw1",
-  # "light2_raw2",
-  # "light2_raw3",
-  # "light6_raw1",
-  # "light6_raw2",
-  # "light6_raw3",
-  # "light_intensity",
-  # "light_intensity_raw",
-  # "MPF_rsquared",
-  # "MPF_slope",
-  "NPQt_MPF",
- # "NPQt_noMPF",
-  #"Phi2_MPF",
-  "PhiNPQ",
- # "PhiNPQ_noMPF",
-  #"pitch",
-  "pressure",
-  #"pressure2", #not sure what this is, but dont need it as seems very similar to pressure. 
+  "Greenness",
+  "gH",
+  "Pressure",
   "qL",
-  "R",
-  # "ratio_MPF.noMPF_Phi2", #Not really sure what the value of these are so am omitting
-  # "ratio_MPF.noMPF_PhiNO",
-  # "ratio_MPF.noMPF_PhiNPQ",
-  "Rel_Chl_intensity",
+  "Redness",
+  "Rel. chlorophyll intensity",
   "RFd",
-  #"roll",
-  "SPAD_420", #stand ins for other spad measurements
-   "SPAD_420_intensity",
-  "SPAD_530",
-  "SPAD_530_intensity",
-  "SPAD_605",
-  "SPAD_605_intensity",
-  "SPAD_650",
-  "SPAD_650_intensity",
-  "SPAD_730",
-  "SPAD_730_intensity",
-  "SPAD_850",
-  "SPAD_850_intensity",
-  "SPAD_880",
-  "SPAD_880_intensity",
-  "spad_raw1",
-  "spad_raw2",
-  "spad_raw3",
-  "temperature",
-  # "temperature2",
-  "TimeofDay",
+  "SPAD 420 nm",
+  "SPAD 420 intensity",
+  "Time of the day",
+  "Water retention",
+  "Toughness",
   "Latitude",
   "Longitude",
-  "waterRetention",
-  "toughness",
-  "elev_m",
-  "slope_perc",
-  #"Startday0to365", #not calculated
-  #"canopyCover",
-  "treeRich",
-  "shrubRich",
-  "deadDown",
- # "numSamples", #not correlated with much of anything
-"latitude"    ,                    
-"altitude"    ,                    
-"longitude"                       
-,"densitometer.y"   
-,"shannons_flora.y"                
-, "MEM1.y"                          
-, "MEM2.y"                          
-, "julianDate"                      
-# , "shannons"                        
-# , "simpsons"                        
-, "shannonsISD"
-,"simpsonsISD"
-)
-meta$waterRetention <- as.numeric(meta$waterRetention)
-cormat <- cor(meta[,names(meta) %in% predictors], use = "pairwise.complete.obs")
+  "Elevation",
+  "Slope %",
+  "Tree richness",
+  "Shrub richness",
+  "Dead and down trees",
+  "Precip. in April",
+  "Densitometer",
+  "Shannon's flora",
+  "Julian date",
+  "Mean temperature in April",
+  "Plant volume")
+
+
+cormat <- cor(meta,
+              use = "pairwise.complete.obs")
+
 pdf(width = 12, height = 12, file = "./visuals/correlogram_kitchensink.pdf")
   corrplot(cormat, method="circle")
 dev.off()
