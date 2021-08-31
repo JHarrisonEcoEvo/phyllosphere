@@ -9,31 +9,35 @@
 
 rm(list=ls())
 
-#Note that smallmem* files are clustered ESVs
+# # #Note that smallmem* files are clustered ESVs
 dat <- read.csv("./processedData/otuTables/16s_97_smallmem_otuTableCLEAN",
                 fill = T, header = T, stringsAsFactors = F)
  # dat <- read.csv("./processedData/otuTables/its97smallmem_otuTableCLEAN",
  #                fill = T, header = T, stringsAsFactors = F)
 
+ 
+ #For ease I check for locus here and then wrap code below such that 
+ #the correct version runs for each locus
+ if(any(grepl("rna16S", names(dat))==T)){
+   locus <- "16s"
+ }else{
+   locus <- "its"
+ }
+ 
 #remove soil and other extraneous samples
 dat <- dat[,-(grep("[OM]$", names(dat)))]
 dat <- dat[,names(dat) != "rna16S_TTGGTAAGAA_CTGCAGACCA_3_3_3_10"]
 dat <- dat[,names(dat) != "rna16S_TCCTCTTGAA_CTGCAGACCA_3_3_3_10"]
 dat <- dat[, -grep("2_1_1_2", names(dat))] # Remove 2_1_1_2 as I don't know is EN and which EP. Got mislabeled. 
-dat <- dat[, -grep("p[23]", names(dat))]
+
+if(locus == "16s"){
+  dat <- dat[, -grep("p[23]", names(dat))]
+}
 dat <- dat[, -grep("_19$", names(dat))]
 
 names(dat) <- gsub("(\\d+)E", "\\1_E", names(dat))
 #erasing dupes. These should get added together during the combining of duplicates part below
 names(dat) <- gsub("dupe", "", names(dat))
-
-#For ease I check for locus here and then wrap code below such that 
-#the correct version runs for each locus
-if(any(grepl("rna16S", names(dat))==T)){
-  locus <- "16s"
-}else{
-  locus <- "its"
-}
 
 #Seeing if the ISD and so on are in the otu table.
 #Counts for these were determined within the cleanOTUtable.R program
@@ -41,13 +45,6 @@ tail(dat$OTUID)
 
 # Bring in metadata to determine which samples are soil data
 metadat <- read.csv("./processedData/metadata.csv", stringsAsFactors = F)
-
-metadat$mid <- paste(metadat$forward_barcode, 
-                     metadat$reverse_barcode,
-                     sep = "_")
-metadat$mid <- paste(metadat$locus,
-                     metadat$mid,
-                     sep = "")
 
 ############################
 # Fix over-addition of ISD #
@@ -224,6 +221,10 @@ plot(ord$points[,1],ord$points[,2],
      col = cols,
      ylab = "PCoA 2",
      xlab = "PCoA 1")
+legend("topleft",legend = c("EN", "EP", "rewash"),
+       pch = 15,
+       col = c("orange","turquoise","purple"))
+
 dev.off()
 
 #names(forord)[cols == ""]
@@ -319,10 +320,18 @@ newdat <- data.frame(otus, newdat)
 
 #Keep duds but remove other contaminants
 duds <- newdat[which(as.character(newdat$otus) == "duds"),]
+ISD <- newdat[which(as.character(newdat$otus) == "ISD"),]
+mtDNA <- newdat[which(as.character(newdat$otus) == "mtDNA"),]
+cpDNA <- newdat[which(as.character(newdat$otus) == "plant"),]
 
 newdat <- newdat[-which(perc_contam > 0.01),]
-newdat[1 + length(newdat$otus),] <- duds
-  
+#newdat[1 + length(newdat$otus),] <- duds
+if(locus = "16s"){
+  newdat[1 + length(newdat$otus),] <- ISD
+}
+# newdat[1 + length(newdat$otus),] <- mtDNA
+# newdat[1 + length(newdat$otus),] <- cpDNA
+
 otus <- newdat[,1]
 newdat <- newdat[,-1]
 newdat <- newdat[,-grep("lank", names(newdat))]
