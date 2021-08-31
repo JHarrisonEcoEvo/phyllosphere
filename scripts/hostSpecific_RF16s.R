@@ -222,7 +222,7 @@ imp_num <- po("imputehist", param_vals = list(affect_columns = selector_type("nu
 ##########
 
 graph <-  po("imputehist", param_vals = list(affect_columns = selector_type("numeric"))) %>>% 
-  po("scale") %>>%
+  po("scale", param_vals = list(scale = T, center = T)) %>>%
   po( lrn("regr.ranger", importance = "permutation"))
 
 g1 <- GraphLearner$new(graph)

@@ -7,7 +7,7 @@ library(CNVRG)
 #                fill = T, header = T, stringsAsFactors = F)
 dat <- read.csv("./processedData/otuTables/smallmem97_ITS_for_modeling",
                 fill = T, header = T, stringsAsFactors = F)
-
+tail(dat$otus)
 #print dim to stdout
 dim(dat)
 
@@ -21,8 +21,9 @@ dat <- dat[rowSums(dat[,3:length(dat)]) > 0,]
 dim(dat)
 
 #remove rare stuff
-table(rowSums(dat[,3:length(dat)]) > 30)
-dat <- dat[rowSums(dat[,3:length(dat)]) > 30,]
+table(rowSums(dat[,3:length(dat)]) > 5)
+dat <- dat[rowSums(dat[,3:length(dat)]) > 5,]
+dim(dat)
 
 #Remove the otus column and all columns before it
 otus <- dat$otus 
@@ -38,9 +39,6 @@ for(i in unique(treatments)){
   treatments[treatments == i] <- paste(treatments[treatments == i], labs[k], sep = "_")
   k <- k + 1
 }
-#remove duplicates
-dat <- dat[,-grep("dupe", treatments)]
-treatments <- treatments[-grep("dupe", treatments)]
 
 #sanity check
 dim(dat)[2] == length(treatments)
@@ -67,10 +65,6 @@ tdat$ISD <- round(tdat$ISD)
 write.csv(unique(treatments), file = "./processedData/treatments_for_modeling_ITS.csv", 
           row.names = F)
 
-
-#write.csv(tdat, row.names = F, file = "./processedData/ITS_otu_table_preModeling.csv")
-
-table(is.numeric(tdat))
 modelOut <- cnvrg_VI(
   countData = tdat,
   starts = indexer(treatments)$starts,
@@ -84,54 +78,41 @@ modelOut <- cnvrg_VI(
   #  cores = 16,
   params_to_save = c("pi","p")
 )
-save.image(file = "/gscratch/jharri62/CNVRG_ITS_97.Rdata")
+save.image(file = "/gscratch/jharri62/CNVRG_ITS_97vi.Rdata")
 
+modelOut <- cnvrg_HMC(
+  countData = tdat,
+  starts = indexer(treatments)$starts,
+  ends = indexer(treatments)$ends,
+  algorithm = "NUTS",
+  chains = 2,
+  burn = 500,
+  samples = 1500,
+  thinning_rate = 2,
+  #output_samples = 100,
+    cores = 16,
+  params_to_save = c("pi","p")
+)
+save.image(file = "/gscratch/jharri62/CNVRG_ITS_97vi_hmc.Rdata")
 
 diffs <- diff_abund(model_output = modelOut, countData = tdat)
 save(diffs, file = "ITS_diffs.Rdata")
 
-ests <- extract_point_estimate(modelOut = modelOut, countData = tdat,treatments = length(unique(treatments)))
+ests <- extract_point_estimate(modelOut = modelOut, countData = tdat,params = c("pi","p"))
 forExport <- data.frame(treatments, tdat[,1],ests$pointEstimates_p)
 names(forExport)[2] <- "sample"
 forExport <- data.frame(treatments, tdat[,1],ests$pointEstimates_pi)
 
 write.csv(forExport, file = "ITS_pi_estimates.csv")
 
-#Doing transformation...
-load("CNVRG_ITS_97.Rdata")
-
 transformed <-
-  isd_transform(model_out = modelOut, countData = tdat, isd_index = 4267, format = "samples")
+  isd_transform(model_out = modelOut, countData = tdat, isd_index = which(names(tdat) == "ISD"))
 
 div <- diversity_calc(
-  model_out = transformed$pi,
-  countData = tdat[,(length(tdat)-2)],
-  params = c("p","pi"),
+  model_out = modelOut,
+  countData = tdat[, 1:(length(tdat)-2)],
+  params = "pi",
   entropy_measure = "shannon",
   equivalents = T
 )
 save(div, file = "ITS_div_isd_normalized.Rdata")
-
-
-#sanity check, first part on teton
-# vegdv <- vegan::diversity(tdat[,2:length(tdat)])
-# boxplot(vegdv~treatments)
-# treatments
-# boxplot(vegdv~treatments)
-# write.csv(data.frame(vegdv, treatments), file = "vegdv.csv")
-
-#Looks fairly different without transforming/modeling
-# test <- read.csv(file = "processedData/vegdv.csv")
-# meta <- read.csv("processedData/treatments_metadata.csv")
-# test$treatments <- gsub("(.*)_\\d+", "\\1", test$treatments)
-# mtest <- merge(test, meta, by.x = "treatments", by.y = "treatmentClass")
-# boxplot(mtest$vegdv ~ mtest$lifehistory + mtest$compartment)
-
-# vegdv <- vegan::diversity(transformed) #gives same output as cnvrg, when using transformed data
-
-rich0.0005 <- rich_calc(model_out = modelOut, countData = tdat, params = "pi", threshold = 0.0005)
-rich0.0001 <- rich_calc(model_out = modelOut, countData = tdat, params = "pi", threshold = 0.0001)
-rich0.0002 <- rich_calc(model_out = modelOut, countData = tdat, params = "pi", threshold = 0.0002)
-save(rich0.0002, rich0.0001, rich0.0005, file = "rich.Rdata")
-
-ests <- extract_point_estimate(model_out = modelOut, countData = tdat, params = c("p","pi"))

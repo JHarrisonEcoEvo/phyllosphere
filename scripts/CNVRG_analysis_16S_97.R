@@ -11,7 +11,7 @@ dat <- read.csv("./processedData/otuTables/smallmem97_16s_for_modeling",
 
 #print dim to stdout
 dim(dat)
-
+tail(dat$otus)
 #Note that we did considerable wrangling of these data using the
 #"combine_pcr_dupes.*" script
 
@@ -22,8 +22,9 @@ dat <- dat[rowSums(dat[,3:length(dat)]) > 0,]
 dim(dat)
 
 #remove rare stuff
-table(rowSums(dat[,3:length(dat)]) > 30)
-dat <- dat[rowSums(dat[,3:length(dat)]) > 30,]
+table(rowSums(dat[,3:length(dat)]) > 5)
+dat <- dat[rowSums(dat[,3:length(dat)]) > 5,]
+dim(dat)
 
 #Remove the otus column and all columns before it
 otus <- dat$otus 
@@ -39,9 +40,6 @@ for(i in unique(treatments)){
   treatments[treatments == i] <- paste(treatments[treatments == i], labs[k], sep = "_")
   k <- k + 1
 }
-#remove duplicates
-dat <- dat[,-grep("dupe", treatments)]
-treatments <- treatments[-grep("dupe", treatments)]
 
 #sanity check
 dim(dat)[2] == length(treatments)
@@ -78,22 +76,37 @@ modelOut <- cnvrg_VI(
   #samples = 1500,
   #thinning_rate = 2,
   output_samples = 100,
-#  cores = 16,
+  #  cores = 16,
   params_to_save = c("pi","p")
 )
-save.image(file = "/gscratch/jharri62/CNVRG_16S_97.Rdata")
+save.image(file = "/gscratch/jharri62/CNVRG_16S_97vi.Rdata")
+
+modelOut <- cnvrg_HMC(
+  countData = tdat,
+  starts = indexer(treatments)$starts,
+  ends = indexer(treatments)$ends,
+  algorithm = "NUTS",
+  chains = 2,
+  burn = 500,
+  samples = 1500,
+  thinning_rate = 2,
+  #output_samples = 100,
+  cores = 16,
+  params_to_save = c("pi","p")
+)
+save.image(file = "/gscratch/jharri62/CNVRG_16S_97vi_hmc.Rdata")
 
 diffs <- diff_abund(model_output = modelOut, countData = tdat)
 
 save.image(file = "/gscratch/jharri62/CNVRG_16S_97diffs.Rdata")
 
-ests <- extract_point_estimate(modelOut = modelOut, countData = tdat,treatments = length(unique(treatments)))
+ests <- extract_point_estimate(modelOut = modelOut, countData = tdat, params = c("p","pi"))
 forExport <- data.frame(treatments, tdat[,1],ests$pointEstimates_p)
 names(forExport)[2] <- "sample"
 write.csv(forExport, file = "16s_p_estimates.csv")
 
 transformed <-
-  isd_transform(model_out = modelOut, countData = tdat, isd_index = 4776, format = "samples")
+  isd_transform(model_out = modelOut, countData = tdat, isd_index = which(names(tdat) == "ISD"))
 
 div <- diversity_calc(
   model_out = modelOut, 

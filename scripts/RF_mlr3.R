@@ -83,6 +83,7 @@ merged_dat <- merge(X, taxa, by.x = "sample", by.y = "sample", all.y = T)
 #For convenience make response variable
 response_taxon <- merged_dat[,names(merged_dat) == focal_taxon]
 
+add MEMS
 #Get rid of stuff we don't need in merged_dat 
 merged_dat <- merged_dat[,names(merged_dat) %in%
          c(as.character(focal_taxon),
@@ -94,7 +95,7 @@ merged_dat <- merged_dat[,names(merged_dat) %in%
            , "height_sample"                                            
            , "Ambient_Humidity"                                         
            , "Ambient_Temperature"                                      
-           , "Leaf_Temp_Differential"                                   
+           , "Leaf_Temp_Differential"    #based on two other variables so seems worth removing                               
            , "LEF"                                                      
            , "Light_Intensity..PAR."                                    
            , "Phi2"                                                     
@@ -114,7 +115,7 @@ merged_dat <- merged_dat[,names(merged_dat) %in%
            , "FvP.FmP"                                                  
            , "G"                                                        
            , "gH."                                                      
-           , "NPQt_MPF"                                                 
+           #, "NPQt_MPF"                                                 
            , "pressure"                                                 
            , "qL"                                                       
            , "R"                                                        
@@ -275,7 +276,7 @@ imp_num <- po("imputehist", param_vals = list(affect_columns = selector_type("nu
 ##########
 
 graph <-  po("imputehist", param_vals = list(affect_columns = selector_type("numeric"))) %>>% 
-  po("scale") %>>%
+  po("scale", param_vals = list(scale = T, center = T)) %>>%
   po( lrn("regr.ranger", importance = "permutation"))
 
 g1 <- GraphLearner$new(graph)

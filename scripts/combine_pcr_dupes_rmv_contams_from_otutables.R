@@ -214,7 +214,7 @@ cols[grep("rewash",names(forord))] <- "purple"
 adonisOut <- adonis2(dat_e ~ cols, 
                      permutations = 999, method="euclidean")
 
-pdf(width = 8, height = 8, file = paste("./visuals/ordination_rewashes_", locus,".pdf", sep = ""))
+pdf(width = 6.5, height = 6.5, file = paste("./visuals/ordination_rewashes_", locus,".pdf", sep = ""))
 
 plot(ord$points[,1],ord$points[,2],
      pch = 19,
