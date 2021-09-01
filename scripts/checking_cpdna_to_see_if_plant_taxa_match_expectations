@@ -1,0 +1,29 @@
+Notes on checking samples to see if cpDNA matches expectations. 
+
+Doing this as a spot-check as a full survey would be somewhat onerous to code up and probably is unwarranted. 
+
+Recall that blanks had few reads and PCR duplicates were in accordance, both are widespread evidence that sample to well assignment was correct. Perhaps mistakes were made here and there, but they should be rare and unlikely to bias results in any meaningful way. 
+
+Samples checked: 
+
+From this library:
+/project/microbiome/users/jharri62/epscor_phyllosphere_microbial_survey/data/seqData/16s/oct9
+
+sm18biog.7_2_4_7_EN_16S_2_primary.16S.ATAAGAGAA.AATATAAC.plant.Harrison.R1.fq_prmRmv_fq_lowc.fq.merged.fq
+This is Antennaria media, matched a lot of Asters including Pseudognaphalium...which I wonder if it was.
+
+sm18biog.3_1_6_7_EN_16S_2_primary.16S.TAGATCAA.GATCGTCCA.plant.Harrison.R1.fq_prmRmv_fq_lowc.fq.merged.fq
+Supposed to be Ribes. Had 100% matches to a lot of stuff, including a Ribes
+
+
+From this library: 
+/project/microbiome/users/jharri62/epscor_phyllosphere_microbial_survey/data/seqData/16s/sep17
+
+Harrison.6_3_5_10.16S.ATAATCCA.ATCCGATA.Harrison.16S0D6G5.R1.fq_prmRmv_fqlowc.merged.fq
+Supposed to be Frasera. Matched a lot of stuff at 100%
+
+Harrison.2_3_6_2ep.16S.CTTGCAGCAA.CGGAGGCCA.Harrison.16S0D1F8.R1.fq_prmRmv_fqlowc.merged.fq
+Supposed to be Eucephalus engelmannii. Again matched a ton of stuff at 100%
+
+In general, this analysis provides some support of correct assignment, though it seems that
+in many cases the plant locus matches many taxa. This is as expected as the 16s is not really a locus used for plant metabarcoding.
