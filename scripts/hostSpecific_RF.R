@@ -155,7 +155,9 @@ merged_dat <- merged_dat[,names(merged_dat) %in%
                              , "compartment_EP"                                           
                              , "phenology_flowering"                                      
                              , "phenology_fruiting"                                       
-                             , "phenology_vegetative"                                     
+                             , "phenology_vegetative"
+                             ,"MEM1"
+                             , "MEM2"
                            )]
 
 #Convert to numeric (makes it easier when doing imputing)

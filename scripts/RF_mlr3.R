@@ -36,12 +36,11 @@ taxa <- read.csv(inargs[2]) #./ITSp_estimates_wrangled_for_post_modeling_analysi
 possibles <- read.csv(inargs[4]) # "./processedData/ITS_taxa_to_model_via_randomforest.csv"
 focal_taxon <- possibles[inargs[3],]
 
-#Debugging stuff
-taxa <- read.csv("./processedData//ITSp_estimates_wrangled_for_post_modeling_analysis_divided_by_ISD.csv")
-possibles <- read.csv("./processedData/ITS_taxa_to_model_via_randomforest.csv")
-focal_taxon <- possibles[1,]
-
-X<- read.csv("./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv")
+##Debugging stuff
+# taxa <- read.csv("./processedData//ITSp_estimates_wrangled_for_post_modeling_analysis_divided_by_ISD.csv")
+# possibles <- read.csv("./processedData/ITS_taxa_to_model_via_randomforest.csv")
+# focal_taxon <- possibles[1,]
+#X<- read.csv("./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv")
 
 #######################
 # Feature engineering #
@@ -83,7 +82,6 @@ merged_dat <- merge(X, taxa, by.x = "sample", by.y = "sample", all.y = T)
 #For convenience make response variable
 response_taxon <- merged_dat[,names(merged_dat) == focal_taxon]
 
-add MEMS
 #Get rid of stuff we don't need in merged_dat 
 merged_dat <- merged_dat[,names(merged_dat) %in%
          c(as.character(focal_taxon),
@@ -140,7 +138,9 @@ merged_dat <- merged_dat[,names(merged_dat) %in%
            , "julianDate"                                               
            , "mean_temp_april.y"                                        
            , "plant_vol"                                                
-           , "sla"                                                      
+           , "sla"
+          ,"MEM1"
+          , "MEM2"
            , "habit_forb"                                               
            , "habit_graminoid"                                          
            , "habit_shrub"                                              
@@ -213,6 +213,138 @@ merged_dat <- merged_dat[,names(merged_dat) %in%
            , "phenology_fruiting"                                       
            , "phenology_vegetative"                                     
          )]
+
+#QC 
+table(names(merged_dat) %in%
+  c(as.character(focal_taxon),
+    "sample"
+    , "area_cm2"                                                 
+    , "mass_extracted_g"                                         
+    , "leaves_extracted"                                         
+    , "circumStem"                                               
+    , "height_sample"                                            
+    , "Ambient_Humidity"                                         
+    , "Ambient_Temperature"                                      
+    , "Leaf_Temp_Differential"    #based on two other variables so seems worth removing                               
+    , "LEF"                                                      
+    , "Light_Intensity..PAR."                                    
+    , "Phi2"                                                     
+    , "PhiNO"                                                    
+    , "PhiNPQ"                                                   
+    , "Relative_Chlorophyll"                                     
+    , "thickness"                                                
+    , "absorbance_420"                                           
+    , "absorbance_940"                                           
+    , "B"                                                        
+    , "contactless_temp"                                         
+    , "ecs_initial"                                              
+    , "ecs_max"                                                  
+    , "FmPrime"                                                  
+    , "FoPrime"                                                  
+    , "Fs"                                                       
+    , "FvP.FmP"                                                  
+    , "G"                                                        
+    , "gH."                                                      
+    #, "NPQt_MPF"                                                 
+    , "pressure"                                                 
+    , "qL"                                                       
+    , "R"                                                        
+    , "Rel_Chl_intensity"                                        
+    , "RFd"                                                      
+    , "SPAD_420"                                                 
+    , "SPAD_420_intensity"                                       
+    , "TimeofDay"                                                
+    , "lat"                                                 
+    , "long"                                                
+    , "waterRetention"                                           
+    , "toughness"                                                
+    , "elev_m"                                                   
+    , "slope_perc"                                               
+    , "treeRich"                                                 
+    , "shrubRich"                                                
+    , "deadDown"                                                 
+    , "precip_april_in.x"                                        
+    , "densitometer"                                             
+    , "shannons_flora"
+    # , "shannonsISD"
+    , "julianDate"                                               
+    , "mean_temp_april.y"                                        
+    , "plant_vol"                                                
+    , "sla"
+    ,"MEM1"
+    , "MEM2"
+    , "habit_forb"                                               
+    , "habit_graminoid"                                          
+    , "habit_shrub"                                              
+    , "habit_tree"                                               
+    , "compartment_EN"                                           
+    , "compartment_EP"                                           
+    , "taxon_final_Abies concolor"                               
+    , "taxon_final_Abies grandis"                                
+    , "taxon_final_Antennaria media"                             
+    , "taxon_final_Aquilegia caerula"                            
+    , "taxon_final_Arnica cordifolia"                            
+    , "taxon_final_Artemisia tridentata"                         
+    , "taxon_final_Astragalus alpinus"                           
+    , "taxon_final_Astragalus kentrophyta"                       
+    , "taxon_final_Astragalus miser"                             
+    , "taxon_final_Bistorta bistortoides"                        
+    , "taxon_final_Carex paysonis"                               
+    , "taxon_final_Carex scopulorum var. bracteosa"              
+    , "taxon_final_Chamaenerion angustifolium var. angustifolium"
+    , "taxon_final_Delphinium occidentale"                       
+    , "taxon_final_Erigeron glacialis"                           
+    , "taxon_final_Eriogonum umbellatum"                         
+    , "taxon_final_Eucephalus elegans"                           
+    , "taxon_final_Eucephalus engelmannii"                       
+    , "taxon_final_Fragaria virginiana"                          
+    , "taxon_final_Frasera speciosa"                             
+    , "taxon_final_Geranium viscossimum var. viscosissimum"      
+    , "taxon_final_Helianthella uniflora"                        
+    , "taxon_final_Heracleum maximum"                            
+    , "taxon_final_Juncus balticus."                             
+    , "taxon_final_Juncus parryi"                                
+    , "taxon_final_Juncus sp."                                   
+    , "taxon_final_Juniperus communis"                           
+    , "taxon_final_Ligusticum filicinum"                         
+    , "taxon_final_Lupinus argenteus"                            
+    , "taxon_final_Mahonia repens"                               
+    , "taxon_final_Mertensiana ciliata var. ciliata"             
+    , "taxon_final_Minuartia obtusiloba"                         
+    , "taxon_final_Osmorhiza depauperata"                        
+    , "taxon_final_Oxyria digyna"                                
+    , "taxon_final_Paxistima myrsinites"                         
+    , "taxon_final_Picea engelmannii"                            
+    , "taxon_final_Pinus albicaulis"                             
+    , "taxon_final_Pinus contorta"                               
+    , "taxon_final_Poa pratensis"                                
+    , "taxon_final_Poa wheeleri"                                 
+    , "taxon_final_Polemonium viscosum"                          
+    , "taxon_final_Populus angustifolium"                        
+    , "taxon_final_Populus tremulloides"                         
+    , "taxon_final_Potentilla diversifolia"                      
+    , "taxon_final_Potentilla fruticosa"                         
+    , "taxon_final_Potentilla pulcherrima"                       
+    , "taxon_final_Primula parryi"                               
+    , "taxon_final_Pseudotsuga menziesii"                        
+    , "taxon_final_Ribes montigenum"                             
+    , "taxon_final_Salix glauca var. villosa"                    
+    , "taxon_final_Salix reticulata var. nana"                   
+    , "taxon_final_Sedum lanceolatum"                            
+    , "taxon_final_Symphoricarpos albus"                         
+    ,"taxon_final_Symphyotrichum foliaceum var. apricum"        
+    , "taxon_final_Thalictrum occidentale"                       
+    , "taxon_final_Trifolium parryi var. montanense"             
+    , "taxon_final_Unknown fir"                                  
+    , "taxon_final_Unknown pine"                                 
+    , "taxon_final_Unknown Spruce"                               
+    , "taxon_final_Vaccinium membranaceum"                       
+    , "taxon_final_Vaccinium scoparium"                          
+    , "taxon_final_Wyethia amplexicaulis"                        
+    , "phenology_flowering"                                      
+    , "phenology_fruiting"                                       
+    , "phenology_vegetative"                                     
+  ))
 
 #Convert to numeric (makes it easier when doing imputing)
 for(i in 2:length(merged_dat)){

@@ -75,7 +75,7 @@ modelOut <- cnvrg_VI(
   #burn = 500,
   #samples = 1500,
   #thinning_rate = 2,
-  output_samples = 100,
+  output_samples = 150,
   #  cores = 16,
   params_to_save = c("pi","p")
 )
