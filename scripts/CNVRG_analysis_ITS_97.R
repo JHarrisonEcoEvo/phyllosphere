@@ -98,12 +98,10 @@ save.image(file = "/gscratch/jharri62/CNVRG_ITS_97vi_hmc.Rdata")
 diffs <- diff_abund(model_output = modelOut, countData = tdat)
 save(diffs, file = "ITS_diffs.Rdata")
 
-ests <- extract_point_estimate(modelOut = modelOut, countData = tdat,params = c("pi","p"))
-forExport <- data.frame(treatments, tdat[,1],ests$pointEstimates_p)
-names(forExport)[2] <- "sample"
-forExport <- data.frame(treatments, tdat[,1],ests$pointEstimates_pi)
+ests <- extract_point_estimate(model_out = modelOut, countData = tdat)
 
-write.csv(forExport, file = "ITS_pi_estimates.csv")
+write.csv(ests$pointEstimates_p , file = "multi_ests_its.csv")
+write.csv(ests$pointEstimates_pi , file = "dir_ests_its.csv")
 
 transformed <-
   isd_transform(model_out = modelOut, countData = tdat, isd_index = which(names(tdat) == "ISD"))

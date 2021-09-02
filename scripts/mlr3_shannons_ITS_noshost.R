@@ -258,7 +258,7 @@ params <- ps(
 
 at <- AutoTuner$new(
   learner = g1,
-  resampling = rsmp("cv", folds = 3),
+  resampling = rsmp("cv", folds = 4),
   measure = msr("regr.rsq"),
   terminator = trm("none"),
   tuner = tnr("hyperband", eta = 3),
@@ -266,7 +266,7 @@ at <- AutoTuner$new(
   store_models = TRUE)
 
 #pass back to resampling for nested resampling
-outer_resampling <- rsmp("cv", folds = 10)
+outer_resampling <- rsmp("cv", folds = 3)
 rr <- resample(task = phyllo_task, 
                learner = at, 
                outer_resampling, 
@@ -343,14 +343,14 @@ if(length(feat_selector$result_feature_set) > 1){
 
 at_reduced <- AutoTuner$new(
   learner = g1,
-  resampling = rsmp("cv", folds = 3),
+  resampling = rsmp("cv", folds = 4),
   measure = msr("regr.rsq"),
   terminator = trm("none"),
   tuner = tnr("hyperband", eta = 3),
   search_space = params)
 
 #pass back to resampling for nested resampling
-outer_resampling <- rsmp("cv", folds = 10)
+outer_resampling <- rsmp("cv", folds = 3)
 rr <- resample(task = phyllo_task, 
                learner = at_reduced, 
                outer_resampling, 

@@ -96,14 +96,14 @@ modelOut <- cnvrg_HMC(
 )
 save.image(file = "/gscratch/jharri62/CNVRG_16S_97vi_hmc.Rdata")
 
-diffs <- diff_abund(model_output = modelOut, countData = tdat)
+diffs <- diff_abund(model_out = modelOut, countData = tdat)
 
 save.image(file = "/gscratch/jharri62/CNVRG_16S_97diffs.Rdata")
 
-ests <- extract_point_estimate(modelOut = modelOut, countData = tdat, params = c("p","pi"))
-forExport <- data.frame(treatments, tdat[,1],ests$pointEstimates_p)
-names(forExport)[2] <- "sample"
-write.csv(forExport, file = "16s_p_estimates.csv")
+ests <- extract_point_estimate(model_out = modelOut, countData = tdat)
+
+write.csv(ests$pointEstimates_p , file = "multi_ests_16s.csv")
+write.csv(ests$pointEstimates_pi , file = "dir_ests_16s.csv")
 
 transformed <-
   isd_transform(model_out = modelOut, countData = tdat, isd_index = which(names(tdat) == "ISD"))
