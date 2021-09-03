@@ -1,6 +1,6 @@
 rm(list=ls())
 library(mlr3) #cant get mlr3 to install on work computer
-library(xgboost)
+#library(xgboost)
 #install.packages("mlr3learners")
 library(mlr3learners)
 library(mlr3verse)
@@ -36,11 +36,11 @@ taxa <- read.csv(inargs[2]) #./ITSp_estimates_wrangled_for_post_modeling_analysi
 possibles <- read.csv(inargs[4]) # "./processedData/ITS_taxa_to_model_via_randomforest.csv"
 focal_taxon <- possibles[inargs[3],]
 
-##Debugging stuff
+# #Debugging stuff
 # taxa <- read.csv("./processedData//ITSp_estimates_wrangled_for_post_modeling_analysis_divided_by_ISD.csv")
 # possibles <- read.csv("./processedData/ITS_taxa_to_model_via_randomforest.csv")
 # focal_taxon <- possibles[1,]
-#X<- read.csv("./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv")
+# X<- read.csv("./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv")
 
 #######################
 # Feature engineering #
@@ -71,6 +71,9 @@ categoricals <- c(
   "taxon_final",
   "phenology"
 )
+#remove spaces in taxon_final for ease of output file manipulation. 
+X$taxon_final <- gsub(" ", "", X$taxon_final)
+
 X <- dummy_cols(.data = X, select_columns = categoricals)
 
 #the missing stuff were things I removed due to poor sequencing
@@ -146,69 +149,69 @@ merged_dat <- merged_dat[,names(merged_dat) %in%
            , "habit_shrub"                                              
            , "habit_tree"                                               
            , "compartment_EN"                                           
-           , "compartment_EP"                                           
-           , "taxon_final_Abies concolor"                               
-           , "taxon_final_Abies grandis"                                
-           , "taxon_final_Antennaria media"                             
-           , "taxon_final_Aquilegia caerula"                            
-           , "taxon_final_Arnica cordifolia"                            
-           , "taxon_final_Artemisia tridentata"                         
-           , "taxon_final_Astragalus alpinus"                           
-           , "taxon_final_Astragalus kentrophyta"                       
-           , "taxon_final_Astragalus miser"                             
-           , "taxon_final_Bistorta bistortoides"                        
-           , "taxon_final_Carex paysonis"                               
-           , "taxon_final_Carex scopulorum var. bracteosa"              
-           , "taxon_final_Chamaenerion angustifolium var. angustifolium"
-           , "taxon_final_Delphinium occidentale"                       
-           , "taxon_final_Erigeron glacialis"                           
-           , "taxon_final_Eriogonum umbellatum"                         
-           , "taxon_final_Eucephalus elegans"                           
-           , "taxon_final_Eucephalus engelmannii"                       
-           , "taxon_final_Fragaria virginiana"                          
-           , "taxon_final_Frasera speciosa"                             
-           , "taxon_final_Geranium viscossimum var. viscosissimum"      
-           , "taxon_final_Helianthella uniflora"                        
-           , "taxon_final_Heracleum maximum"                            
-           , "taxon_final_Juncus balticus."                             
-           , "taxon_final_Juncus parryi"                                
-           , "taxon_final_Juncus sp."                                   
-           , "taxon_final_Juniperus communis"                           
-           , "taxon_final_Ligusticum filicinum"                         
-           , "taxon_final_Lupinus argenteus"                            
-           , "taxon_final_Mahonia repens"                               
-           , "taxon_final_Mertensiana ciliata var. ciliata"             
-           , "taxon_final_Minuartia obtusiloba"                         
-           , "taxon_final_Osmorhiza depauperata"                        
-           , "taxon_final_Oxyria digyna"                                
-           , "taxon_final_Paxistima myrsinites"                         
-           , "taxon_final_Picea engelmannii"                            
-           , "taxon_final_Pinus albicaulis"                             
-           , "taxon_final_Pinus contorta"                               
-           , "taxon_final_Poa pratensis"                                
-           , "taxon_final_Poa wheeleri"                                 
-           , "taxon_final_Polemonium viscosum"                          
-           , "taxon_final_Populus angustifolium"                        
-           , "taxon_final_Populus tremulloides"                         
-           , "taxon_final_Potentilla diversifolia"                      
-           , "taxon_final_Potentilla fruticosa"                         
-           , "taxon_final_Potentilla pulcherrima"                       
-           , "taxon_final_Primula parryi"                               
-           , "taxon_final_Pseudotsuga menziesii"                        
-           , "taxon_final_Ribes montigenum"                             
-           , "taxon_final_Salix glauca var. villosa"                    
-           , "taxon_final_Salix reticulata var. nana"                   
-           , "taxon_final_Sedum lanceolatum"                            
-           , "taxon_final_Symphoricarpos albus"                         
-           ,"taxon_final_Symphyotrichum foliaceum var. apricum"        
-           , "taxon_final_Thalictrum occidentale"                       
-           , "taxon_final_Trifolium parryi var. montanense"             
-           , "taxon_final_Unknown fir"                                  
-           , "taxon_final_Unknown pine"                                 
-           , "taxon_final_Unknown Spruce"                               
-           , "taxon_final_Vaccinium membranaceum"                       
-           , "taxon_final_Vaccinium scoparium"                          
-           , "taxon_final_Wyethia amplexicaulis"                        
+,"compartment_EP"
+,"taxon_final_Abiesconcolor"
+,"taxon_final_Abiesgrandis"
+,"taxon_final_Antennariamedia"
+,"taxon_final_Aquilegiacaerula"
+,"taxon_final_Arnicacordifolia"
+,"taxon_final_Artemisiatridentata"
+,"taxon_final_Astragalusalpinus"
+,"taxon_final_Astragaluskentrophyta"
+,"taxon_final_Astragalusmiser"
+,"taxon_final_Bistortabistortoides"
+,"taxon_final_Carexpaysonis"
+,"taxon_final_Carexscopulorumvar.bracteosa"
+,"taxon_final_Chamaenerionangustifoliumvar.angustifolium"
+,"taxon_final_Delphiniumoccidentale"
+,"taxon_final_Erigeronglacialis"
+,"taxon_final_Eriogonumumbellatum"
+,"taxon_final_Eucephaluselegans"
+,"taxon_final_Eucephalusengelmannii"
+,"taxon_final_Fragariavirginiana"
+,"taxon_final_Fraseraspeciosa"
+,"taxon_final_Geraniumviscossimumvar.viscosissimum"
+,"taxon_final_Helianthellauniflora"
+,"taxon_final_Heracleummaximum"
+,"taxon_final_Juncusbalticus."
+,"taxon_final_Juncusparryi"
+,"taxon_final_Juncussp."
+,"taxon_final_Juniperuscommunis"
+,"taxon_final_Ligusticumfilicinum"
+,"taxon_final_Lupinusargenteus"
+,"taxon_final_Mahoniarepens"
+,"taxon_final_Mertensianaciliatavar.ciliata"
+,"taxon_final_Minuartiaobtusiloba"
+,"taxon_final_Osmorhizadepauperata"
+,"taxon_final_Oxyriadigyna"
+,"taxon_final_Paxistimamyrsinites"
+,"taxon_final_Piceaengelmannii"
+,"taxon_final_Pinusalbicaulis"
+,"taxon_final_Pinuscontorta"
+,"taxon_final_Poapratensis"
+,"taxon_final_Poawheeleri"
+,"taxon_final_Polemoniumviscosum"
+,"taxon_final_Populusangustifolium"
+,"taxon_final_Populustremulloides"
+,"taxon_final_Potentilladiversifolia"
+,"taxon_final_Potentillafruticosa"
+,"taxon_final_Potentillapulcherrima"
+,"taxon_final_Primulaparryi"
+,"taxon_final_Pseudotsugamenziesii"
+,"taxon_final_Ribesmontigenum"
+,"taxon_final_Salixglaucavar.villosa"
+,"taxon_final_Salixreticulatavar.nana"
+,"taxon_final_Sedumlanceolatum"
+,"taxon_final_Symphoricarposalbus"
+,"taxon_final_Symphyotrichumfoliaceumvar.apricum"
+,"taxon_final_Thalictrumoccidentale"
+,"taxon_final_Trifoliumparryivar.montanense"
+,"taxon_final_Unknownfir"
+,"taxon_final_Unknownpine"
+,"taxon_final_UnknownSpruce"
+,"taxon_final_Vacciniummembranaceum"
+,"taxon_final_Vacciniumscoparium"
+,"taxon_final_Wyethiaamplexicaulis"
            , "phenology_flowering"                                      
            , "phenology_fruiting"                                       
            , "phenology_vegetative"                                     
@@ -474,7 +477,7 @@ out$taxon <- focal_taxon
 out$rsq_nested_resampling <- rsq
 out$mse_nested_resampling <- mse
 
-write.csv(var.imp, file = paste("variableImportance", focal_taxon, "ITS.csv"), row.names = T)
+write.csv(var.imp, file = paste("variableImportance", focal_taxon, "ITS.csv", sep = ""), row.names = T)
 
 ##########################################
 # Do over AFTER reducing the feature set#
@@ -544,9 +547,9 @@ tained_at_reduced <- at$train(phyllo_task)
 
 var.impR <- data.frame(tained_at_reduced$model$learner$model$regr.ranger$model$variable.importance)
 
-write.csv(var.impR, file = paste("variableImportanceReduced", focal_taxon, "ITS.csv"), row.names = T)
+write.csv(var.impR, file = paste("variableImportanceReduced", focal_taxon, "ITS.csv", sep = ""), row.names = T)
 
-write.csv(out, file = paste("results", focal_taxon, "ITS.csv"), row.names = F)
+write.csv(out, file = paste("results", focal_taxon, "ITS.csv", sep = ""), row.names = F)
 
 
 
