@@ -63,7 +63,7 @@ df <- ldply(phyla_df, data.frame)
 wide = df %>% 
   spread(compartment, sum)
 wide
-fornext <- wide$taxon
+fornext <- wide$taxon ######### This is to ensure the colors match between plots
 
 colors <- wes_palette("FantasticFox1", n = dim(wide)[1], type = "continuous")
 
@@ -136,7 +136,7 @@ a <- barplot(as.matrix(wide[,2:length(wide)]),
         cex.lab = 1.5,
         cex.axis = 1.5,
         las = 2, 
-        ylim = c(0,25),
+        ylim = c(0,80),
         space=0.04, 
         #font.axis=2, 
         xaxt = "n",
@@ -271,7 +271,7 @@ a <- barplot(as.matrix(wide[,2:length(wide)]),
              cex.lab = 1.5,
              cex.axis = 1.5,
              las = 2, 
-             #ylim = c(0,1000),
+             ylim = c(0,200),
              space=0.04, 
              #font.axis=2, 
              xaxt = "n",
