@@ -100,6 +100,7 @@ diffs <- diff_abund(model_out = modelOut, countData = tdat)
 
 save.image(file = "/gscratch/jharri62/CNVRG_16S_97diffs.Rdata")
 
+load(file = "/gscratch/jharri62/CNVRG_16S_97vi.Rdata")
 ests <- extract_point_estimate(model_out = modelOut, countData = tdat)
 
 write.csv(ests$pointEstimates_p , file = "multi_ests_16s.csv")

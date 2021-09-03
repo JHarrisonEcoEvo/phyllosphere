@@ -1,6 +1,6 @@
 #two part script one part for each locus
 rm(list = ls())
-dat <- read.csv("./processedData/16sp_estimates_wrangled_for_post_modeling_analysis.csv",
+dat <- read.csv("./processedData/multi_ests_16s.csv",
                 stringsAsFactors = F)
 dat[1:3,1:3]
 dim(dat)
@@ -172,7 +172,7 @@ dim(metadat_reduced3)
 #commence to doing analyses!
 write.csv(metadat_reduced3, file = "./processedData/16smetadat_wrangled_for_post_modeling_analysis.csv", row.names = F)
 write.csv(dat, file = "./processedData/16sp_estimates_wrangled_for_post_modeling_analysis.csv", row.names = F)
-dat[,4:length(dat)] <- dat[,4:length(dat)] / dat$ISD
+dat[,3:length(dat)] <- dat[,3:length(dat)] / dat$ISD
 write.csv(dat, file = "./processedData/16sp_estimates_wrangled_for_post_modeling_analysis_divided_by_ISD.csv", row.names = F)
 
 ############
@@ -180,11 +180,10 @@ write.csv(dat, file = "./processedData/16sp_estimates_wrangled_for_post_modeling
 ############
 
 rm(list = ls())
-  dat <- read.csv("./processedData/ITSp_estimates_wrangled_for_post_modeling_analysis_divided_by_ISD.csv",
+  dat <- read.csv("./processedData/multi_ests_its.csv",
                 stringsAsFactors = F)
   dat[1:3,1:3]
-  dim(dat$sample)
-  
+
   metadat <- read.csv("./processedData/metadata_2.csv",
                       stringsAsFactors = F)
   table(is.na(metadat$habit))
@@ -341,5 +340,5 @@ rm(list = ls())
 #commence to doing analyses!
 write.csv(metadat_reduced3, file = "./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv", row.names = F)
 write.csv(dat, file = "./processedData/ITSp_estimates_wrangled_for_post_modeling_analysis.csv", row.names = F)
-dat[,5:length(dat)] <- dat[,5:length(dat)] / dat$ISD
+dat[,3:length(dat)] <- dat[,3:length(dat)] / dat$ISD
 write.csv(dat, file = "./processedData/ITSp_estimates_wrangled_for_post_modeling_analysis_divided_by_ISD.csv", row.names = F)
