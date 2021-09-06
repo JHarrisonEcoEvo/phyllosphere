@@ -105,16 +105,3 @@ ests <- extract_point_estimate(model_out = modelOut, countData = tdat)
 
 write.csv(ests$pointEstimates_p , file = "multi_ests_16s.csv")
 write.csv(ests$pointEstimates_pi , file = "dir_ests_16s.csv")
-
-transformed <-
-  isd_transform(model_out = modelOut, countData = tdat, isd_index = which(names(tdat) == "ISD"))
-
-div <- diversity_calc(
-  model_out = modelOut, 
-  countData = tdat[, 1:(length(tdat)-4)],
-  params = "pi",
-  entropy_measure = "shannon",
-  equivalents = T
-)
-save(div, file = "16s_div_isd_normalized.Rdata")
-
