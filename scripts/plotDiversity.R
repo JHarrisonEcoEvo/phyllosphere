@@ -78,7 +78,7 @@ text(x = 4.5,
      y = 3500,
      cex = 1,
      xpd = NA,
-     "Fungi (Hellinger and ISD normalized)"
+     "Fungi (Hellinger, ISD normalized)"
 )
 
 dev.off()
@@ -87,6 +87,7 @@ dev.off()
 ############Plot modeled data
 
 pdf(width = 7, height = 7, file = "./visuals/diversity_density_lifehistoryITS_modeled.pdf")
+par(oma = c(4,4,2,2))
 
 stripchart((meta$shannonsISD) ~ meta$compartment + meta$lifehistory,
            vertical = TRUE, 
@@ -175,7 +176,7 @@ add.alpha <- function(col, alpha=1){
 
 pdf(width = 7, height = 7, file = "./visuals/diversity_density_lifehistory16S_hellinger.pdf")
 
-par(mar =c(4,4,2,2), oma =c(3,3,1,1))
+par(oma = c(4,4,2,2))
 stripchart((meta$div_raw) ~ meta$compartment + meta$lifehistory,
            vertical = TRUE, 
            
@@ -232,7 +233,7 @@ text(x = 4.5,
      y = 2365,
      cex = 1,
      xpd = NA,
-     "Bacteria (Hellinger and ISD normalized)"
+     "Bacteria (Hellinger, ISD normalized)"
 )
 
 text(
@@ -250,7 +251,7 @@ dev.off()
 
 pdf(width = 7, height = 7, file = "./visuals/diversity_density_lifehistory16S_modeled.pdf")
 
-par(mar =c(4,4,2,2), oma =c(3,3,1,1))
+par(oma = c(4,4,2,2))
 stripchart((meta$shannonsISD) ~ meta$compartment + meta$lifehistory,
            vertical = TRUE, 
            
@@ -307,7 +308,7 @@ text(x = 4.5,
      y = 2365,
      cex = 1,
      xpd = NA,
-     "Bacteria (Hellinger and ISD normalized)"
+     "Bacteria (modeled, ISD normalized)"
 )
 
 text(
