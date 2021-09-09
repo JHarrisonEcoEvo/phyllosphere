@@ -34,29 +34,51 @@ class <- gsub("k:Bacteria,p:\\w+,c:\\[(\\w+).*","\\1", class)
 table(class)
 
 #Pie chart
-cnvrg_modeled <- read.csv("./processedData/otuTables/smallmem97_16S_for_modeling_rearranged_for_CNVRG")
+dat <- read.csv("./processedData/otuTables/smallmem97_16S_for_modeling_rearranged_for_CNVRG")
+dat[1:5,1:5] #1s were added!
+dat[,3:length(dat)] <- dat[,3:length(dat)] - 1
 
-head(names(cnvrg_modeled))
-tail(names(cnvrg_modeled))
-#Subtract 6 from the dimensions for number of taxa present with more than 5 reads.
-dim(cnvrg_modeled) - 6
-#2360 taxa
+#convert data to qualitative data, 1 if present 0 otherwise
+dat[,3:length(dat)][dat[,3:length(dat)] > 0] <- 1
+dim(dat) #still good
 
-#how many were started with:
-dat <- read.csv("./processedData/otuTables/smallmem97_16s_for_modeling", 
-                fill = T, header = T, stringsAsFactors = F)
+#Figure out how many things were in 100 or more samples.
+#This should be how many things I tried to model with the random forest
+prev <- dat[,colSums(dat[,3:length(dat)]) >=100]
+prevalent <- dim(prev)[2] -2
 
-dat <- dat[rowSums(dat[,3:length(dat)]) > 0,]
-dim(dat) #5532
-
-#how many were modeled
-dim(hits)
+hyperrare <- dim( dat[,colSums(dat[,3:length(dat)]) < 5])[2]
+uncommon <- dim(dat[,colSums(dat[,3:length(dat)]) >= 5 & colSums(dat[,3:length(dat)]) < 100,])[2]
 
 #how many were successfully modeled
 results <- read.csv("processedData/all16s.csv")
 results <- results[results$taxon != "taxon",]
-good <- results[as.numeric(as.character(results$rsq_nested_resampling)) > 0.01,]
-good
+
+good <- results[as.numeric(as.character(results$rsq_nested_resampling)) >= 0.01,]
+predictable <- dim(good)[1]
+
+#subtracting stuff so that the total of the pie chart is accurate, things not double counted
+slice1 <- hyperrare
+slice2 <- uncommon
+slice3 <- prevalent - predictable
+slice4 <- predictable
+
+slices <- c(slice1, slice2, slice3, slice4)
+
+#QC
+sum(slices) == (dim(dat)-4)[2]
+lbls <- c("Very rare OTUs  (< 5 samples)",
+          "Uncommon OTUs (5-100 samples)",
+          "Prevalent OTUs (100+ samples)",
+          "Predictable OTUs (R2 > 1%)")
+
+pct <- round(slices/sum(slices)*100)
+lbls <- paste(lbls, pct) # add percents to labels
+lbls <- paste(lbls,"%",sep="") # ad % to labels 
+
+pdf(width = 11, height = 11, file = "./visuals/16s_predictability_piechart.pdf")
+pie(slices, labels = lbls, main="", col = c("gray","gray","gray","green"))
+dev.off()
 
 ########################################
 # 2. ITS taxa modeled across all hosts #
