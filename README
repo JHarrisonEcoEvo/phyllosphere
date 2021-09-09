@@ -1,4 +1,12 @@
 
+
+########
+scripts/ includes:
+
+combine_pcr_dupes_rmv_contams... - this script examines blanks, rewashed samples, removes cross-contaminated samples, combines PCR duplicates, and outputs cleaned up OTU tables for modelling via CNVRG.
+
+
+########
 raw_data_notIncluding+sequenceData/ includes: 
 
 quantifiedDNA: DNA concentration and spectral info from the microdrop reader

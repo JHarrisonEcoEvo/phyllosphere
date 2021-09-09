@@ -301,6 +301,14 @@ out <- data.frame(matrix(nrow = 1, ncol = 1))
 out$rsq_nested_resampling <- rsq
 out$mse_nested_resampling <- mse
 
+#rank by importance
+viewdf <- data.frame(
+  row.names(var.imp)[order(var.imp$tained_at.model.learner.model.regr.ranger.model.variable.importance)],
+  var.imp[order(var.imp$tained_at.model.learner.model.regr.ranger.model.variable.importance),1] 
+)
+names(viewdf) <- ""
+viewdf
+
 write.csv(var.imp, file = paste("variableImportanceshannonsISD_ITS.csv"), row.names = T)
 
 ##########################################
