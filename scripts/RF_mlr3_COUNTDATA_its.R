@@ -359,11 +359,11 @@ for(i in 2:length(merged_dat)){
 ######################
 
 #Make a one hot variable that is a 1 if the focal taxon (the response variable)
-#is present above its median abund. and a zero otherwise. 
+#is present above its mean abund. and a zero otherwise. 
 #This lets us stratify during splitting so we don't end up with a 
 #train/test split that has just high or low values of the response. 
 
-merged_dat$focal_one_hot <- ifelse(response_taxon > median(response_taxon), 1, 0)
+merged_dat$focal_one_hot <- ifelse(response_taxon > mean(response_taxon), 1, 0)
 table(merged_dat$focal_one_hot)
 
 merged_dat$stratify <- paste(merged_dat$compartment, merged_dat$focal_one_hot)

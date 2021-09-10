@@ -200,7 +200,7 @@ for(i in 2:length(merged_dat)){
 
 #Make a stratum column that is just a dupe of the response
 merged_dat$shannonsISDstratum <- ifelse(merged_dat$div_raw > 
-                                          median(merged_dat$div_raw), 1, 0)
+                                          mean(merged_dat$div_raw), 1, 0)
 
 names(merged_dat) <- gsub("\\s", "_", names(merged_dat))
 
