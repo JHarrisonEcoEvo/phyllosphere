@@ -81,37 +81,50 @@ dim(dat)
 #Remove the one that was addedd
 
 dat[,3:length(dat)] <- dat[,3:length(dat)] -1
+dat$sample <- gsub("X","", dat$sample)
+dat$region_site_plant <-  gsub("(\\d+_\\d+_\\d+)_.*","\\1", dat$sample)
 
-Got to here
-#Plan of attack for rest of script. 
-# Merge the metadata and otu table
 # Loop through by host species and find all OTUs that are fairly prevalent. 
 # Write the host taxon and the OTU to two fields in an output file to feed into subsequent modeling. 
 
-merged_dat <- merge(taxa, X, by.x = "sampled", by.y = "sample")
-dim(merged_dat)
-dim(taxa)
-dim(X)
-
-# Loop through by host species and find all OTUs that are fairly prevalent. 
 keepers <- data.frame(matrix(ncol = 2, nrow = 1))
+names(keepers) <- c("host","microbe")
 k <- 1
-for(i in unique(merged_dat$taxon_final)){
-  working <- merged_dat[merged_dat$taxon_final == i,2:(length(merged_dat)-198)]
-  prevalence <- apply(working, 2, FUN=function(x){table(x>0)})
-  for(j in 1:(length(prevalence)-2)){
-    if(any(names(prevalence[[j]]) == "TRUE")){
-      prev <- prevalence[[j]][which(names(prevalence[[j]])=="TRUE")]/sum(prevalence[[j]])
-      if(prev >= 0.3){
-        keepers[k, 1] <- names(prevalence)[j]
-        keepers[k, 2] <- i
-        k <- k + 1
+
+for(i in unique(X$taxon_final)){
+  #Find the region/site/plant prefixs for a given host
+  #and extract the count data for those samples
+  hits <- X$region_site_plant[X$taxon_final == i]
+  workingdf <- dat[dat$region_site_plant %in% hits, ]
+  
+  #calculate prevalence for each taxon within this plant
+  for(j in grep("Zotu", names(workingdf))){
+    #figure out prevalence of the focal microbe in this plant
+    table_microbe <- table(workingdf[,j] > 0)
+      if("TRUE" %in% names(table_microbe)){
+        #For microbes that are present in this taxon, extract the proportion of samples in which they occur
+        proportion <- table_microbe["TRUE" == names(table_microbe)] / sum(table_microbe)
+        #If microbes occur in 30% or more of samples, then write the combination of host and microbial taxon to the output
+        if(proportion >= 0.3){
+          keepers[k,] <- "NA" #clunky hack to avoid row number and data input amount discrepencies
+          keepers$host[k] <- i
+          keepers$microbe[k] <- names(workingdf)[j]
+          k <- k + 1
+        }
+      }else{
+        next
       }
     }
-  }  
 }
+#sanity check. Lets look at one of the combos and see if it seems right.
+#Pseudotsuga menziesii  Zotu1136
+# 
+# test <- X[X$taxon_final == "Pseudotsuga menziesii",]
+# testdat <- dat[dat$region_site_plant %in% test$region_site_plant,]
+# testdat[, grep("Zotu1136", names(testdat))] #pretty prevalent.
 
-write.csv(keepers, file = "./processedData/its_otus_to_analyze.csv")
+write.csv(keepers, file = "./processedData/combination_hosts_microbes_to_analyze_ITS.csv")
+unique(keepers$microbe)
 
 ##############
 # DO FOR 16S #
@@ -122,13 +135,14 @@ rm(list=ls())
 #load data
 possibles <- read.csv("./processedData/sixteenS_taxa_to_model_via_randomforest.csv", stringsAsFactors = F)
 X <- read.csv("./processedData/16smetadat_wrangled_for_post_modeling_analysis.csv", stringsAsFactors = F)
-dat <- read.csv("./processedData/otuTables/smallmem97_16s_for_modeling", stringsAsFactors = F)
+dat <- read.csv("./processedData/otuTables/smallmem97_16S_for_modeling_rearranged_for_CNVRG", stringsAsFactors = F)
 
 #Subset metadata to the most sampled hosts
 tomodel <- names(which(table(X$taxon_final) > 30))
 #Remove unknown stuff
 tomodel <- tomodel[-grep("nknown", tomodel)]
 X <- X[X$taxon_final %in% tomodel,]
+
 
 ##################################################
 # wrangle the otu table as was done for modeling #
@@ -137,83 +151,50 @@ X <- X[X$taxon_final %in% tomodel,]
 #Note that we did considerable wrangling of these data using the
 #"combine_pcr_dupes.*" script
 dim(dat)
-#remove taxa and samples with zero counts
-dat <- dat[,colSums(dat[,3:length(dat)]) > 0]
-dim(dat)
-dat <- dat[rowSums(dat[,3:length(dat)]) > 0,]
-dim(dat)
 
-#remove rare microbes. THIS IS OK BC oF THE ISD, otherwise would be problematic
-table(rowSums(dat[,3:length(dat)]) > 30)
-dat <- dat[rowSums(dat[,3:length(dat)]) > 30,]
+#Remove the one that was addedd
 
-#extract the plant from the name and recode it so that each treatment
-#is unique, use that to share info. 
-treatments <- gsub("X(\\d+_\\d+_\\d+)_\\d+_(.*)","\\1\\2",names(dat))
+dat[,3:length(dat)] <- dat[,3:length(dat)] -1
+dat$sample <- gsub("X","", dat$sample)
+dat$region_site_plant <-  gsub("(\\d+_\\d+_\\d+)_.*","\\1", dat$sample)
 
-labs <- seq(1,length(unique(treatments)),1)
-k <- 1
-for(i in unique(treatments)){
-  treatments[treatments == i] <- paste(treatments[treatments == i], labs[k], sep = "_")
-  k <- k + 1
-}
-
-#remove duplicates
-dat <- dat[,-grep("dupe", treatments)]
-treatments <- treatments[-grep("dupe", treatments)]
-
-dim(dat)
-dim(X)
-dat[1:4,1:5]
-
-#Need to get metadata into the same order as the modeled data
-samps <- gsub("_16S_[1,2]_\\w+$", "", names(dat))
-samps <- gsub("_16S$", "",samps)
-samps <- gsub("dupe_", "",samps)
-samps <- gsub("_rewash$", "",samps)
-samps <- gsub("(E[NP]).*$", "\\1",samps)
-samps <- gsub("(\\d+)(E[NP])$", "\\1_\\2",samps)
-samps <- gsub("X", "",samps)
-
-otus <- dat$otus
-taxa <- data.frame(cbind(samps[3:length(samps)],
-                         t(dat[,3:length(dat)])))
-names(taxa) <- c("sampled",otus)
-dim(taxa)
-length(otus)
-
-#OK, so the metadata should only have those host species that I sampled a lot. 
-
-#Plan of attack for rest of script. 
-# Merge the metadata and otu table
 # Loop through by host species and find all OTUs that are fairly prevalent. 
 # Write the host taxon and the OTU to two fields in an output file to feed into subsequent modeling. 
 
-merged_dat <- merge(taxa, X, by.x = "sampled", by.y = "sample")
-dim(merged_dat)
-dim(taxa)
-dim(X)
-
-# Loop through by host species and find all OTUs that are fairly prevalent. 
 keepers <- data.frame(matrix(ncol = 2, nrow = 1))
+names(keepers) <- c("host","microbe")
 k <- 1
-for(i in unique(merged_dat$taxon_final)){
-  working <- merged_dat[merged_dat$taxon_final == i,2:(length(merged_dat)-198)]
-  prevalence <- apply(working, 2, FUN=function(x){table(x>0)})
-  for(j in 1:(length(prevalence)-4)){
-    if(any(names(prevalence[[j]]) == "TRUE")){
-      prev <- prevalence[[j]][which(names(prevalence[[j]])=="TRUE")]/sum(prevalence[[j]])
-      if(prev >= 0.3){
-        keepers[k, 1] <- names(prevalence)[j]
-        keepers[k, 2] <- i
+
+for(i in unique(X$taxon_final)){
+  #Find the region/site/plant prefixs for a given host
+  #and extract the count data for those samples
+  hits <- X$region_site_plant[X$taxon_final == i]
+  workingdf <- dat[dat$region_site_plant %in% hits, ]
+  
+  #calculate prevalence for each taxon within this plant
+  for(j in grep("Zotu", names(workingdf))){
+    #figure out prevalence of the focal microbe in this plant
+    table_microbe <- table(workingdf[,j] > 0)
+    if("TRUE" %in% names(table_microbe)){
+      #For microbes that are present in this taxon, extract the proportion of samples in which they occur
+      proportion <- table_microbe["TRUE" == names(table_microbe)] / sum(table_microbe)
+      #If microbes occur in 30% or more of samples, then write the combination of host and microbial taxon to the output
+      if(proportion >= 0.3){
+        keepers[k,] <- "NA" #clunky hack to avoid row number and data input amount discrepencies
+        keepers$host[k] <- i
+        keepers$microbe[k] <- names(workingdf)[j]
         k <- k + 1
       }
+    }else{
+      next
     }
-  }  
+  }
 }
 
-write.csv(keepers, file = "./processedData/sixteenS_otus_to_analyze.csv")
+#sanity check. see ITS
 
+write.csv(keepers, file = "./processedData/combination_hosts_microbes_to_analyze_16S.csv")
+unique(keepers$microbe)
 
 
 
