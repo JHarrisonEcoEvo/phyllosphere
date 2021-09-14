@@ -306,7 +306,7 @@ rm(list = ls())
   metadat_reduced3$taxon_final[metadat_reduced3$taxon_final == "Astragalus kentrophyta cf. "] <-  "Astragalus kentrophyta"
   metadat_reduced3$taxon_final[metadat_reduced3$taxon_final == "Unknown spruce"] <-  "Unknown Spruce"
 
-  table(metadat_reduced3$habit)
+  table(metadat_reduced3$lifehistory)
   table(metadat_reduced3$taxon_final)
   table(is.na(metadat_reduced3$taxon_final))
   table(is.na(metadat_reduced3$habit))
@@ -342,3 +342,4 @@ write.csv(metadat_reduced3, file = "./processedData/ITSmetadat_wrangled_for_post
 write.csv(dat, file = "./processedData/ITSp_estimates_wrangled_for_post_modeling_analysis.csv", row.names = F)
 dat[,3:length(dat)] <- dat[,3:length(dat)] / dat$ISD
 write.csv(dat, file = "./processedData/ITSp_estimates_wrangled_for_post_modeling_analysis_divided_by_ISD.csv", row.names = F)
+
