@@ -38,7 +38,6 @@ rm(list=ls())
 
 meta_samples <- read.csv("./processedData/16smetadat_wrangled_for_post_modeling_analysis.csv",
                          stringsAsFactors = F)
-meta_samples[which(meta_samples$div_raw != meta_samples$div_raw_norm),]
 
 #Raw count data
 raw <- read.csv("processedData/otuTables/smallmem97_16S_for_modeling_rearranged_for_CNVRG",
@@ -79,18 +78,6 @@ rm(list=ls())
 
 meta_samples <- read.csv("./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv",
                          stringsAsFactors = F)
-
-reg <- lm(meta_samples$shannonsISD ~ 
-            meta_samples$altitude +
-            meta_samples$MEM1 +
-            meta_samples$MEM2 +
-            meta_samples$shannons_flora +
-            meta_samples$latitude +
-            meta_samples$densitometer +
-            meta_samples$compartment +
-            meta_samples$plant #This is the only thing that matters.
-)
-summary(reg) #adj R squared very low, but not horrible
 
 #Raw count data
 raw <- read.csv("processedData/otuTables/smallmem97_ITS_for_modeling_rearranged_for_CNVRG",
