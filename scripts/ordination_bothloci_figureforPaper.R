@@ -53,6 +53,10 @@ merged_dat$col[merged_dat$compartment == "EP"] <- colors[3]
 cor.test(ord$points[,2], rowSums(merged_dat[,202:(length(merged_dat)-2)]))
 cor.test(ord$points[,2], merged_dat$duds)
 
+adonis_out <- adonis(dat_e ~ merged_dat$col, 
+                     permutations = 999,
+                     strata = NULL, 
+                     parallel = getOption("mc.cores"))
 ###################
 # ITS EN vs EP ASVs  #
 ###################
@@ -97,57 +101,57 @@ for(i in unique(merged_dat$taxon_final)){
 ###################
 # ITS by host taxon - ASVs  #
 ###################
-
-pdf(width = 8, height = 8, file = "./visuals/ordination_ITS_byHost_asvs_multi_div_by_ISD.pdf")
-
-plot(ord$points[,1], ord$points[,2],
-     #type = "n",
-     col = add.alpha(merged_dat$col, 0.8),
-     pch = 16,
-     main = "",
-     ylim = c(-0.7, 0.4),
-     cex = 1.3,
-     frame.plot = F,
-     xlab = "PCoA1", ylab = "PCoA2",
-     yaxt = "n")
-axis(side = 2, at = seq(-0.6,0.4,0.2), labels =  seq(-0.6,0.4,0.2))
-text(x = -0.8, y=0.55, "a)", xpd = NA, cex = 1.7)
-
-#Ordihull is not working correctly. Do not feel like debugging.
-#ordihull(ord, merged_dat$taxon_final, col = unique(merged_dat$col))
-dev.off()
-
-
+# 
+# pdf(width = 8, height = 8, file = "./visuals/ordination_ITS_byHost_asvs_multi_div_by_ISD.pdf")
+# 
 # plot(ord$points[,1], ord$points[,2],
 #      #type = "n",
 #      col = add.alpha(merged_dat$col, 0.8),
 #      pch = 16,
 #      main = "",
-#      xlim = c(-0.05,0.1),
-#      ylim = c(0, 0.1),
+#      ylim = c(-0.7, 0.4),
 #      cex = 1.3,
 #      frame.plot = F,
 #      xlab = "PCoA1", ylab = "PCoA2",
 #      yaxt = "n")
 # axis(side = 2, at = seq(-0.6,0.4,0.2), labels =  seq(-0.6,0.4,0.2))
-# text(x = -0.1, y=0.6, "b)", xpd = NA, cex = 1.7)
-
-###################
-# Legend plot #
-###################
-
-pdf(width = 7, height = 14, file = "./visuals/ordination_hostLEGEND.pdf")
-
-plot(ord$points[,1], ord$points[,2], type = "n",axes = F, ylab = "", xlab = "")
-legend(x = 0, y = 0.2,
-       legend = unique(merged_dat$taxon_final),
-       col = unique(add.alpha(merged_dat$col, 0.8)),
-       pch = 19,
-       cex = 0.6,
-       xpd = NA,
-       bty = "n")
-
-dev.off()
+# text(x = -0.8, y=0.55, "a)", xpd = NA, cex = 1.7)
+# 
+# #Ordihull is not working correctly. Do not feel like debugging.
+# #ordihull(ord, merged_dat$taxon_final, col = unique(merged_dat$col))
+# dev.off()
+# 
+# 
+# # plot(ord$points[,1], ord$points[,2],
+# #      #type = "n",
+# #      col = add.alpha(merged_dat$col, 0.8),
+# #      pch = 16,
+# #      main = "",
+# #      xlim = c(-0.05,0.1),
+# #      ylim = c(0, 0.1),
+# #      cex = 1.3,
+# #      frame.plot = F,
+# #      xlab = "PCoA1", ylab = "PCoA2",
+# #      yaxt = "n")
+# # axis(side = 2, at = seq(-0.6,0.4,0.2), labels =  seq(-0.6,0.4,0.2))
+# # text(x = -0.1, y=0.6, "b)", xpd = NA, cex = 1.7)
+# 
+# ###################
+# # Legend plot #
+# ###################
+# 
+# pdf(width = 7, height = 14, file = "./visuals/ordination_hostLEGEND.pdf")
+# 
+# plot(ord$points[,1], ord$points[,2], type = "n",axes = F, ylab = "", xlab = "")
+# legend(x = 0, y = 0.2,
+#        legend = unique(merged_dat$taxon_final),
+#        col = unique(add.alpha(merged_dat$col, 0.8)),
+#        pch = 19,
+#        cex = 0.6,
+#        xpd = NA,
+#        bty = "n")
+# 
+# dev.off()
 
 ###################
 # ITS by life history  #
@@ -189,6 +193,13 @@ legend(x = -.10, y = -0.4,
 #Ordihull is not working correctly. Do not feel like debugging.
 #ordihull(ord, merged_dat$taxon_final, col = unique(merged_dat$col))
 dev.off()
+
+####
+#Permanova
+adonis_out <- adonis(dat_e ~ merged_dat$col, 
+       permutations = 999,
+       strata = NULL, 
+       parallel = getOption("mc.cores"))
 
 ###########################
 # bacteria data wrangling #
@@ -232,6 +243,11 @@ colors <- wes_palette("FantasticFox1", n =  4, type = "discrete")
 
 merged_dat16s$col <- colors[1]
 merged_dat16s$col[merged_dat16s$compartment == "EP"] <- colors[3]
+
+adonis_out <- adonis(dat_e16s ~ merged_dat16s$col, 
+                     permutations = 999,
+                     strata = NULL, 
+                     parallel = getOption("mc.cores"))
 ###########################
 # bacteria EP vs EN ordination #
 ###########################
@@ -358,6 +374,10 @@ for(i in unique(merged_dat16s$habit)){
   merged_dat16s$col[merged_dat16s$habit == i] <- colors[k]
   k <- k + 1
 }
+adonis_out <- adonis(dat_e16s ~ merged_dat16s$col, 
+                     permutations = 999,
+                     strata = NULL, 
+                     parallel = getOption("mc.cores"))
 
 pdf(width = 8, height = 8, file = "./visuals/ordination_16S_lifehistory_asvshellingerEuclidean_multi.pdf")
 
@@ -473,6 +493,12 @@ merged_dat$col[merged_dat$compartment == "EP"] <- colors[3]
 ## the latter where the unidentifiable sequences
 cor.test(ord$points[,2], rowSums(merged_dat[,202:(length(merged_dat)-2)]))
 cor.test(ord$points[,2], merged_dat$duds)
+
+adonis_out <- adonis(dat_e ~ merged_dat$col, 
+                     permutations = 999,
+                     strata = NULL, 
+                     parallel = getOption("mc.cores"))
+adonis_out
 
 ###################
 # ITS EN vs EP ASVs  #
@@ -636,6 +662,12 @@ merged_dat$col[merged_dat$compartment == "EP"] <- colors[3]
 cor.test(ord$points[,2], rowSums(merged_dat[,202:(length(merged_dat)-4)]))
 cor.test(ord$points[,2], merged_dat$duds)
 
+adonis_out <- adonis(dat_e ~ merged_dat$col, 
+                     permutations = 999,
+                     strata = NULL, 
+                     parallel = getOption("mc.cores"))
+adonis_out
+
 ###################
 # ITS EN vs EP ASVs  #
 ###################
@@ -676,6 +708,12 @@ for(i in unique(merged_dat$habit)){
   merged_dat$col[merged_dat$habit == i] <- colors[k]
   k <- k + 1
 }
+
+adonis_out <- adonis(dat_e ~ merged_dat$col, 
+                     permutations = 999,
+                     strata = NULL, 
+                     parallel = getOption("mc.cores"))
+adonis_out
 
 pdf(width = 8, height = 8, file = "./visuals/ordination_16S_habit_asvs_gower_counts_NOISD.pdf")
 
