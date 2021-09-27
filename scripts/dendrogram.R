@@ -90,6 +90,23 @@ for(i in unique(fam)){
 df <- data.frame(comboHost$sample[as.numeric(correctOrder)],
       fam, colorsHost)
 
+#Plot a legend
+pdf(width = 4, height = 12, file = "./visuals/tanglegram_legend.pdf")
+plot(NULL,ylim = c(0,200),
+     xlim = c(1,10),
+     xaxt = "n",
+     yaxt = "n",
+     frame.plot = F, 
+     ylab  = "",
+     xlab = ""
+     )
+  legend(x = "topleft",
+         legend = as.character(unique(df$fam)),
+       col = as.character(unique(df$colorsHost)),
+       cex = 1,
+       pch = 16)
+dev.off()
+
 dendBact <- dendBact %>% 
   # Custom branches
   set("branches_col", "grey") %>% set("branches_lwd", 3) %>%
