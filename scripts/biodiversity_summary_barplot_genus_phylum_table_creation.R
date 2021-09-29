@@ -43,14 +43,14 @@ for(i in unique(phyla)){
   if(length(grep(i, names(merged_dat))) > 1){
     df <- aggregate(
     rowSums(merged_dat[, grep(i, names(merged_dat))]) ~
-      merged_dat$compartment, FUN = mean)
+      merged_dat$compartment, FUN = median)
     df$taxon <- i
     names(df) <- c("compartment","sum","taxon")
     phyla_df[[k]] <- df
   }else if(length(grep(i, names(merged_dat))) == 1){
     df <- aggregate(
     merged_dat[, grep(i, names(merged_dat))] ~
-      merged_dat$compartment, FUN = mean)
+      merged_dat$compartment, FUN = median)
     df$taxon <- i
     names(df) <- c("compartment","sum","taxon")
     phyla_df[[k]] <- df
@@ -70,7 +70,7 @@ fornext <- wide$taxon ######### This is to ensure the colors match between plots
 library(wesanderson)
 colors <- wes_palette("FantasticFox1", n = dim(wide)[1], type = "continuous")
 
-pdf(width = 5,height = 6, file = "./visuals/phyla_its_compartment_barplot_modeledData.pdf")
+pdf(width = 5,height = 6, file = "./visuals/phyla_its_compartment_barplot_modeledDataMedianTest.pdf")
 # Get the stacked barplot
 par(mar = c(3,6,1,1), oma = c(2,2,2,2))
 barplot(as.matrix(wide[,2:3]), 
