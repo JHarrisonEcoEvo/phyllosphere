@@ -1,6 +1,4 @@
-To do. 
-#confirm that the tenericutes are really abundant. What the fuck are they...maybe a grep problems(
-#split the axis on the bacteria plot so that primula parryi doesn't outshine all else
+
 #############
 # the fungi #
 #############
@@ -140,6 +138,11 @@ fornext <- wide$taxon ######### This is to ensure the colors match between plots
 
 library(wesanderson)
 colors <- wes_palette("FantasticFox1", n = dim(wide)[1], type = "continuous")
+
+#sanity check
+summary(rowSums(merged_dat[grep("EN",merged_dat$sample), 204:(length(merged_dat)-2)])) 
+aggregate(rowSums(merged_dat[, grep("Zotu", names(merged_dat))]) ~
+            merged_dat$compartment, FUN = median)
 
 pdf(width = 5,height = 6, file = "./visuals/phyla_its_compartment_barplot_count.pdf")
 # Get the stacked barplot
@@ -336,6 +339,7 @@ phyla <- gsub("k:Bacteria,p:\\[(\\w+)\\],.*","\\1",phyla)
 phyla <- gsub("k:Archaea,p:\\[(\\w+)\\],.*","\\1",phyla)
 
 unique(phyla)
+table(phyla)
 
 ####################
 # Do for host taxa #
@@ -395,25 +399,27 @@ colors <- wes_palette("FantasticFox1", n = dim(data_wide_t)[1], type = "continuo
 wide <- data_wide_t[order(rowSums(data_wide_t[2:length(data_wide_t)])),]
 fornext <- row.names(wide)
 
-hidef <- seq(1,47,5)
-colors_new <- rep(colors[hidef[10]], 47)
-colors_new[39:47] <- colors[hidef[1:9]]
-
-pdf(width = 12,height = 9, file = "./visuals/phyla_16s_taxon_final_barplot_countData.pdf")
+hidef <- seq(1,length(rownames(as.matrix(wide))),5)
+colors_new <- rep(colors[hidef[10]], length(rownames(as.matrix(wide))))
+colors_new[38:46] <- colors[hidef[1:9]]
+colors_new[48] <- "orchid"
+  
+pdf(width = 12,height = 9, file = "./visuals/phyla_16s_taxon_final_barplot_countData_curtailed.pdf")
 # Get the stacked barplot
 par(mar = c(3,6,1,1), oma = c(16,3,1,1))
 
 #Sanity check, plug this in to see stuff change
 #wide[47,10] <- 20000
-a <- barplot(as.matrix(wide), 
-             col=colors_new, 
-             border="white", 
+
+a <- barplot(as.matrix(wide),
+             col=colors_new,
+             border="white",
              cex.lab = 1.5,
              cex.axis = 1.5,
-             las = 2, 
-             ylim = c(0,10),
-             space=0.04, 
-             #font.axis=2, 
+             las = 2,
+             ylim = c(0,1),
+             space=0.04,
+             #font.axis=2,
              xaxt = "n",
              ylab = "",
              xlab="")
@@ -441,7 +447,7 @@ text(gsub("E[NP]", "",names(data_wide_t))[
   cex = 0.5, 
   font = 3,
   x = 1.3 + a_means,
-  y = -0.1,
+  y = -0.01,
   xpd = NA)
 
 title(ylab = "Abundance (ratio with ISD)", line = 5, cex.lab = 2, xpd = NA)
@@ -452,8 +458,8 @@ dev.off()
 ##########
 # legend #
 ##########
-
-pdf(width = 3,height = 14, file = "./visuals/phyla_16s_barplot_legend_modeledDatatest.pdf")
+wide$taxon[wide$taxon == "k:Archaea"] <- "Archaea"
+pdf(width = 3,height = 14, file = "./visuals/phyla_16s_barplot_legend.pdf")
 par(oma = c(10,2,10,1))
 plot(x = seq(1,10,1), y = seq(1,10,1),
      type = "n",
@@ -461,9 +467,9 @@ plot(x = seq(1,10,1), y = seq(1,10,1),
      axes = F,
      xlab = "",
      ylab = "")
-legend(legend = rev(rownames(wide)),
+legend(legend = rev(rownames(wide))[1:8],
        x = "left",
-       col = rev(colors_new),
+       col = rev(colors_new)[1:8],
        xpd = NA,
        bty = "n",
        pch = 15)
@@ -549,21 +555,21 @@ dev.off()
 
 ##########
 # legend #
-##########
-wide$taxon[wide$taxon == "k:Archaea"] <- "Archaea"
-
-pdf(width = 3,height = 14, file = "./visuals/phyla_16s_barplot_legend_modeledData.pdf")
-par(oma = c(10,2,10,1))
-plot(x = seq(1,10,1), y = seq(1,10,1),
-     type = "n",
-     frame.plot = F,
-     axes = F,
-     xlab = "",
-     ylab = "")
-legend(legend = rev(wide$taxon),
-       x = "left",
-       col = rev(colors_new),
-       xpd = NA,
-       bty = "n",
-       pch = 15)
-dev.off()
+# ##########
+# wide$taxon[wide$taxon == "k:Archaea"] <- "Archaea"
+# 
+# pdf(width = 3,height = 14, file = "./visuals/phyla_16s_barplot_legend.pdf")
+# par(oma = c(10,2,10,1))
+# plot(x = seq(1,10,1), y = seq(1,10,1),
+#      type = "n",
+#      frame.plot = F,
+#      axes = F,
+#      xlab = "",
+#      ylab = "")
+# legend(legend = rev(wide$taxon),
+#        x = "left",
+#        col = rev(colors_new),
+#        xpd = NA,
+#        bty = "n",
+#        pch = 15)
+# dev.off()
