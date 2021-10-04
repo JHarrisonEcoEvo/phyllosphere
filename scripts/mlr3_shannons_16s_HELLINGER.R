@@ -51,6 +51,7 @@ categoricals <- c(
   "compartment",
   "taxon_final",
   "phenology"
+  ,"region_site"
 )
 X$taxon_final <- gsub(" ", "", X$taxon_final)
 
@@ -110,6 +111,7 @@ merged_dat <- X[,names(X) %in%
                     , "precip_april_in.x"                                        
                     , "densitometer"                                             
                     , "shannons_flora"
+                    #,"div_Hellinger"
                     ,"div_raw"
                     #, "shannonsISD"
                     , "julianDate"                                               
@@ -186,7 +188,27 @@ merged_dat <- X[,names(X) %in%
                     ,"taxon_final_Wyethiaamplexicaulis"
                     , "phenology_flowering"                                      
                     , "phenology_fruiting"                                       
-                    , "phenology_vegetative"                                     
+                    , "phenology_vegetative"   
+                    ,"region_site_1_1"      ,                                            
+                    "region_site_1_2"    ,                                              
+                    "region_site_1_3"    ,                                              
+                    "region_site_2_1"    ,                                              
+                    "region_site_2_2"   ,                                               
+                    "region_site_2_3"  ,                                                
+                    "region_site_3_1"  ,                                                
+                    "region_site_3_2"  ,                                                
+                    "region_site_3_3"   ,                                               
+                    "region_site_4_1"  ,                                                
+                    "region_site_4_2"     ,                                             
+                    "region_site_4_3"   ,                                               
+                    "region_site_5_1"  ,                                                
+                    "region_site_5_2"  ,                                                
+                    "region_site_5_3"  ,                                                
+                    "region_site_6_1"  ,                                                
+                    "region_site_6_2"  ,                                                
+                    "region_site_6_3"  ,                                                
+                    "region_site_7_1"   ,                                               
+                    "region_site_7_2"
                   )]
 
 #Convert to numeric (makes it easier when doing imputing)
@@ -302,7 +324,8 @@ out <- data.frame(matrix(nrow = 1, ncol = 1))
 out$rsq_nested_resampling <- rsq
 out$mse_nested_resampling <- mse
 
-write.csv(var.imp , file = paste("variableImportanceshannonsISD_16s_HELLINGER.csv"), row.names = T)
+#write.csv(var.imp , file = paste("variableImportanceshannonsISD_16s_raw.csv"), row.names = T)
+write.csv(var.imp , file = paste("variableImportanceshannonsISD_16s_rawSite.csv"), row.names = T)
 
 ##########################################
 # Do over AFTER reducing the feature set#
@@ -372,7 +395,9 @@ tained_at_reduced <- at$train(phyllo_task)
 
 var.impR <- data.frame(tained_at_reduced$model$learner$model$regr.ranger$model$variable.importance)
 
-write.csv(var.impR, file = paste("variableImportanceReducedshannonsISD_16s_HELLINGER.csv"), row.names = T)
+# write.csv(var.impR, file = paste("variableImportanceReducedshannonsISD_16s_raw.csv"), row.names = T)
+write.csv(var.impR, file = paste("variableImportanceReducedshannonsISD_16sSite_raw.csv"), row.names = T)
 
-write.csv(out, file = paste("results_shannonosISD_16s_HELLINGER.csv"), row.names = F)
+# write.csv(out, file = paste("results_shannonsISD_16s_raw.csv"), row.names = F)
+write.csv(out, file = paste("results_shannonsISD_16s_rawSite.csv"), row.names = F)
 

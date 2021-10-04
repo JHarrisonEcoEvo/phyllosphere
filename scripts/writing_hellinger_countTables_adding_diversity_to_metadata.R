@@ -49,21 +49,28 @@ raw$sample <- gsub("X","", raw$sample)
 #Normalize via ISD
 raw[,3:length(raw)] <- raw[,3:length(raw)] / raw$ISD
 
-raw[,3:(length(raw)-4)] <- vegan::decostand(raw[,3:(length(raw)-4)],
-                                            method = "hellinger")
 
 #rearrange dat to match the meta_samples ordre
 table(raw$sample %in% meta_samples$sample)
 raw <- raw[match(meta_samples$sample,raw$sample),]
 table(raw$sample == meta_samples$sample)
 
-write.csv(raw, file = "./processedData/hellinger_standardized_16s_normalized.csv", row.names = F)
-
 #calculate diversity 
 meta_samples$div_raw <- exp(
   vegan::diversity(raw[,3:(length(raw)-4)], index = "shannon",MARGIN = 1)
 ) 
 #cor.test(meta_samples$div_raw_norm, meta_samples$div_raw) #sanity check, ignoreable
+
+raw[,3:(length(raw)-4)] <- vegan::decostand(raw[,3:(length(raw)-4)],
+                                            method = "hellinger")
+
+meta_samples$div_Hellinger <- exp(
+  vegan::diversity(raw[,3:(length(raw)-4)], index = "shannon",MARGIN = 1)
+) 
+
+#cor.test(meta_samples$div_Hellinger, meta_samples$div_raw)
+
+write.csv(raw, file = "./processedData/hellinger_standardized_16s_normalized.csv", row.names = F)
 
 write.csv(meta_samples, file = "./processedData/16smetadat_wrangled_for_post_modeling_analysis.csv", row.names = F)
 
@@ -88,20 +95,25 @@ sum(raw[,3:(length(raw)-2)])
 #Normalize via ISD
 raw[,3:length(raw)] <- raw[,3:length(raw)] / raw$ISD
 
-raw[,3:(length(raw)-2)] <- vegan::decostand(raw[,3:(length(raw)-2)],
-                                            method = "hellinger")
-
 #rearrange dat to match the meta_samples ordre
 table(raw$sample %in% meta_samples$sample)
 raw <- raw[match(meta_samples$sample,raw$sample),]
 table(raw$sample == meta_samples$sample)
 
-write.csv(raw, file = "./processedData/hellinger_standardized_its_normalized.csv", row.names = F)
-
 #calculate diversity 
 meta_samples$div_raw <- exp(
   vegan::diversity(raw[,3:(length(raw)-2)], index = "shannon",MARGIN = 1)
 )
+
+raw[,3:(length(raw)-2)] <- vegan::decostand(raw[,3:(length(raw)-2)],
+                                            method = "hellinger")
+
+meta_samples$div_Hellinger <- exp(
+  vegan::diversity(raw[,3:(length(raw)-2)], index = "shannon",MARGIN = 1)
+)
+
+write.csv(raw, file = "./processedData/hellinger_standardized_its_normalized.csv", row.names = F)
+
 #QC: we are calculating by samples, which are rows (see MARGIN argument above)
 length(meta_samples$div_raw) == dim(raw)[1]
 

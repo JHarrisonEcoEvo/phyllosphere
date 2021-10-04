@@ -35,7 +35,7 @@ tail(names(merged_dat))
 head(names(merged_dat),205)
 unique(merged_dat$habit)
 
-datr <-  vegan::decostand(merged_dat[,202:(length(merged_dat)-2)], method = "hellinger")
+datr <-  vegan::decostand(merged_dat[,204:(length(merged_dat)-2)], method = "hellinger")
 
 dat_e <- dist(datr,method = "euclidean")
 
@@ -53,10 +53,16 @@ merged_dat$col[merged_dat$compartment == "EP"] <- colors[3]
 cor.test(ord$points[,2], rowSums(merged_dat[,202:(length(merged_dat)-2)]))
 cor.test(ord$points[,2], merged_dat$duds)
 
-adonis_out <- adonis(dat_e ~ merged_dat$col, 
+adonis(dat_e ~ merged_dat$col,
                      permutations = 999,
-                     strata = NULL, 
+                     strata = NULL,
                      parallel = getOption("mc.cores"))
+
+b <- betadisper(dat_e, 
+                merged_dat$col, 
+                type = c("median","centroid"))
+anova(b)
+
 ###################
 # ITS EN vs EP ASVs  #
 ###################
@@ -97,6 +103,11 @@ for(i in unique(merged_dat$taxon_final)){
   merged_dat$col[merged_dat$taxon_final == i] <- colors[k]
   k <- k + 1
 }
+
+ adonis(dat_e ~ merged_dat$col, 
+                     permutations = 999,
+                     strata = NULL, 
+                     parallel = getOption("mc.cores"))
 
 ###################
 # ITS by host taxon - ASVs  #
@@ -196,7 +207,7 @@ dev.off()
 
 ####
 #Permanova
-adonis_out <- adonis(dat_e ~ merged_dat$col, 
+ adonis(dat_e ~ merged_dat$col, 
        permutations = 999,
        strata = NULL, 
        parallel = getOption("mc.cores"))
@@ -248,6 +259,9 @@ adonis_out <- adonis(dat_e16s ~ merged_dat16s$col,
                      permutations = 999,
                      strata = NULL, 
                      parallel = getOption("mc.cores"))
+b <- betadisper(dat_e16s, merged_dat16s$col, type = c("median","centroid"))
+anova(b)
+
 ###########################
 # bacteria EP vs EN ordination #
 ###########################
@@ -313,13 +327,22 @@ dev.off()
 #########################
 # Redoing the colors
 # 
-# colors <- rainbow(n = length(unique(merged_dat16s$taxon_final)))
-# k <- 1
-# for(i in unique(merged_dat16s$taxon_final)){
-#   merged_dat16s$col[merged_dat16s$taxon_final == i] <- colors[k]
-#   k <- k + 1
-# }
-# 
+colors <- rainbow(n = length(unique(merged_dat16s$taxon_final)))
+k <- 1
+for(i in unique(merged_dat16s$taxon_final)){
+  merged_dat16s$col[merged_dat16s$taxon_final == i] <- colors[k]
+  k <- k + 1
+}
+
+adonis(dat_e16s ~ merged_dat16s$col, 
+       permutations = 999,
+       strata = NULL, 
+       parallel = getOption("mc.cores"))
+
+b <- betadisper(dat_e16s, merged_dat16s$col, type = c("median","centroid"))
+anova(b)
+#TukeyHSD(b)
+
 # ###########################
 # # bacteria by host - asvs #
 # ###########################
@@ -378,6 +401,10 @@ adonis_out <- adonis(dat_e16s ~ merged_dat16s$col,
                      permutations = 999,
                      strata = NULL, 
                      parallel = getOption("mc.cores"))
+adonis_out
+b <- betadisper(dat_e16s, merged_dat16s$col, type = c("median","centroid"))
+anova(b)
+#TukeyHSD(b)
 
 pdf(width = 8, height = 8, file = "./visuals/ordination_16S_lifehistory_asvshellingerEuclidean_multi.pdf")
 
