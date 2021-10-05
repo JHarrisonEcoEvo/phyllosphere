@@ -401,3 +401,54 @@ write.csv(var.impR, file = paste("variableImportanceReducedshannonsISD_16sSite_r
 # write.csv(out, file = paste("results_shannonsISD_16s_raw.csv"), row.names = F)
 write.csv(out, file = paste("results_shannonsISD_16s_rawSite.csv"), row.names = F)
 
+##########
+#check out important variables
+#This is designed to be run after the above code, but is tacked on here so I can find it easily.
+# rm(list=ls())
+# library(xtable)
+# dat <- read.csv("./modelingResults/results_diversity_models/variableImportanceshannonsISD_16s_HELLINGER.csv",
+#                 stringsAsFactors = F)
+# head(dat)
+# 
+# dat[order(dat[,2]),]
+# #densitometer
+# # 32                                                deadDown
+# # 36                                                  elev_m
+# # 1                                         Ambient_Humidity
+# # 54                                                pressure
+# # 57                                               shrubRich
+# 
+# dat <- read.csv("./modelingResults/results_diversity_models/variableImportanceReducedshannonsISD_16s_HELLINGER.csv",
+#                 stringsAsFactors = F)
+# head(dat)
+# 
+# dat[order(dat[,2]),]
+# # axon_final_Paxistimamyrsinites
+# # 2       taxon_final_Primulaparryi
+
+#try for raw data
+dat <- read.csv("./modelingResults/results_diversity_models/variableImportanceReducedshannonsISD_16s_raw.csv",
+                stringsAsFactors = F)
+head(dat)
+
+dat[order(dat[,2]),]
+# compartment_EN
+# 2 taxon_final_Primulaparryi
+
+dat <- read.csv("./modelingResults/results_diversity_models/variableImportanceshannonsISD_16s_raw.csv",
+                stringsAsFactors = F)
+head(dat)
+
+names(dat)<- c("Feature", "Importance")
+print(
+xtable(dat[order(dat[,2]),], label = "var_imp_shannon_16s", caption = "Variable importance for features (variables) included in the random forest analysis of 16S Shannon's diversity. Variable importance was assigned via post-hoc permutation of the variable and recalculation of model performance. How much the model decreases in performance when permuting the variable provides insight into its importance. Larger values mean a variable is more important than those with small values. Variables that were selected for inclusion in a reduced model (see main text) are bolded.")
+,include.rownames=FALSE)
+
+# 
+# 54                                                pressure
+# 21                                    Relative_Chlorophyll
+# 36                                                  elev_m
+# 33                                            densitometer
+# 105                              taxon_final_Primulaparryi
+
+
