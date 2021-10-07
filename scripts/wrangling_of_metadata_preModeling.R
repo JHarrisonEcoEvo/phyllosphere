@@ -541,6 +541,8 @@ metadata$taxon_final[metadata$taxon.y == "Lupinus argenteus var. argenteus"] <-
   "Lupinus argenteus"
 metadata$taxon_final[metadata$taxon.y == "Potentilla diversifolia var. diversifolia"] <- 
   "Potentilla diversifolia"
+metadata$taxon_final[metadata$taxon.y == "Unknown spruce"] <- 
+  "Unknown Spruce"
 
 #load treatment vectors that were used during modeling
 

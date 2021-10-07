@@ -5,8 +5,13 @@ head(its)
 its_otus <- read.csv("./processedData/otuTables/smallmem97_ITS_for_modeling_rearranged_for_CNVRG",
                      stringsAsFactors = F)
 length(names(its_otus)) -4
+tail(names(its_otus))
+head(names(its_otus))
 
 its_otus[,3:length(its_otus)] <- its_otus[,3:length(its_otus)] - 1
+
+summary(rowSums(its_otus[,3:c(length(names(its_otus))-3)]))
+
 its_otus[,3:length(its_otus)] <- its_otus[,3:length(its_otus)] / its_otus$ISD
 
 table(rowSums(its_otus[grep("EN",its_otus$sample),3:(length(its_otus)-2)]) <= 1)
@@ -35,8 +40,11 @@ bacts <- read.csv("processedData/otuTables/smallmem97_16S_for_modeling_rearrange
 tail(names(bacts))
 names(bacts)[length(names(bacts))-4]
 
-
 bacts[,3:length(bacts)] <- bacts[,3:length(bacts)] - 1
+
+summary(rowSums(bacts[,3:c(length(names(bacts))-4)]))
+
+
 bacts[,3:length(bacts)] <- bacts[,3:length(bacts)] / bacts$ISD
 table(rowSums(bacts[grep("EN",bacts$sample),3:(length(bacts)-4)]) <= 1)
 150/(150+1003) #13%

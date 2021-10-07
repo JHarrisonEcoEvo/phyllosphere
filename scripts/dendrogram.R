@@ -16,38 +16,54 @@ add.alpha <- function(col, alpha=1){
           rgb(x[1], x[2], x[3], alpha=alpha))  
 }
 
-dat16s <- read.csv("./processedData/16sp_estimates_wrangled_for_post_modeling_analysis_divided_by_ISD.csv",
+dat16s <- read.csv("./processedData/otuTables/smallmem97_16S_for_modeling_rearranged_for_CNVRG",
                    stringsAsFactors = F)
+
+dat16s$sample <- gsub("X","",dat16s$sample)
+dat16s[,grep("Zotu", names(dat16s))] <- dat16s[,grep("Zotu", names(dat16s))] - 1
+dat16s[,grep("Zotu", names(dat16s))] <- dat16s[,grep("Zotu", names(dat16s))] / dat16s$ISD
 
 metadat16s <- read.csv("./processedData/16smetadat_wrangled_for_post_modeling_analysis.csv",
                        stringsAsFactors = F)
 
+metadatits <- read.csv("./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv",
+                       stringsAsFactors = F)
+metadat16s <-
+  metadat16s[metadat16s$sample%in%  metadatits$sample,] 
+table(metadat16s$sample  %in% metadatits$sample)
+
+metadatits <-
+  metadatits[metadatits$sample %in% metadat16s$sample,] 
+table(metadatits$sample %in% metadat16s$sample)
+
+
 #match order
-merged_dat16s <- merge(metadat16s, dat16s, by.x = "sample", by.y = "sample", all.y = T)
+merged_dat16s <- merge(metadat16s, dat16s, by.x = "sample", by.y = "sample")
 dim(merged_dat16s)
 
-merged_dat16s <- merged_dat16s[-grep("Unkn",merged_dat16s$taxon_final),]
+#merged_dat16s <- merged_dat16s[-grep("Unkn",merged_dat16s$taxon_final),]
 
 # head(names(merged_dat16s),206)
 # tail(names(merged_dat16s),206)
 # names(merged_dat16s)[length(merged_dat16s)-4]
 
 #Combine by host first
-comboHost <- data.frame(matrix(nrow = 1, ncol = 1+ length(202:(length(merged_dat16s)-4))))
+comboHost <- data.frame(matrix(nrow = 1, ncol = 1+ length(205:(length(merged_dat16s)-4))))
+
+merged_dat16s$taxon_final <- gsub(" var. .*","", merged_dat16s$taxon_final)
 
 k <- 1
 for(i in unique(merged_dat16s$taxon_final)){
   comboHost[k,] <- c(i,colSums(merged_dat16s[merged_dat16s$taxon_final == i,
-                                 202:(length(merged_dat16s)-4)]))
+                                 205:(length(merged_dat16s)-4)]))
   k <- k + 1
 }
-names(comboHost) <- c("sample", names(merged_dat16s)[ 202:(length(merged_dat16s)-4)])
+names(comboHost) <- c("sample", names(merged_dat16s)[ 205:(length(merged_dat16s)-4)])
 
 for(i in 2:length(comboHost)){
   comboHost[,i] <- as.numeric(comboHost[,i])  
 }
 
-comboHost$sample <- gsub(" var. .*","", comboHost$sample)
 
 datr16s <-  vegan::decostand(comboHost[,2:length(comboHost)], 
                              method = "hellinger")
@@ -86,9 +102,12 @@ for(i in unique(fam)){
   colorsHost[grep(i, fam)] <- skittles[k]
   k <- k + 1
 }
+
+
 #sanity check
 df <- data.frame(comboHost$sample[as.numeric(correctOrder)],
       fam, colorsHost)
+
 
 #Plot a legend
 pdf(width = 4, height = 12, file = "./visuals/tanglegram_legend.pdf")
@@ -114,39 +133,40 @@ dendBact <- dendBact %>%
   set("labels", comboHost$sample[as.numeric(correctOrder)]) %>% set("labels_cex", 0.8) %>%
   set("labels_colors", colorsHost)
 #testplot for colors to make sure they match the tanglgram 
-plot(dendBact)
+#plot(dendBact)
 
 
 ##########
 # Do over for fungi
-rm(list=setdiff(ls(), c("dendBact", "df")))
+rm(list=setdiff(ls(), c("dendBact", "df", "metadatits")))
 
-datits <- read.csv("./processedData/ITSp_estimates_wrangled_for_post_modeling_analysis_divided_by_ISD.csv",
+datits <- read.csv("./processedData/otuTables/smallmem97_ITS_for_modeling_rearranged_for_CNVRG",
                    stringsAsFactors = F)
 
-metadatits <- read.csv("./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv",
-                       stringsAsFactors = F)
+datits$sample <- gsub("X","",datits$sample)
+datits[,grep("Zotu", names(datits))] <- datits[,grep("Zotu", names(datits))] - 1
+datits[,grep("Zotu", names(datits))] <- datits[,grep("Zotu", names(datits))] / datits$ISD
 
 #match order
-merged_datits <- merge(metadatits, datits, by.x = "sample", by.y = "sample", all.y = T)
+merged_datits <- merge(metadatits, datits, by.x = "sample", by.y = "sample")
 dim(merged_datits)
 
-merged_datits <- merged_datits[-grep("Unkn",merged_datits$taxon_final),]
+#merged_datits <- merged_datits[-grep("Unkn",merged_datits$taxon_final),]
 
-head(names(merged_datits),206)
-tail(names(merged_datits),206)
-names(merged_datits)[length(merged_datits)-2]
+# head(names(merged_datits),206)
+# tail(names(merged_datits),206)
+# names(merged_datits)[length(merged_datits)-2]
 
 #Combine by host first
-comboHostits <- data.frame(matrix(nrow = 1, ncol = 1+ length(202:(length(merged_datits)-2))))
+comboHostits <- data.frame(matrix(nrow = 1, ncol = 1+ length(205:(length(merged_datits)-2))))
 
 k <- 1
 for(i in unique(merged_datits$taxon_final)){
   comboHostits[k,] <- c(i,colSums(merged_datits[merged_datits$taxon_final == i,
-                                             202:(length(merged_datits)-2)]))
+                                             205:(length(merged_datits)-2)]))
   k <- k + 1
 }
-names(comboHostits) <- c("sample", names(merged_datits)[ 202:(length(merged_datits)-2)])
+names(comboHostits) <- c("sample", names(merged_datits)[ 205:(length(merged_datits)-2)])
 
 for(i in 2:length(comboHostits)){
   comboHostits[,i] <- as.numeric(comboHostits[,i])  

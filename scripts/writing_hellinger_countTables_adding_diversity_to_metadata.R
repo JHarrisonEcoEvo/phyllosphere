@@ -42,6 +42,9 @@ meta_samples <- read.csv("./processedData/16smetadat_wrangled_for_post_modeling_
 #Raw count data
 raw <- read.csv("processedData/otuTables/smallmem97_16S_for_modeling_rearranged_for_CNVRG",
                 stringsAsFactors = F)
+length(grep("EN",meta_samples$sample))
+length(grep("EP",meta_samples$sample))
+
 
 sum(raw[,3:(length(raw)-4)] )
 raw$sample <- gsub("X","", raw$sample)
@@ -85,7 +88,8 @@ rm(list=ls())
 
 meta_samples <- read.csv("./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv",
                          stringsAsFactors = F)
-
+length(grep("EN",meta_samples$sample))
+length(grep("EP",meta_samples$sample))
 #Raw count data
 raw <- read.csv("processedData/otuTables/smallmem97_ITS_for_modeling_rearranged_for_CNVRG",
                 stringsAsFactors = F)

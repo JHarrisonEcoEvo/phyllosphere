@@ -37,7 +37,7 @@ stripchart((meta$div_raw) ~ meta$compartment + meta$lifehistory,
            ylab="Shannon's equivalents",
            line = 4,
            xlim=c(0,8.5)
-           ,ylim=c(1000,3500)
+           ,ylim=c(0,3500)
            #,ylim=c(1000,3500)
            ,frame.plot=F
 )
@@ -59,8 +59,8 @@ boxplot(meta$div_raw  ~ meta$compartment + meta$lifehistory,
 )
 
 axis(side =2,
-     at = seq(1000,3500,500),
-     lab= seq(1000,3500,500),
+     at = seq(0,3500,500),
+     lab= seq(0,3500,500),
      las = 2
 )
 
@@ -69,9 +69,10 @@ axis(side =1,
      lab= rep("", 8)
 )
 text(x = seq(1,8,1),
-     y = 400,
+     y = -450,
      cex = 1.3,
      xpd = NA,
+     pos = 1,
      srt = -50, c("EN forb","EP forb","EN gram.","EP gram.","EN shrub","EP shrub","EN tree","EP tree"))
 
 text(x = 4.5,
@@ -191,7 +192,7 @@ stripchart((meta$div_raw) ~ meta$compartment + meta$lifehistory,
            line = 3.5,
            #xpd = NA,
            xlim=c(0,8.5)
-           ,ylim=c(2300,2360)
+           ,ylim=c(2000,2400)
            #,ylim=c(1000,3500)
            ,frame.plot=F
 )
@@ -213,8 +214,8 @@ boxplot(meta$div_raw  ~ meta$compartment + meta$lifehistory,
 )
 
 axis(side =2,
-     at = seq(2300,2360,20),
-     lab= seq(2300,2360,20),
+     at = seq(2000,2400,100),
+     lab= seq(2000,2400,100),
      las = 2
 )
 
@@ -223,14 +224,14 @@ axis(side =1,
      lab= rep("", 8)
 )
 text(x = seq(1,8,1),
-     y = 2290,
+     y = 1950,
      cex = 1.3,
      pos = 1,
      xpd = NA,
      srt = -50, c("EN forb","EP forb","EN gram.","EP gram.","EN shrub","EP shrub","EN tree","EP tree"))
 
 text(x = 4.5,
-     y = 2365,
+     y = 2400,
      cex = 1,
      xpd = NA,
      "Bacteria (Hellinger, ISD normalized)"
@@ -238,7 +239,7 @@ text(x = 4.5,
 
 text(
   "Shannon's equivalents",
-  y = 2330,
+  y = 2175,
   x = -2,
   srt = 90,
   xpd = NA

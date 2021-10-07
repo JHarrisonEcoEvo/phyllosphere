@@ -123,7 +123,7 @@ merged_dat <- X[,names(X) %in%
                     , "habit_shrub"                                              
                     , "habit_tree"                                               
                     , "compartment_EN"                                           
-                    , "compartment_EP"                                           
+                    #, "compartment_EP"                                           
                     , "taxon_final_Abiesconcolor"
                     , "taxon_final_Abiesgrandis"
                     , "taxon_final_Antennariamedia"
@@ -189,26 +189,26 @@ merged_dat <- X[,names(X) %in%
                     , "phenology_flowering"                                      
                     , "phenology_fruiting"                                       
                     , "phenology_vegetative"   
-                    ,"region_site_1_1"      ,                                            
-                    "region_site_1_2"    ,                                              
-                    "region_site_1_3"    ,                                              
-                    "region_site_2_1"    ,                                              
-                    "region_site_2_2"   ,                                               
-                    "region_site_2_3"  ,                                                
-                    "region_site_3_1"  ,                                                
-                    "region_site_3_2"  ,                                                
-                    "region_site_3_3"   ,                                               
-                    "region_site_4_1"  ,                                                
-                    "region_site_4_2"     ,                                             
-                    "region_site_4_3"   ,                                               
-                    "region_site_5_1"  ,                                                
-                    "region_site_5_2"  ,                                                
-                    "region_site_5_3"  ,                                                
-                    "region_site_6_1"  ,                                                
-                    "region_site_6_2"  ,                                                
-                    "region_site_6_3"  ,                                                
-                    "region_site_7_1"   ,                                               
-                    "region_site_7_2"
+                    # ,"region_site_1_1"      ,                                            
+                    # "region_site_1_2"    ,                                              
+                    # "region_site_1_3"    ,                                              
+                    # "region_site_2_1"    ,                                              
+                    # "region_site_2_2"   ,                                               
+                    # "region_site_2_3"  ,                                                
+                    # "region_site_3_1"  ,                                                
+                    # "region_site_3_2"  ,                                                
+                    # "region_site_3_3"   ,                                               
+                    # "region_site_4_1"  ,                                                
+                    # "region_site_4_2"     ,                                             
+                    # "region_site_4_3"   ,                                               
+                    # "region_site_5_1"  ,                                                
+                    # "region_site_5_2"  ,                                                
+                    # "region_site_5_3"  ,                                                
+                    # "region_site_6_1"  ,                                                
+                    # "region_site_6_2"  ,                                                
+                    # "region_site_6_3"  ,                                                
+                    # "region_site_7_1"   ,                                               
+                    # "region_site_7_2"
                   )]
 
 #Convert to numeric (makes it easier when doing imputing)
@@ -324,8 +324,8 @@ out <- data.frame(matrix(nrow = 1, ncol = 1))
 out$rsq_nested_resampling <- rsq
 out$mse_nested_resampling <- mse
 
-#write.csv(var.imp , file = paste("variableImportanceshannonsISD_16s_raw.csv"), row.names = T)
-write.csv(var.imp , file = paste("variableImportanceshannonsISD_16s_rawSite.csv"), row.names = T)
+write.csv(var.imp , file = paste("variableImportanceshannonsISD_16s_rawOnecompartment.csv"), row.names = T)
+#write.csv(var.imp , file = paste("variableImportanceshannonsISD_16s_rawSite.csv"), row.names = T)
 
 ##########################################
 # Do over AFTER reducing the feature set#
@@ -395,11 +395,11 @@ tained_at_reduced <- at$train(phyllo_task)
 
 var.impR <- data.frame(tained_at_reduced$model$learner$model$regr.ranger$model$variable.importance)
 
-# write.csv(var.impR, file = paste("variableImportanceReducedshannonsISD_16s_raw.csv"), row.names = T)
-write.csv(var.impR, file = paste("variableImportanceReducedshannonsISD_16sSite_raw.csv"), row.names = T)
+ write.csv(var.impR, file = paste("variableImportanceReducedshannonsISD_16s_rawOnecompartment.csv"), row.names = T)
+#write.csv(var.impR, file = paste("variableImportanceReducedshannonsISD_16sSite_raw.csv"), row.names = T)
 
-# write.csv(out, file = paste("results_shannonsISD_16s_raw.csv"), row.names = F)
-write.csv(out, file = paste("results_shannonsISD_16s_rawSite.csv"), row.names = F)
+write.csv(out, file = paste("results_shannonsISD_16s_rawOnecompartment.csv"), row.names = F)
+#write.csv(out, file = paste("results_shannonsISD_16s_rawSite.csv"), row.names = F)
 
 ##########
 #check out important variables
@@ -427,22 +427,22 @@ write.csv(out, file = paste("results_shannonsISD_16s_rawSite.csv"), row.names = 
 # # 2       taxon_final_Primulaparryi
 
 #try for raw data
-dat <- read.csv("./modelingResults/results_diversity_models/variableImportanceReducedshannonsISD_16s_raw.csv",
-                stringsAsFactors = F)
-head(dat)
-
-dat[order(dat[,2]),]
-# compartment_EN
-# 2 taxon_final_Primulaparryi
-
-dat <- read.csv("./modelingResults/results_diversity_models/variableImportanceshannonsISD_16s_raw.csv",
-                stringsAsFactors = F)
-head(dat)
-
-names(dat)<- c("Feature", "Importance")
-print(
-xtable(dat[order(dat[,2]),], label = "var_imp_shannon_16s", caption = "Variable importance for features (variables) included in the random forest analysis of 16S Shannon's diversity. Variable importance was assigned via post-hoc permutation of the variable and recalculation of model performance. How much the model decreases in performance when permuting the variable provides insight into its importance. Larger values mean a variable is more important than those with small values. Variables that were selected for inclusion in a reduced model (see main text) are bolded.")
-,include.rownames=FALSE)
+# dat <- read.csv("./modelingResults/results_diversity_models/variableImportanceReducedshannonsISD_16s_raw.csv",
+#                 stringsAsFactors = F)
+# head(dat)
+# 
+# dat[order(dat[,2]),]
+# # compartment_EN
+# # 2 taxon_final_Primulaparryi
+# 
+# dat <- read.csv("./modelingResults/results_diversity_models/variableImportanceshannonsISD_16s_raw.csv",
+#                 stringsAsFactors = F)
+# head(dat)
+# 
+# names(dat)<- c("Feature", "Importance")
+# print(
+# xtable(dat[order(dat[,2]),], label = "var_imp_shannon_16s", caption = "Variable importance for features (variables) included in the random forest analysis of 16S Shannon's diversity. Variable importance was assigned via post-hoc permutation of the variable and recalculation of model performance. How much the model decreases in performance when permuting the variable provides insight into its importance. Larger values mean a variable is more important than those with small values. Variables that were selected for inclusion in a reduced model (see main text) are bolded.")
+# ,include.rownames=FALSE)
 
 # 
 # 54                                                pressure
@@ -451,4 +451,6 @@ xtable(dat[order(dat[,2]),], label = "var_imp_shannon_16s", caption = "Variable 
 # 33                                            densitometer
 # 105                              taxon_final_Primulaparryi
 
-
+# dat <- read.csv("./modelingResults/results_diversity_models/variableImportanceshannonsISD_16s_rawOnecompartment.csv",
+#                 stringsAsFactors = F)
+# dat[order(dat[,2]),1]

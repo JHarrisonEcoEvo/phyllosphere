@@ -331,6 +331,7 @@ viewdf <- data.frame(
 names(viewdf) <- ""
 viewdf
 
+#write.csv(var.imp, file = paste("variableImportanceshannonsISD_ITS_rawSite_onecompartmnt.csv"), row.names = T)
 write.csv(var.imp, file = paste("variableImportanceshannonsISD_ITS_rawSite.csv"), row.names = T)
 
 ##########################################
@@ -401,10 +402,36 @@ tained_at_reduced <- at$train(phyllo_task)
 
 var.impR <- data.frame(tained_at_reduced$model$learner$model$regr.ranger$model$variable.importance)
 
-write.csv(var.impR, file = paste("variableImportanceReducedshannonsISD_ITS_rawSite.csv"), row.names = T)
+write.csv(var.impR, file = paste("variableImportanceReducedshannonsISD_ITS_raw.csv"), row.names = T)
+#write.csv(var.impR, file = paste("variableImportanceReducedshannonsISD_ITS_rawSite_onecompartmnt.csv"), row.names = T)
 #write.csv(var.impR, file = paste("variableImportanceReducedshannonsISD_ITS_HELLINGER.csv"), row.names = T)
 
-write.csv(out, file = paste("results_shannonsISD_ITS_rawSite.csv"), row.names = F)
+write.csv(out, file = paste("results_shannonsISD_ITS_raw.csv"), row.names = F)
+#write.csv(out, file = paste("results_shannonsISD_ITS_rawSite_onecompartment.csv"), row.names = F)
+
 #write.csv(out, file = paste("results_shannonsISD_ITS_HELLINGER.csv"), row.names = F)
+
+# ######
+# # var imp
+# rm(list=ls())
+ dat <- read.csv(
+   "./modelingResults/results_diversity_models/variableImportanceshannonsISD_ITS_raw.csv",
+                 stringsAsFactors = F)
+dat[order(dat[,2]),]
+
+dat <- read.csv(
+  "./modelingResults/results_diversity_models/variableImportanceshannonsISD_ITS_rawSite_onecompartmnt.csv",
+  stringsAsFactors = F)
+dat[order(dat[,2]),]
+
+ # 
+# dat <- read.csv("./modelingResults/results_diversity_models/variableImportanceshannonsISD_ITS_HELLINGER_onecompartmnt.csv",
+#                 stringsAsFactors = F)
+# dat
+# names(dat)<- c("Feature", "Importance")
+# print(
+#   xtable(dat[order(dat[,2]),], label = "var_imp_shannon_its", caption = "Variable importance for features (variables) included in the random forest analysis of ITS Shannon's diversity. Variable importance was assigned via post-hoc permutation of the variable and recalculation of model performance. How much the model decreases in performance when permuting the variable provides insight into its importance. Larger values mean a variable is more important than those with small values. Variables that were selected for inclusion in a reduced model (see main text) are bolded.")
+#   ,include.rownames=FALSE)
+# 
 
 
