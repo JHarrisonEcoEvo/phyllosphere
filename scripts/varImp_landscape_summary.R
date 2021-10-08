@@ -3,7 +3,7 @@ rm(list=ls())
 #Bring in results and figure out which taxa were predicted well enough to warrant
 #extraction of important features. 
 
-results <- read.csv("modelingResults/allITSlandscapeCount.csv", stringsAsFactors = F)
+results <- read.csv("modelingResults/allITS_landscape_count.csv", stringsAsFactors = F)
 results <- results[results$rsq_nested_resampling > 0.01,]
 results <- results[results$taxon != "taxon",]
 
@@ -29,10 +29,14 @@ for(i in 1:length(varimps)){
                as.character(varimps[[i]][head(rev(order(varimps[[i]][,2])), n = 10),1]))
 }
 table(important)
+sort(table(important))
 
 #Bring in taxonomy for each taxon and see if there are certain patterns by phyla
 #where, say, a certain suite of predictors is more important for certain phyla
 #If this appears to be the case, then make a heatmap figure
+
+
+ 
 
 
 
