@@ -1,6 +1,7 @@
-#Two part script. First part figures out taxa to model at landscape level (across all hosts and samples) based on prevalence
+#three part script. First part figures out taxa to model at landscape level (across all hosts and samples) based on prevalence
 #Part two calculates prevalence among samples from only a SINGLE host and outputs combinations
 #of host and microbe taxa to model. 
+#Third part. Converting data to occupancy data for use in occupancy modeling.
 
 #########
 # part 1#
@@ -196,5 +197,24 @@ for(i in unique(X$taxon_final)){
 write.csv(keepers, file = "./processedData/combination_hosts_microbes_to_analyze_16S.csv")
 unique(keepers$microbe)
 
+##########
+# Part 3 #
+###########
 
+#Making occupancy data
+
+rm(list=ls())
+
+#load data
+dat <- read.csv("./processedData/otuTables/smallmem97_ITS_for_modeling_rearranged_for_CNVRG", stringsAsFactors = F)
+dat[,3:length(dat)]  <- dat[,3:length(dat)] -1
+dat[,3:length(dat)] <- ifelse(dat[,3:length(dat)] > 0, 1, 0)
+write.csv(dat, file = "./processedData/otuTables/smallmem97_ITS_for_modeling_rearranged_for_CNVRG_OCCUPANCY.csv", 
+          row.names = F)
+
+dat <- read.csv("./processedData/otuTables/smallmem97_16S_for_modeling_rearranged_for_CNVRG", stringsAsFactors = F)
+dat[,3:length(dat)]  <- dat[,3:length(dat)] -1
+dat[,3:length(dat)] <- ifelse(dat[,3:length(dat)] > 0, 1, 0)
+write.csv(dat, file = "./processedData/otuTables/smallmem97_16S_for_modeling_rearranged_for_CNVRG_OCCUPANCY.csv", 
+          row.names = F)
 
