@@ -468,7 +468,7 @@ predictionTable <- data.frame(table(rr$prediction()$response[
 out$correctPositives <- predictionTable[
   predictionTable$Var1 == 1,2]
 
-write.csv(out, file = paste("results", focal_taxon, "ITS_hellingerOCCUPANCY.csv", sep = ""), 
+write.csv(out, file = paste("results", focal_taxon, "ITS_OCCUPANCY.csv", sep = ""), 
           row.names = F)
 
 
@@ -481,7 +481,7 @@ if(mcc > 0){
   tained_at <- at$train(phyllo_task)
   
   var.imp <- data.frame(tained_at$model$learner$model$classif.ranger$model$variable.importance)
-  write.csv(var.imp, file = paste("variableImportance", focal_taxon, "ITS_hellingerOCCUPANCY.csv", sep = ""), 
+  write.csv(var.imp, file = paste("variableImportance", focal_taxon, "ITS_OCCUPANCY.csv", sep = ""), 
             row.names = T)
 }
 
@@ -552,5 +552,6 @@ if(mcc > 0){
 # var.impR <- data.frame(tained_at_reduced$model$learner$model$classif.ranger$model$variable.importance)
 # 
 # write.csv(var.impR, file = paste("variableImportanceReduced", focal_taxon, "ITS_hellingerOCCUPANCY.csv", sep = ""), row.names = T)
+
 
 

@@ -129,7 +129,7 @@ length(unique(unlist(classinfo)))
 #https://stackoverflow.com/questions/35089898/transforming-a-list-with-differing-number-of-elements-to-a-data-frame
 forheat <- t(sapply(classinfo, `length<-`, max(lengths(classinfo))))
 
-pdf(width = 8, height = 8, file = "./visuals/its_heatmap_feature_importance.pdf")
+pdf(width = 10, height = 10, file = "./visuals/its_heatmap_feature_importance.pdf")
 par(mar=c(3,3,3,3), oma = c(8,3,3,8))
 heatmap(forheat,scale = "none",
         col= rev(heat.colors(5)),
@@ -151,9 +151,12 @@ heatmap(forheat,scale = "none",
                    "Tree richness"),
         labRow = gsub("c:", "", row.names(forheat))
         )
+dev.off()
 
-legend(x=150,
-       y = 1,
+pdf(width = 5, height = 5, file = "./visuals/its_heatmap_legend.pdf")
+plot(NULL)
+legend("center",
+       bty = "n",
        xpd = NA,
        legend=c("NA", "1-6", "7-9", "10-14", "15", "16+"),
        fill=c("white",rev(heat.colors(5))))

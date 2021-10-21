@@ -33,12 +33,12 @@ focal_taxon <- possibles[inargs[3],3]
 focal_host <- possibles[inargs[3],2]
 print(inargs)
 
-# #Debugging stuff
-taxa <- read.csv("./processedData//ITSp_estimates_wrangled_for_post_modeling_analysis_divided_by_ISD.csv")
-possibles <- read.csv("./processedData/combination_hosts_microbes_to_analyze_ITS.csv", stringsAsFactors = F)
-focal_taxon <- possibles[1,3]
-focal_host <- possibles[1,2]
-X<- read.csv("./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv", stringsAsFactors = F)
+#Debugging stuff
+#taxa <- read.csv("./processedData//16sp_estimates_wrangled_for_post_modeling_analysis_divided_by_ISD.csv")
+#possibles <- read.csv("~/Desktop/teton/sixteenS_otus_to_analyzeleftovers.csv", stringsAsFactors = F)
+#focal_taxon <- possibles[1,3]
+#focal_host <- possibles[1,2]
+#X<- read.csv("./processedData/16smetadat_wrangled_for_post_modeling_analysis.csv", stringsAsFactors = F)
 
 #SUBSET to just the focal host taxon.
 X <- X[X$taxon_final == focal_host,]
@@ -46,6 +46,9 @@ X <- X[X$taxon_final == focal_host,]
 #######################
 # Feature engineering #
 ######################
+
+taxa[,3:length(taxa)] <- taxa[,3:length(taxa)] / taxa$ISD
+taxa[,3:length(taxa)] <- taxa[,3:length(taxa)] -1 
 
 X <- X[X$substrate == "plant",]
 
@@ -84,6 +87,8 @@ response_taxon <- merged_dat[,names(merged_dat) == focal_taxon]
 print("look for NAs")
 table(is.na(response_taxon))
 
+response_taxon<- response_taxon[-length(response_taxon)]
+merged_dat <- merged_dat[-length(merged_dat[,1]),]
 ########################################################################
 # Check and make sure the microbial taxon is present in enough samples # 
 ########################################################################
@@ -152,10 +157,10 @@ merged_dat <- merged_dat[,names(merged_dat) %in%
                              , "habit_shrub"                                              
                              , "habit_tree"                                               
                              , "compartment_EN"                                           
-                             , "compartment_EP"                                           
+#                             , "compartment_EP"                                           
                              , "phenology_flowering"                                      
                              , "phenology_fruiting"                                       
-                             , "phenology_vegetative"
+                             , "phenology_vegetative" 
                              ,"MEM1"
                              , "MEM2"
                            )]
@@ -289,7 +294,7 @@ out$host <- focal_host
 out$rsq_nested_resampling <- rsq
 out$mse_nested_resampling <- mse
 
-write.csv(var.imp, file = paste("HOSTvariableImportance", focal_taxon, "_", focal_host, "ITS_HELLINGER.csv", sep = ""), row.names = F)
+write.csv(var.imp, file = paste("HOSTvariableImportance", focal_taxon, "_", focal_host, "16S.csv", sep = ""), row.names = F)
 
 ##########################################
 # Do over AFTER reducing the feature set#
@@ -359,8 +364,8 @@ tained_at_reduced <- at$train(phyllo_task)
 
 var.impR <- data.frame(tained_at_reduced$model$learner$model$regr.ranger$model$variable.importance)
 
-write.csv(var.impR, file = paste("HOSTvariableImportanceReduced", focal_taxon, "_", focal_host, "ITS_HELLINGER.csv", sep = ""), row.names = F)
+write.csv(var.impR, file = paste("HOSTvariableImportanceReduced", focal_taxon, "_", focal_host, "16S.csv", sep = ""), row.names = F)
 
-write.csv(out, file = paste("results", focal_taxon,"_", focal_host, "ITS_HELLINGER.csv", sep = ""), row.names = F)
+write.csv(out, file = paste("results", focal_taxon,"_", focal_host, "16S.csv", sep = ""), row.names = F)
 
 

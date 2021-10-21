@@ -258,3 +258,17 @@ var(prevHost)
 mean(prevHostEN)
 var(prevHostEN)
 #not at all close
+
+#FIGURE OUT MOST PREVALENT MICROBE
+rm(list=ls())
+dat <- read.csv("./processedData/otuTables/smallmem97_ITS_for_modeling_rearranged_for_CNVRG_OCCUPANCY.csv")
+head(dat)
+dat <- dat[,-which(names(dat) %in% c("ISD", "duds"))]
+
+observations <- NA
+for(i in 3:length(dat)){
+  observations[i] <- length(which(dat[,i] == 1))
+}
+tail(names(dat)[order(observations)])
+
+table(dat$Zotu5710)
