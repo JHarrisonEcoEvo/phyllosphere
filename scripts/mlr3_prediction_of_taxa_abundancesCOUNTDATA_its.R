@@ -39,7 +39,7 @@ focal_taxon <- possibles[inargs[3],]
 # # #Debugging stuff
 taxa <- read.csv("./processedData//otuTables/smallmem97_ITS_for_modeling_rearranged_for_CNVRG")
 possibles <- read.csv("./processedData/ITS_taxa_to_model_via_randomforest.csv")
-focal_taxon <- possibles[3,]
+focal_taxon <- possibles[13,]
  X<- read.csv("./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv")
  taxa[,3:length(taxa)] <- taxa[,3:length(taxa)] -1
 summary(taxa$plant)
@@ -249,8 +249,8 @@ if(any(is.na(response_taxon))){
 }
 
 if(any(is.infinite(response_taxon))){
-  response_taxon <- response_taxon[!is.infinite(response_taxon)]
   merged_dat <- merged_dat[!is.infinite(response_taxon),]
+  response_taxon <- response_taxon[!is.infinite(response_taxon)]
 }
 
 merged_dat$focal_one_hot <- ifelse(response_taxon > mean(response_taxon), 1, 0)

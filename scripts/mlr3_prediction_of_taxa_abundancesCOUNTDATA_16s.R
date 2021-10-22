@@ -241,8 +241,8 @@ if(any(is.na(response_taxon))){
 }
 
 if(any(is.infinite(response_taxon))){
-  response_taxon <- response_taxon[!is.infinite(response_taxon)]
   merged_dat <- merged_dat[!is.infinite(response_taxon),]
+  response_taxon <- response_taxon[!is.infinite(response_taxon)]
 }
 
 merged_dat$focal_one_hot <- ifelse(response_taxon > mean(response_taxon), 1, 0)
