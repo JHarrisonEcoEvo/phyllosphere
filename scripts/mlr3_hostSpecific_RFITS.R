@@ -46,9 +46,11 @@ X <- X[X$taxon_final == focal_host,]
 #######################
 # Feature engineering #
 ######################
+taxa$sample <- gsub("X", "", taxa$sample)
 
+taxa[,3:length(taxa)] <- taxa[,3:length(taxa)] -1
 taxa[,3:length(taxa)] <- taxa[,3:length(taxa)] / taxa$ISD
-taxa[,3:length(taxa)] <- taxa[,3:length(taxa)] -1 
+
 
 X <- X[X$substrate == "plant",]
 
@@ -176,6 +178,15 @@ for(i in 2:length(merged_dat)){
 #is present above its median abund. and a zero otherwise. 
 #This lets us stratify during splitting so we don't end up with a 
 #train/test split that has just high or low values of the response. 
+if(any(is.na(response_taxon))){
+  merged_dat <- merged_dat[!is.na(response_taxon),]
+  response_taxon <- response_taxon[!is.na(response_taxon)]
+}
+
+if(any(is.infinite(response_taxon))){
+  response_taxon <- response_taxon[!is.infinite(response_taxon)]
+  merged_dat <- merged_dat[!is.infinite(response_taxon),]
+}
 
 merged_dat$focal_one_hot <- ifelse(response_taxon > mean(response_taxon), 1, 0)
 table(merged_dat$focal_one_hot)
