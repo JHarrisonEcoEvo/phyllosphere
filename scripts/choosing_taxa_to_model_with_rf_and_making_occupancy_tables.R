@@ -12,19 +12,27 @@ dat <- read.csv("./processedData/otuTables/smallmem97_ITS_for_modeling_rearrange
 
 dat[,3:length(dat)] <- dat[,3:length(dat)] - 1
 
-#convert data to qualitative data, 1 if present 0 otherwise
-dat[,3:length(dat)][dat[,3:length(dat)] > 0] <- 1
-dim(dat) #still good
-
-#Figure out how many things were in 100 or more samples.
-#This should be how many things I tried to model with the random forest
-prev <- dat[,colSums(dat[,3:length(dat)]) >=100]
-
 #Omit the isd, duds etc. 
-prev <- prev[,grep("Zotu*", names(prev))]
-dim(prev)
+dat <- dat[,grep("Zotu*", names(dat))]
+dim(dat)
 
-write.csv(names(prev), file = "./processedData/ITS_taxa_to_model_via_randomforest.csv", row.names = F)
+
+#Figure out which taxa have more than 100 presences and save their names to an output file
+taxa_to_model <- list()
+for(i in 3:length(dat)){
+  hits <- table(dat[,i] > 0)
+  if(any(names(hits) == "TRUE")){
+    if(hits[names(hits) == "TRUE"] >= 100){
+      taxa_to_model <- append(taxa_to_model, names(dat)[i])
+    }
+  }
+}
+#qc
+#table(dat[, names(dat)=="Zotu9960"] > 0)
+#table(dat[, names(dat)=="Zotu9836"] > 0)
+
+write.csv(unlist(taxa_to_model),
+          file = "./processedData/ITS_taxa_to_model_via_randomforest.csv", row.names = F)
 
 
 ############
@@ -36,19 +44,27 @@ dat <- read.csv("./processedData/otuTables/smallmem97_16S_for_modeling_rearrange
 
 dat[,3:length(dat)] <- dat[,3:length(dat)] - 1
 
-#convert data to qualitative data, 1 if present 0 otherwise
-dat[,3:length(dat)][dat[,3:length(dat)] > 0] <- 1
-dim(dat) #still good
-
-#Figure out how many things were in 100 or more samples.
-#This should be how many things I tried to model with the random forest
-prev <- dat[,colSums(dat[,3:length(dat)]) >=100]
-
 #Omit the isd, duds etc. 
-prev <- prev[,grep("Zotu*", names(prev))]
-dim(prev)
+dat <- dat[,grep("Zotu*", names(dat))]
+dim(dat)
 
-write.csv(names(prev), file = "./processedData/sixteenS_taxa_to_model_via_randomforest.csv", row.names = F)
+
+#Figure out which taxa have more than 100 presences and save their names to an output file
+taxa_to_model <- list()
+for(i in 3:length(dat)){
+  hits <- table(dat[,i] > 0)
+  if(any(names(hits) == "TRUE")){
+    if(hits[names(hits) == "TRUE"] >= 100){
+      taxa_to_model <- append(taxa_to_model, names(dat)[i])
+    }
+  }
+}
+#qc
+#table(dat[, names(dat)=="Zotu447"] > 0)
+#table(dat[, names(dat)=="Zotu9742"] > 0)
+
+write.csv(unlist(taxa_to_model),
+          file = "./processedData/sixteenS_taxa_to_model_via_randomforest.csv", row.names = F)
 
 ##########
 # Part 2 #
