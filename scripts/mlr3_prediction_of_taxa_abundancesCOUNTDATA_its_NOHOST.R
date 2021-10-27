@@ -36,21 +36,28 @@ X <- read.csv(inargs[1]) #e.g., "./imputed_scaled_ITS_metadata.csv"
 taxa <- read.csv(inargs[2], stringsAsFactors = F) #./ITSp_estimates_wrangled_for_post_modeling_analysis_divided_by_ISD.csv
 possibles <- read.csv(inargs[4]) # "./processedData/ITS_taxa_to_model_via_randomforest.csv"
 focal_taxon <- possibles[inargs[3],]
+isdNorm_tf <- inargs[5] #should be a T or an F
 
 # # # #Debugging stuff
 # taxa <- read.csv("./processedData//otuTables/smallmem97_ITS_for_modeling_rearranged_for_CNVRG", stringsAsFactors = F)
 # possibles <- read.csv("./processedData/ITS_taxa_to_model_via_randomforest.csv")
-# focal_taxon <- possibles[1,]
+# focal_taxon <- possibles[17,]
 #  X<- read.csv("./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv")
 
 #######################
 # Feature engineering #
 ######################
 
- taxa$sample <- gsub("X", "", taxa$sample)
+taxa$sample <- gsub("X", "", taxa$sample)
 
 taxa[,3:length(taxa)] <- taxa[,3:length(taxa)] -1
-taxa[,3:length(taxa)] <- taxa[,3:length(taxa)] / taxa$ISD
+
+if(isdNorm_tf == T){
+  print("dividing by the isd")
+  taxa[,3:length(taxa)] <- taxa[,3:length(taxa)] / taxa$ISD
+}else{
+  print("not dividing by the isd")
+}
 
 X <- X[X$substrate == "plant",]
 
@@ -306,12 +313,25 @@ g1 <- GraphLearner$new(graph)
 ##########
 
 #For ranger (randomforest)
+#Simplying tuning parameters because of the extreme imbalance of my dataset. I think it is hard
+#to test these because I have so few positives that r squared is not possible to calculate for some
+#training splits, since no positives. 
+
 params <- ps(
   regr.ranger.num.trees = p_int(lower = 50, upper = 400, tags = "budget"), #number of trees in the dark forest
-  regr.ranger.sample.fraction = p_dbl(lower = 0.01, upper = 0.3), #The sample.fraction parameter specifies the fraction of observations to be used in each tree. Smaller fractions lead to greater diversity, and thus less correlated trees which often is desirable.
+   regr.ranger.sample.fraction = p_dbl(lower = 0.01, upper = 0.3), #The sample.fraction parameter specifies the fraction of observations to be used in each tree. Smaller fractions lead to greater diversity, and thus less correlated trees which often is desirable.
   regr.ranger.splitrule = p_fct(levels = c("extratrees", "variance")),
   regr.ranger.min.node.size = p_int(lower = 1, upper = 25)
 )
+
+
+#ORIGINAL SET OF PARAMETERS
+# params <- ps(
+#   regr.ranger.num.trees = p_int(lower = 50, upper = 400, tags = "budget"), #number of trees in the dark forest
+#   regr.ranger.sample.fraction = p_dbl(lower = 0.01, upper = 0.3), #The sample.fraction parameter specifies the fraction of observations to be used in each tree. Smaller fractions lead to greater diversity, and thus less correlated trees which often is desirable.
+#   regr.ranger.splitrule = p_fct(levels = c("extratrees", "variance")),
+#   regr.ranger.min.node.size = p_int(lower = 1, upper = 25)
+# )
 
 
 ###################################################

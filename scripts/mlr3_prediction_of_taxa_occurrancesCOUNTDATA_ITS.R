@@ -36,7 +36,7 @@ taxa <- read.csv(inargs[2], stringsAsFactors = F) #./ITSp_estimates_wrangled_for
 possibles <- read.csv(inargs[4], stringsAsFactors = F) # "./processedData/ITS_taxa_to_model_via_randomforest.csv"
 focal_taxon <- possibles[inargs[3],]
 
-# # #Debugging stuff
+# #Debugging stuff
 # taxa <- read.csv("./processedData/otuTables/smallmem97_ITS_for_modeling_rearranged_for_CNVRG_OCCUPANCY.csv", stringsAsFactors = F)
 # possibles <- read.csv("./processedData/ITS_taxa_to_model_via_randomforest.csv", stringsAsFactors = F)
 # focal_taxon <- possibles[1,]
@@ -72,6 +72,7 @@ categoricals <- c(
   "taxon_final",
   "phenology"
 )
+
 #remove spaces in taxon_final for ease of output file manipulation. 
 X$taxon_final <- gsub(" ", "", X$taxon_final)
 
@@ -461,6 +462,7 @@ extract_inner_tuning_results(rr)
 out <- data.frame(matrix(nrow = 1, ncol = 1))
 out$taxon <- focal_taxon
 out$mcc_nested_resampling <- rr$aggregate(measure = msr("classif.mcc")) #Matthews cor coef
+mcc <- rr$aggregate(measure = msr("classif.mcc"))
 out$classification_error <-  rr$aggregate(measure = msr("classif.ce")) #classification error
 
 predictionTable <- data.frame(table(rr$prediction()$response[

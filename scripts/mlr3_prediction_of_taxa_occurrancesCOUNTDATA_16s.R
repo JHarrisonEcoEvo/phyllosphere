@@ -40,7 +40,7 @@ focal_taxon <- possibles[inargs[3],]
 # taxa <- read.csv("./processedData/otuTables/smallmem97_16S_for_modeling_rearranged_for_CNVRG_OCCUPANCY.csv", stringsAsFactors = F)
 # possibles <- read.csv("./processedData/sixteenS_taxa_to_model_via_randomforest.csv", stringsAsFactors = F)
 # focal_taxon <- possibles[1,]
-#  X<- read.csv("./processedData/16Smetadat_wrangled_for_post_modeling_analysis.csv", stringsAsFactors = F)
+# X<- read.csv("./processedData/16smetadat_wrangled_for_post_modeling_analysis.csv", stringsAsFactors = F)
 
 taxa$sample <- gsub("X","",taxa$sample)
 #######################
@@ -461,6 +461,7 @@ extract_inner_tuning_results(rr)
 out <- data.frame(matrix(nrow = 1, ncol = 1))
 out$taxon <- focal_taxon
 out$mcc_nested_resampling <- rr$aggregate(measure = msr("classif.mcc")) #Matthews cor coef
+mcc <- rr$aggregate(measure = msr("classif.mcc"))
 out$classification_error <-  rr$aggregate(measure = msr("classif.ce")) #classification error
 
 predictionTable <- data.frame(table(rr$prediction()$response[
@@ -468,7 +469,7 @@ predictionTable <- data.frame(table(rr$prediction()$response[
 out$correctPositives <- predictionTable[
   predictionTable$Var1 == 1,2]
 
-write.csv(out, file = paste("results", focal_taxon, "16S_hellingerOCCUPANCY.csv", sep = ""), 
+write.csv(out, file = paste("results", focal_taxon, "16S_OCCUPANCY.csv", sep = ""), 
           row.names = F)
 
 
@@ -481,7 +482,7 @@ if(mcc > 0){
   tained_at <- at$train(phyllo_task)
 
   var.imp <- data.frame(tained_at$model$learner$model$classif.ranger$model$variable.importance)
-  write.csv(var.imp, file = paste("variableImportance", focal_taxon, "16S_hellingerOCCUPANCY.csv", sep = ""), 
+  write.csv(var.imp, file = paste("variableImportance", focal_taxon, "16S_OCCUPANCY.csv", sep = ""), 
           row.names = T)
 }
 
