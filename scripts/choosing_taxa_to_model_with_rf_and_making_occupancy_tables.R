@@ -122,7 +122,7 @@ for(i in unique(X$taxon_final)){
         #For microbes that are present in this taxon, extract the proportion of samples in which they occur
         proportion <- table_microbe["TRUE" == names(table_microbe)] / sum(table_microbe)
         #If microbes occur in 30% or more of samples, then write the combination of host and microbial taxon to the output
-        if(proportion >= 0.3){
+        if(proportion >= 0.3 & table_microbe["TRUE" == names(table_microbe)] > 30){
           keepers[k,] <- "NA" #clunky hack to avoid row number and data input amount discrepencies
           keepers$host[k] <- i
           keepers$microbe[k] <- names(workingdf)[j]
@@ -196,7 +196,7 @@ for(i in unique(X$taxon_final)){
       #For microbes that are present in this taxon, extract the proportion of samples in which they occur
       proportion <- table_microbe["TRUE" == names(table_microbe)] / sum(table_microbe)
       #If microbes occur in 30% or more of samples, then write the combination of host and microbial taxon to the output
-      if(proportion >= 0.3){
+      if(proportion >= 0.3 & table_microbe["TRUE" == names(table_microbe)] > 30){
         keepers[k,] <- "NA" #clunky hack to avoid row number and data input amount discrepencies
         keepers$host[k] <- i
         keepers$microbe[k] <- names(workingdf)[j]

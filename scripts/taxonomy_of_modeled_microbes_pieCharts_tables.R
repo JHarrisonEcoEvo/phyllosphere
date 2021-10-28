@@ -51,7 +51,7 @@ hyperrare <- dim( dat[,colSums(dat[,3:length(dat)]) < 5])[2]
 uncommon <- dim(dat[,colSums(dat[,3:length(dat)]) >= 5 & colSums(dat[,3:length(dat)]) < 100,])[2]
 
 #how many were successfully modeled
-results <- read.csv("processedData/all16s.csv")
+results <- read.csv("modelingResults/all_16s_withhost.csv")
 results <- results[results$taxon != "taxon",]
 
 good <- results[as.numeric(as.character(results$rsq_nested_resampling)) >= 0.01,]
@@ -121,7 +121,7 @@ hyperrare <- dim( dat[,colSums(dat[,3:length(dat)]) < 5])[2]
 uncommon <- dim(dat[,colSums(dat[,3:length(dat)]) >= 5 & colSums(dat[,3:length(dat)]) < 100,])[2]
 
 #how many were successfully modeled
-results <- read.csv("processedData/allITS.csv")
+results <- read.csv("modelingResults/all_its_withhost.csv")
 results <- results[results$taxon != "taxon",]
 
 good <- results[as.numeric(as.character(results$rsq_nested_resampling)) >= 0.01,]

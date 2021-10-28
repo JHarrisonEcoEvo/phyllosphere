@@ -84,16 +84,9 @@ table(taxa$sample %in%  X$sample )
 
 merged_dat <- merge(X, taxa, by.x = "sample", by.y = "sample", all.y = T)
 
-#For convenience make response variable
-response_taxon <- merged_dat[,names(merged_dat) == focal_taxon]
-print("look for NAs")
-table(is.na(response_taxon))
-
 ########################################################################
 # Check and make sure the microbial taxon is present in enough samples # 
 ########################################################################
-
-table(response_taxon > 0 )
 
 #Get rid of stuff we don't need in merged_dat 
 merged_dat <- merged_dat[,names(merged_dat) %in%
@@ -174,6 +167,14 @@ for(i in 2:length(merged_dat)){
 # Making variable for stratification #
 ######################
 
+
+#For convenience make response variable
+response_taxon <- merged_dat[,names(merged_dat) == focal_taxon]
+print("look for NAs")
+table(is.na(response_taxon))
+
+table(response_taxon > 0 )
+
 #Make a one hot variable that is a 1 if the focal taxon (the response variable)
 #is present above its median abund. and a zero otherwise. 
 #This lets us stratify during splitting so we don't end up with a 
@@ -184,11 +185,12 @@ if(any(is.na(response_taxon))){
 }
 
 if(any(is.infinite(response_taxon))){
-  response_taxon <- response_taxon[!is.infinite(response_taxon)]
   merged_dat <- merged_dat[!is.infinite(response_taxon),]
+  
+  response_taxon <- response_taxon[!is.infinite(response_taxon)]
 }
 
-merged_dat$focal_one_hot <- ifelse(response_taxon > mean(response_taxon), 1, 0)
+merged_dat$focal_one_hot <- ifelse(response_taxon > median(response_taxon), 1, 0)
 table(merged_dat$focal_one_hot)
 
 merged_dat$stratify <- paste(merged_dat$compartment, merged_dat$focal_one_hot)
@@ -268,7 +270,7 @@ at <- AutoTuner$new(
   store_models = TRUE)
 
 #pass back to resampling for nested resampling
-outer_resampling <- rsmp("cv", folds = 10)
+outer_resampling <- rsmp("cv", folds = 3)
 rr <- resample(task = phyllo_task, 
                learner = at, 
                outer_resampling, 
@@ -354,7 +356,7 @@ at_reduced <- AutoTuner$new(
   search_space = params)
 
 #pass back to resampling for nested resampling
-outer_resampling <- rsmp("cv", folds = 10)
+outer_resampling <- rsmp("cv", folds = 3)
 rr <- resample(task = phyllo_task, 
                learner = at_reduced, 
                outer_resampling, 

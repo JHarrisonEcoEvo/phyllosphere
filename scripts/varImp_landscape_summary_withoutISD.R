@@ -153,7 +153,7 @@ for(i in 1:length(outmat)){
 }
 
 forheat <- data.frame(
-  matrix(unlist(outmat), nrow = 3 , ncol = length(unique(nms))))
+  matrix(unlist(outmat), nrow = length(classinfo) , ncol = length(unique(nms))))
 names(forheat) <- unique(nms)
 forheat
 
@@ -166,63 +166,66 @@ forheat
 #forheat <- t(sapply(classinfo, `length<-`, max(lengths(classinfo))))
 
 pdf(width = 10, height = 10, file = "./visuals/its_heatmap_feature_importance_noISD.pdf")
-par(mar=c(3,3,3,3), oma = c(8,3,3,12))
-heatmap(as.matrix(forheat),scale = "none",
+par(mar=c(3,3,3,3), oma = c(15,3,3,12))
+library(gplots)
+heatmap.2(as.matrix(forheat),scale = "none",
         col= rev(heat.colors(5)),
         #wesanderson::wes_palette("FantasticFox1", n = 5, type = "discrete"),
         Colv = NA, 
-        #labCol = names(forheat),
-        labCol = c("Absorbance 940",
-                   "Leaf area",
-                   "B",
-                   "Densitometer",
-                   "Fm prime",
-                   "Fo prime",
-                   "Fs",
-                   "G",
-                   "Growth habit: forb",
-                   "Height sample",
-                   "Light intensity (PAR)",
-                   "Temp. April",
-                   "PhiNO",
-                   "Pressure",
-                   "qL",
-                   "R",
-                   "RFd",
-                   "Shannon's flora",
-                   "Leaf density (SLA)",
-                   "SPAD 420",
-                   "Ambient temperature",
-                   "Contactless temperature",
-                   "Julian date",
-                   "Mass extracted",
-                   "MEM #2",
-                   "Phi2",
-                   "Plant volume",
-                   "Rel. chlorophyll",
-                   "Shrub richness",
-                   "Absorbance 420",
-                   "ECS max",
-                   "gH",
-                   "MEM #1",
-                   "Fruiting",
-                   "Time of day",
-                   "Tree richness"
-                   ),
+        key = T,
+        trace="none",
+        labCol = names(forheat),
+        # labCol = c("Absorbance 940",
+        #            "Leaf area",
+        #            "B",
+        #            "Densitometer",
+        #            "Fm prime",
+        #            "Fo prime",
+        #            "Fs",
+        #            "G",
+        #            "Growth habit: forb",
+        #            "Height sample",
+        #            "Light intensity (PAR)",
+        #            "Temp. April",
+        #            "PhiNO",
+        #            "Pressure",
+        #            "qL",
+        #            "R",
+        #            "RFd",
+        #            "Shannon's flora",
+        #            "Leaf density (SLA)",
+        #            "SPAD 420",
+        #            "Ambient temperature",
+        #            "Contactless temperature",
+        #            "Julian date",
+        #            "Mass extracted",
+        #            "MEM #2",
+        #            "Phi2",
+        #            "Plant volume",
+        #            "Rel. chlorophyll",
+        #            "Shrub richness",
+        #            "Absorbance 420",
+        #            "ECS max",
+        #            "gH",
+        #            "MEM #1",
+        #            "Fruiting",
+        #            "Time of day",
+        #            "Tree richness"
+        #            ),
         labRow = gsub("c:", "", names(classinfo))
 )
 dev.off()
 
-pdf(width = 5, height = 5, file = "./visuals/its_heatmap_legend_noISD.pdf")
-plot(NULL)
-legend("center",
-       bty = "n",
-       xpd = NA,
-       legend=c("0", "1-3", "4", "5-6", "7+"),
-       fill=c(rev(heat.colors(5))))
-#wesanderson::wes_palette("FantasticFox1", n = 5, type = "discrete"))
-
-dev.off()
+# pdf(width = 5, height = 5, file = "./visuals/its_heatmap_legend_noISD.pdf")
+# plot(NULL)
+# legend("center",
+#        bty = "n",
+#        xpd = NA,
+#        legend=c("0", "1-3", "4", "5-6", "7+"),
+#        fill=c(rev(heat.colors(5))))
+# #wesanderson::wes_palette("FantasticFox1", n = 5, type = "discrete"))
+# 
+# dev.off()
 #ORIGINAL VERSION
 #Useful for results of models of data that were not normalized by the ISD. 
 

@@ -62,6 +62,8 @@ if(isdNorm_tf == T){
   taxa[,3:length(taxa)] <- taxa[,3:length(taxa)] / taxa$ISD
 }else{
   print("not dividing by the isd")
+  taxa[,3:length(taxa)]  <- vegan::decostand(taxa[,3:length(taxa)],
+                                             method = "hellinger")
 }
 
 X <- X[X$substrate == "plant",]

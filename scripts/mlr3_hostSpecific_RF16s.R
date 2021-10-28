@@ -33,12 +33,12 @@ focal_taxon <- possibles[inargs[3],3]
 focal_host <- possibles[inargs[3],2]
 print(inargs)
 
-#Debugging stuff
-#taxa <- read.csv("./processedData//16sp_estimates_wrangled_for_post_modeling_analysis_divided_by_ISD.csv")
-#possibles <- read.csv("~/Desktop/teton/sixteenS_otus_to_analyzeleftovers.csv", stringsAsFactors = F)
-#focal_taxon <- possibles[1,3]
-#focal_host <- possibles[1,2]
-#X<- read.csv("./processedData/16smetadat_wrangled_for_post_modeling_analysis.csv", stringsAsFactors = F)
+# #Debugging stuff
+taxa <- read.csv("./processedData//otuTables/smallmem97_16S_for_modeling_rearranged_for_CNVRG")
+possibles <- read.csv("./processedData/combination_hosts_microbes_to_analyze_16S.csv", stringsAsFactors = F)
+focal_taxon <- possibles[1,3]
+focal_host <- possibles[1,2]
+X<- read.csv("./processedData/16smetadat_wrangled_for_post_modeling_analysis.csv", stringsAsFactors = F)
 
 #SUBSET to just the focal host taxon.
 X <- X[X$taxon_final == focal_host,]
@@ -52,6 +52,8 @@ taxa$sample <- gsub("X", "", taxa$sample)
 taxa[,3:length(taxa)] <- taxa[,3:length(taxa)] -1
 taxa[,3:length(taxa)] <- taxa[,3:length(taxa)] / taxa$ISD
 
+
+taxa[, grep(focal_taxon, names(taxa))]
 
 X <- X[X$substrate == "plant",]
 
@@ -85,18 +87,13 @@ table(taxa$sample %in%  X$sample )
 
 merged_dat <- merge(X, taxa, by.x = "sample", by.y = "sample", all.y = T)
 
-#For convenience make response variable
-response_taxon <- merged_dat[,names(merged_dat) == focal_taxon]
-print("look for NAs")
-table(is.na(response_taxon))
 
-response_taxon<- response_taxon[-length(response_taxon)]
-merged_dat <- merged_dat[-length(merged_dat[,1]),]
+#response_taxon<- response_taxon[-length(response_taxon)]
+#merged_dat <- merged_dat[-length(merged_dat[,1]),]
 ########################################################################
 # Check and make sure the microbial taxon is present in enough samples # 
 ########################################################################
 
-table(response_taxon > 0 )
 
 #Get rid of stuff we don't need in merged_dat 
 merged_dat <- merged_dat[,names(merged_dat) %in%
@@ -177,6 +174,13 @@ for(i in 2:length(merged_dat)){
 # Making variable for stratification #
 ######################
 
+#For convenience make response variable
+response_taxon <- merged_dat[,names(merged_dat) == focal_taxon]
+print("look for NAs")
+table(is.na(response_taxon))
+
+table(response_taxon > 0 )
+
 #Make a one hot variable that is a 1 if the focal taxon (the response variable)
 #is present above its median abund. and a zero otherwise. 
 #This lets us stratify during splitting so we don't end up with a 
@@ -187,11 +191,12 @@ if(any(is.na(response_taxon))){
 }
 
 if(any(is.infinite(response_taxon))){
-  response_taxon <- response_taxon[!is.infinite(response_taxon)]
   merged_dat <- merged_dat[!is.infinite(response_taxon),]
+  
+  response_taxon <- response_taxon[!is.infinite(response_taxon)]
 }
 
-merged_dat$focal_one_hot <- ifelse(response_taxon > mean(response_taxon), 1, 0)
+merged_dat$focal_one_hot <- ifelse(response_taxon > median(response_taxon), 1, 0)
 table(merged_dat$focal_one_hot)
 
 merged_dat$stratify <- paste(merged_dat$compartment, merged_dat$focal_one_hot)
@@ -271,7 +276,7 @@ at <- AutoTuner$new(
   store_models = TRUE)
 
 #pass back to resampling for nested resampling
-outer_resampling <- rsmp("cv", folds = 10)
+outer_resampling <- rsmp("cv", folds = 3)
 rr <- resample(task = phyllo_task, 
                learner = at, 
                outer_resampling, 
@@ -357,7 +362,7 @@ at_reduced <- AutoTuner$new(
   search_space = params)
 
 #pass back to resampling for nested resampling
-outer_resampling <- rsmp("cv", folds = 10)
+outer_resampling <- rsmp("cv", folds = 3)
 rr <- resample(task = phyllo_task, 
                learner = at_reduced, 
                outer_resampling, 
