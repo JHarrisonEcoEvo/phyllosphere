@@ -34,11 +34,11 @@ focal_host <- possibles[inargs[3],2]
 print(inargs)
 
 # # #Debugging stuff
-# taxa <- read.csv("./processedData//otuTables/smallmem97_16S_for_modeling_rearranged_for_CNVRG_OCCUPANCY.csv")
-# possibles <- read.csv("./processedData/combination_hosts_microbes_to_analyze_16S.csv", stringsAsFactors = F)
-# focal_taxon <- possibles[1,3]
-# focal_host <- possibles[1,2]
-# X<- read.csv("./processedData/16smetadat_wrangled_for_post_modeling_analysis.csv", stringsAsFactors = F)
+taxa <- read.csv("./processedData//otuTables/smallmem97_16S_for_modeling_rearranged_for_CNVRG_OCCUPANCY.csv")
+possibles <- read.csv("./processedData/combination_hosts_microbes_to_analyze_16S.csv", stringsAsFactors = F)
+focal_taxon <- possibles[1,3]
+focal_host <- possibles[1,2]
+X<- read.csv("./processedData/16smetadat_wrangled_for_post_modeling_analysis.csv", stringsAsFactors = F)
 
 #SUBSET to just the focal host taxon.
 X <- X[X$taxon_final == focal_host,]
@@ -77,12 +77,10 @@ categoricals <- c(
 )
 X <- dummy_cols(.data = X, select_columns = categoricals)
 
-#the missing stuff were things I removed due to poor sequencing
-table(X$sample %in% taxa$sample)
-table(taxa$sample %in%  X$sample )
-
 merged_dat <- merge(X, taxa, by.x = "sample", by.y = "sample", all.y = T)
 
+#For convenience make response variable
+response_taxon <- merged_dat[,names(merged_dat) == focal_taxon]
 
 #response_taxon<- response_taxon[-length(response_taxon)]
 #merged_dat <- merged_dat[-length(merged_dat[,1]),]
@@ -170,33 +168,7 @@ for(i in 2:length(merged_dat)){
 # Making variable for stratification #
 ######################
 
-#For convenience make response variable
-response_taxon <- merged_dat[,names(merged_dat) == focal_taxon]
-print("look for NAs")
-table(is.na(response_taxon))
-
-table(response_taxon > 0 )
-
-#Make a one hot variable that is a 1 if the focal taxon (the response variable)
-#is present  and a zero otherwise. 
-#This lets us stratify during splitting so we don't end up with a 
-#train/test split that has just high or low values of the response. 
-if(any(is.na(response_taxon))){
-  merged_dat <- merged_dat[!is.na(response_taxon),]
-  response_taxon <- response_taxon[!is.na(response_taxon)]
-}
-
-if(any(is.infinite(response_taxon))){
-  merged_dat <- merged_dat[!is.infinite(response_taxon),]
-  
-  response_taxon <- response_taxon[!is.infinite(response_taxon)]
-}
-
-#copying to avoid minor edits to code below
-merged_dat$focal_one_hot <- response_taxon
-table(merged_dat$focal_one_hot)
-
-merged_dat$stratify <- paste(merged_dat$compartment, merged_dat$focal_one_hot)
+merged_dat$stratify <- paste(merged_dat$compartment, response_taxon)
 
 #########################################
 #Use mlr to define a pipeline, task and a learner#
@@ -204,18 +176,20 @@ merged_dat$stratify <- paste(merged_dat$compartment, merged_dat$focal_one_hot)
 
 names(merged_dat) <- gsub("\\s", "_", names(merged_dat))
 
+merged_dat[,names(merged_dat) == as.character(focal_taxon)] <-
+  as.factor(merged_dat[,names(merged_dat) == as.character(focal_taxon)])
+
 #Tasks are a way to organize data and the learner is the model 
 #see: https://mlr3book.mlr-org.com/tasks.html
-phyllo_task = TaskRegr$new(backend = merged_dat
-                           , target = as.character(focal_taxon),
-                           id = "phyllo_data")
+phyllo_task = TaskClassif$new(backend = merged_dat
+                              , target = as.character(focal_taxon),
+                              id = "phyllo_data")
 
 #Define roles for all features
 phyllo_task$set_col_roles("sample", roles = "name")
 phyllo_task$set_col_roles("stratify", roles = "stratum")
 
 phyllo_task$col_roles$feature <-  names(merged_dat)[!(names(merged_dat) %in% c("sample",
-                                                                               "focal_one_hot",
                                                                                "stratify",
                                                                                as.character(focal_taxon)))]
 
@@ -242,7 +216,7 @@ imp_num <- po("imputehist", param_vals = list(affect_columns = selector_type("nu
 
 graph <-  po("imputehist", param_vals = list(affect_columns = selector_type("numeric"))) %>>% 
   po("scale", param_vals = list(scale = T, center = T)) %>>%
-  po( lrn("regr.ranger", importance = "permutation"))
+  po( lrn("classif.ranger", importance = "permutation"))
 
 g1 <- GraphLearner$new(graph)
 

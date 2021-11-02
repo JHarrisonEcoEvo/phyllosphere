@@ -240,17 +240,16 @@ dat[which.max(as.numeric(dat$rsq_nested_resampling) - as.numeric(dat_withHost$rs
 
 #Host specific occupancy fungi
 
-#NOT CORRECT YET. Should be MCC
 rm(list=ls())
 options(scipen = 99)
-dat <- read.csv("./modelingResults/results_host_occupancy/all_its_occ_norare.csv",
+dat <- read.csv("./modelingResults/results_host_occupancy/all_its.csv",
                 stringsAsFactors = F)
 head(dat)
 
 dat <- dat[dat$taxon != "taxon",]
 dim(dat)
-table(as.numeric(dat$rsq_nested_resampling) > 0.01)
-summary(as.numeric(dat$rsq_nested_resampling ))
+table(as.numeric(dat$mcc_nested_resampling) > 0.2)
+summary(as.numeric(dat$mcc_nested_resampling ))
 
 #rarefied
 rm(list=ls())
@@ -261,27 +260,29 @@ head(dat)
 
 dat <- dat[dat$taxon != "taxon",]
 dim(dat)
-table(dat$rsq_nested_resampling > 0.01)
+table(as.numeric(dat$mcc_nested_resampling) > 0.2)
+summary(as.numeric(dat$mcc_nested_resampling ))
 
 #Host specific occupancy bacteria
 rm(list=ls())
 options(scipen = 99)
-dat <- read.csv("./modelingResults/results_host_occupancy/all_its_occ_norare.csv",
+dat <- read.csv("./modelingResults/results_host_occupancy/all_16s.csv",
                 stringsAsFactors = F)
 head(dat)
 
 dat <- dat[dat$taxon != "taxon",]
 dim(dat)
-table(as.numeric(dat$rsq_nested_resampling) > 0.01)
-summary(as.numeric(dat$rsq_nested_resampling ))
+table(as.numeric(dat$mcc_nested_resampling) > 0.2)
+summary(as.numeric(dat$mcc_nested_resampling ))
 
 #rarefied
 rm(list=ls())
 options(scipen = 99)
-dat <- read.csv("./modelingResults/results_host_occupancy/all_its_rare.csv",
+dat <- read.csv("./modelingResults/results_host_occupancy/all_16s_rare.csv",
                 stringsAsFactors = F)
 head(dat)
 
 dat <- dat[dat$taxon != "taxon",]
 dim(dat)
-table(dat$rsq_nested_resampling > 0.01)
+table(as.numeric(dat$mcc_nested_resampling) > 0.2)
+summary(as.numeric(dat$mcc_nested_resampling ))
