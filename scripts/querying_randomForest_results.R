@@ -255,7 +255,7 @@ summary(as.numeric(dat$mcc_nested_resampling ))
 rm(list=ls())
 options(scipen = 99)
 dat <- read.csv("./modelingResults/results_host_occupancy/all_its_rare.csv",
-                stringsAsFactors = F)
+                stringsAsFactors = F, fill = T)
 head(dat)
 
 dat <- dat[dat$taxon != "taxon",]
@@ -279,7 +279,7 @@ summary(as.numeric(dat$mcc_nested_resampling ))
 rm(list=ls())
 options(scipen = 99)
 dat <- read.csv("./modelingResults/results_host_occupancy/all_16s_rare.csv",
-                stringsAsFactors = F)
+                stringsAsFactors = F, fill = T)
 head(dat)
 
 dat <- dat[dat$taxon != "taxon",]

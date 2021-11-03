@@ -9,7 +9,6 @@ library(mlr3hyperband)
 library(fastDummies)
 library(mlr3pipelines)
 library(ranger)
-library(caret)
 
 set.seed(666)
 
@@ -277,6 +276,15 @@ predictionTable <- data.frame(table(rr$prediction()$response[
   rr$prediction()$truth == 1]))
 out$correctPositives <- predictionTable[
   predictionTable$Var1 == 1,2]
+
+out$prop_positiveIDd <- out$correctPositives / sum(predictionTable[,2])
+
+predictionTable <- data.frame(table(rr$prediction()$response[
+  rr$prediction()$truth == 0]))
+out$correctNegatives<- predictionTable[
+  predictionTable$Var1 == 0,2]
+
+out$prop_negativeIDd <- out$correctNegatives / sum(predictionTable[,2])
 
 write.csv(out, file = paste("results", focal_taxon, "_", focal_host, "16S_OCCUPANCY.csv",  sep = ""), 
           row.names = F)

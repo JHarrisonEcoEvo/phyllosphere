@@ -458,16 +458,21 @@ outer_resampling$instantiate(phyllo_task)
 
 extract_inner_tuning_results(rr)
 
-out <- data.frame(matrix(nrow = 1, ncol = 1))
-out$taxon <- focal_taxon
-out$mcc_nested_resampling <- rr$aggregate(measure = msr("classif.mcc")) #Matthews cor coef
-mcc <- rr$aggregate(measure = msr("classif.mcc"))
-out$classification_error <-  rr$aggregate(measure = msr("classif.ce")) #classification error
 
 predictionTable <- data.frame(table(rr$prediction()$response[
   rr$prediction()$truth == 1]))
 out$correctPositives <- predictionTable[
   predictionTable$Var1 == 1,2]
+
+out$prop_positiveIDd <- out$correctPositives / sum(predictionTable[,2])
+
+predictionTable <- data.frame(table(rr$prediction()$response[
+  rr$prediction()$truth == 0]))
+out$correctNegatives<- predictionTable[
+  predictionTable$Var1 == 0,2]
+
+out$prop_negativeIDd <- out$correctNegatives / sum(predictionTable[,2])
+
 
 write.csv(out, file = paste("results", focal_taxon, "16S_OCCUPANCY.csv", sep = ""), 
           row.names = F)
