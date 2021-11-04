@@ -106,6 +106,7 @@ summary(dat$mcc_nested_resampling)
 table(dat$mcc_nested_resampling > 0.2)
 table(dat$correctPositives)
 
+summary(as.numeric(dat$correctPositives))
 
 dat$taxon[which.max(dat$correctPositives)]
 dat <- dat[
@@ -143,6 +144,8 @@ table(dat$rsq_nested_resampling > 0.01)
 #subset to the good ones
 dat <- dat[dat$rsq_nested_resampling > 0.01,]
 dat
+summary(as.numeric(dat$rsq_nested_resampling))
+
 #check the sampling depth of host taxa
 X <- read.csv("./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv", stringsAsFactors = F)
 X$samplename <- gsub("(\\d+_\\d+_\\d+_\\d+).*","\\1", X$samplename)
@@ -250,6 +253,7 @@ dat <- dat[dat$taxon != "taxon",]
 dim(dat)
 table(as.numeric(dat$mcc_nested_resampling) > 0.2)
 summary(as.numeric(dat$mcc_nested_resampling ))
+summary(as.numeric(dat$prop_positiveIDd ))
 
 #rarefied
 rm(list=ls())
@@ -274,6 +278,7 @@ dat <- dat[dat$taxon != "taxon",]
 dim(dat)
 table(as.numeric(dat$mcc_nested_resampling) > 0.2)
 summary(as.numeric(dat$mcc_nested_resampling ))
+summary(as.numeric(dat$prop_positiveIDd ))
 
 #rarefied
 rm(list=ls())

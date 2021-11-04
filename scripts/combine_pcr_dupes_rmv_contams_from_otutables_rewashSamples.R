@@ -10,10 +10,10 @@
 rm(list=ls())
 
 # # #Note that smallmem* files are clustered ESVs
-dat <- read.csv("./processedData/otuTables/16s_97_smallmem_otuTableCLEAN",
-                fill = T, header = T, stringsAsFactors = F)
- # dat <- read.csv("./processedData/otuTables/its97smallmem_otuTableCLEAN",
- #                fill = T, header = T, stringsAsFactors = F)
+#dat <- read.csv("./processedData/otuTables/16s_97_smallmem_otuTableCLEAN",
+#                fill = T, header = T, stringsAsFactors = F)
+  dat <- read.csv("./processedData/otuTables/its97smallmem_otuTableCLEAN",
+                 fill = T, header = T, stringsAsFactors = F)
 
  
  #For ease I check for locus here and then wrap code below such that 
@@ -128,6 +128,11 @@ dat <- dat[,!(names(dat) %in% contams)]
 # Examine rewashed samples #
 ###################################
 
+#normalize
+for(i in 2:length(dat)){
+  dat[,i] <-  dat[,i] / dat[dat$OTUID == "ISD",i]
+}
+
 #First remove duds and ISD
 dat_rewash <- dat[!(dat$OTUID %in% c("duds", "ISD", "mtDNA", "cpDNA")),]
 
@@ -170,11 +175,12 @@ for(i in rewashes){
 }
 
 pdf(width = 6, height = 6, file = paste("./visuals/rewashBoxplot_", locus,".pdf", sep = ""))
-boxplot(log(rewashTest$ens),
-        log(rewashTest$eps),
-        log(rewashTest$rewashes),
+boxplot(log10(rewashTest$ens),
+        log10(rewashTest$eps),
+        log10(rewashTest$rewashes),
         names = c("EN","EP","rewash"),
-        outline = F)
+        outline = F,
+        ylab = "log 10 ISD normalized counts")
 dev.off()
 
 #Unexpected that rewashing led to more reads. 

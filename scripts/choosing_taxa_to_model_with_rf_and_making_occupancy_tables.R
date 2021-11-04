@@ -229,7 +229,7 @@ for(i in 3:length(dat)){
   dat[,i] <- as.integer(dat[,i])
 }
 
-dat_rarefied <- data.frame(vegan::drarefy(dat[,3:length(dat)], 300))
+dat_rarefied <- data.frame(vegan::rrarefy(dat[,3:length(dat)], 300))
 
 dat[,3:length(dat)] <- ifelse(dat[,3:length(dat)] > 0, 1, 0)
 dat_rarefied <- ifelse(dat_rarefied > 0, 1, 0)
@@ -253,7 +253,7 @@ for(i in 3:length(dat)){
   dat[,i] <- as.integer(dat[,i])
 }
 
-dat_rarefied <- data.frame(vegan::drarefy(dat[,3:length(dat)], 300))
+dat_rarefied <- data.frame(vegan::rrarefy(dat[,3:length(dat)], 300))
 
 dat[,3:length(dat)] <- ifelse(dat[,3:length(dat)] > 0, 1, 0)
 dat_rarefied <- ifelse(dat_rarefied > 0, 1, 0)
