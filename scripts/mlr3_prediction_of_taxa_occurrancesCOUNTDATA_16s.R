@@ -458,6 +458,12 @@ outer_resampling$instantiate(phyllo_task)
 
 extract_inner_tuning_results(rr)
 
+out <- data.frame(matrix(nrow = 1, ncol = 1))
+out$taxon <- focal_taxon
+out$mcc_nested_resampling <- rr$aggregate(measure = msr("classif.mcc")) #Matthews cor coef
+mcc <- rr$aggregate(measure = msr("classif.mcc"))
+out$classification_error <-  rr$aggregate(measure = msr("classif.ce")) #classification error
+
 
 predictionTable <- data.frame(table(rr$prediction()$response[
   rr$prediction()$truth == 1]))

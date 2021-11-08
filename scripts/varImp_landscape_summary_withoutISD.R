@@ -34,6 +34,8 @@ sort(table(important))
 hist(sort(table(important)))
 length(varimps)
 
+xtable(rev(sort(table(important)))[1:15])
+
 #Bring in taxonomy for each taxon and see if there are certain patterns by phyla
 #where, say, a certain suite of predictors is more important for certain phyla
 #If this appears to be the case, then make a heatmap figure
@@ -272,19 +274,19 @@ rm(list=ls())
 #Bring in results and figure out which taxa were predicted well enough to warrant
 #extraction of important features. 
 
-results <- read.csv("modelingResults/all16S_landscape_count.csv", stringsAsFactors = F)
+results <- read.csv("modelingResults/results_landscapeNO_ISD/all_16s_noisd", stringsAsFactors = F)
 results <- results[results$rsq_nested_resampling > 0.01,]
 results <- results[results$taxon != "taxon",]
 
 #Bring in variable importance metrics for only those taxa that were predicted
-dat <- list.files("modelingResults/varImp_landscapeCOUNT/")
+dat <- list.files("modelingResults/varImp_landscapeCOUNT_noISD//")
 dat <- dat[grep("*16S*", dat)]
-dat <- dat[-grep("*Reduced*", dat)]
+dat <- dat[-grep("*ITS*", dat)]
 
 dat <- grep(paste(results$taxon, collapse="|"), 
             dat, value=TRUE)
 
-varimps <- lapply(paste("modelingResults/varImp_landscapeCOUNT/", dat, sep = ""), read.csv)
+varimps <- lapply(paste("modelingResults/varImp_landscapeCOUNT_noISD/", dat, sep = ""), read.csv)
 length(varimps)
 
 #Extract top ten from each and then do table to see which are most useful. 
@@ -301,6 +303,8 @@ table(important)
 sort(table(important))
 hist(sort(table(important)))
 length(varimps) #168
+
+xtable(rev(sort(table(important)))[1:10])
 
 #Bring in taxonomy for each taxon and see if there are certain patterns by phyla
 #where, say, a certain suite of predictors is more important for certain phyla

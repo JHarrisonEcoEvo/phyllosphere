@@ -20,8 +20,9 @@ add.alpha <- function(col, alpha=1){
 # ITS processing  #
 #################################################################
 
-dat <- read.csv("./processedData//hellinger_standardized_its_normalized.csv",
+dat <- read.csv("./processedData/otuTables/smallmem97_ITS_for_modeling_rearranged_for_CNVRG",
                 stringsAsFactors = F)
+dat$sample <- gsub("^X", "", dat$sample)
 tail(names(dat))
 head(names(dat))
 metadat <- read.csv("./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv",
@@ -36,8 +37,15 @@ tail(names(merged_dat))
 head(names(merged_dat),205)
 unique(merged_dat$habit)
 
-dat_e <- dist(merged_dat[,205:(length(merged_dat)-2)], 
-              method = "euclidean")
+merged_dat[,205:(length(merged_dat))] <- merged_dat[,205:(length(merged_dat))] / merged_dat$ISD
+
+# dat_e <- vegdist(merged_dat[,205:(length(merged_dat)-2)], 
+#               method = "bray")
+
+merged_dat[,205:(length(merged_dat)-2)] <- decostand(merged_dat[,205:(length(merged_dat)-2)],
+                                                 method = "hellinger")
+dat_e <- vegdist(merged_dat[,205:(length(merged_dat)-2)], 
+                 method = "euclidean")
 
 ord <- cmdscale(dat_e, eig = TRUE, k = 2)
 
@@ -69,12 +77,19 @@ b <- betadisper(dat_e,
                 merged_dat$col, 
                 type = c("median","centroid"))
 anova(b)
-
+# Analysis of Variance Table
+# 
+# Response: Distances
+# Df  Sum Sq Mean Sq F value                Pr(>F)    
+# Groups       1   5.801  5.8012  74.635 < 0.00000000000000022 ***
+#   Residuals 2416 187.792  0.0777                                  
+# ---
+#   Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 ###################
 # ITS EN vs EP ASVs  #
 ###################
 
-pdf(width = 8, height = 8, file = "./visuals/ordination_ITS_enVsep_asvs_multi_div_by_ISD.pdf")
+pdf(width = 8, height = 8, file = "./visuals/ordination_ITS_enVsep_asvs_div_by_ISD_hellinger.pdf")
 
 plot(ord$points[,1], ord$points[,2], 
      #type = "n", 
@@ -90,7 +105,7 @@ axis(side = 2, at = seq(-0.6,0.4,0.2), labels =  seq(-0.6,0.4,0.2))
 text(x = -0.8, y=0.55, "a)", xpd = NA, cex = 1.7)
 
 #ordihull(ord, merged_dat$col, col = unique(merged_dat$col))
-legend(x = -0.2, y = 0.5, 
+legend(x = -0.1, y = 0.5, 
        legend = c("EN","EP"), 
        col = unique(add.alpha(merged_dat$col, 0.8)), 
        pch = 19, 
@@ -189,7 +204,7 @@ for(i in unique(merged_dat$habit)){
   k <- k + 1
 }
 
-pdf(width = 8, height = 8, file = "./visuals/ordination_ITS_lifehistory_asvs_multi_div_by_ISD.pdf")
+pdf(width = 8, height = 8, file = "./visuals/ordination_ITS_lifehistory_asvs_div_by_ISD_hellinger.pdf")
 
 plot(ord$points[,1], ord$points[,2], 
      #type = "n", 
@@ -243,8 +258,9 @@ add.alpha <- function(col, alpha=1){
           rgb(x[1], x[2], x[3], alpha=alpha))  
 }
 
-dat16s <- read.csv("./processedData/hellinger_standardized_16s_normalized.csv",
+dat16s <- read.csv("./processedData/otuTables/smallmem97_16S_for_modeling_rearranged_for_CNVRG",
                 stringsAsFactors = F)
+dat16s$sample <- gsub("^X", "", dat16s$sample)
 
 metadat16s <- read.csv("./processedData/16smetadat_wrangled_for_post_modeling_analysis.csv",
                     stringsAsFactors = F)
@@ -257,7 +273,11 @@ head(names(merged_dat16s),206)
 tail(names(merged_dat16s),206)
 names(merged_dat16s)[length(merged_dat16s)-4]
 
-dat_e16s <- dist(merged_dat16s[,205:(length(merged_dat16s)-4)],
+merged_dat16s[,205:(length(merged_dat16s))] <- merged_dat16s[,205:(length(merged_dat16s))] / merged_dat16s$ISD
+
+merged_dat16s[,205:(length(merged_dat16s)-2)] <- decostand(merged_dat16s[,205:(length(merged_dat16s)-2)],
+                                                     method = "hellinger")
+dat_e16s <- vegdist(merged_dat16s[,205:(length(merged_dat16s)-2)], 
                  method = "euclidean")
 
 ord16s <- cmdscale(dat_e16s, eig = TRUE, k = 2)
@@ -273,35 +293,45 @@ adonis_out <- adonis(dat_e16s ~ merged_dat16s$col,
                      strata = NULL, 
                      parallel = getOption("mc.cores"))
 # Df SumsOfSqs  MeanSqs F.Model     R2 Pr(>F)    
-# merged_dat16s$col    1    0.1132 0.113178  9.7137 0.0041  0.001 ***
-#   Residuals         2360   27.4973 0.011651         0.9959           
-# Total             2361   27.6105                  1.0000  
+# Df SumsOfSqs MeanSqs F.Model      R2 Pr(>F)    
+# merged_dat16s$col    1    41.331  41.331   360.6 0.13254  0.001 ***
+#   Residuals         2360   270.496   0.115         0.86746           
+# Total             2361   311.827                 1.00000   
 
 b <- betadisper(dat_e16s, merged_dat16s$col, type = c("median","centroid"))
 anova(b)
+# Analysis of Variance Table
+# 
+# Response: Distances
+# Df  Sum Sq Mean Sq F value                Pr(>F)    
+# Groups       1  19.507 19.5070  306.66 < 0.00000000000000022 ***
+#   Residuals 2360 150.123  0.0636                                  
+# ---
+#   Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 ###########################
 # bacteria EP vs EN ordination #
 ###########################
 
-pdf(width = 8, height = 8, file = "./visuals/ordination_16S_epVsen_asvs_hellingerEuclidean_multi_div_by_ISD.pdf")
+pdf(width = 8, height = 8, file = "./visuals/ordination_16S_epVsen_asvs_hellinger_multi_div_by_ISD.pdf")
 
 plot(ord16s$points[,1], ord16s$points[,2], 
      #type = "n", 
      col = add.alpha(merged_dat16s$col, 0.8),
      pch = 16,
      main = "",
-     xlim = c(-0.6, 0),
-     ylim = c(-1, 0.8),
+    # xlim = c(-0.6, 0),
+    # ylim = c(-1, 0.8),
      cex = 1.3,
      frame.plot = F,
-     xlab = "PCoA1", ylab = "PCoA2",
-     yaxt = "n")
-axis(side = 2, at = seq(-0.8,0.4,0.4), labels =  seq(-0.8,0.4,0.4), las = 2)
+     xlab = "PCoA1", ylab = "PCoA2"
+    # yaxt = "n"
+    )
+#axis(side = 2, at = seq(-0.8,0.4,0.4), labels =  seq(-0.8,0.4,0.4), las = 2)
 text(x = -0.6, y=0.6, "e)", xpd = NA, cex = 1.7)
 
 #ordihull(ord, merged_dat$col, col = unique(merged_dat$col))
-legend("topright",
+legend("topleft",
        legend = c("EN","EP"), 
        col = unique(add.alpha(merged_dat16s$col, 0.8)), 
        pch = 19, 
@@ -316,31 +346,31 @@ dev.off()
 ###########################
 # bacteria EP vs EN ordination zoomed in #
 ###########################
-
-pdf(width = 8, height = 8, file = "./visuals/ordination_16S_epVsen_asvs_zoomedInhellingerEuclidean_multi.pdf")
-
-plot(ord16s$points[ord16s$points[,1] > -0.02,1], ord16s$points[ord16s$points[,1] > -0.02,2], 
-     #type = "n", 
-     col = add.alpha(merged_dat16s$col, 0.5),
-     pch = 16,
-     main = "",
-     ylim = c(-0.1, 0.1),
-     cex = 1.3,
-     frame.plot = F,
-     xlab = "PCoA1", ylab = "PCoA2",
-     yaxt = "n")
-axis(side = 2, at = seq(-0.1,0.1,0.05), labels =   seq(-0.1,0.1,0.05), xpd = NA, las = 2)
-#ordihull(ord, merged_dat$col, col = unique(merged_dat$col))
-legend(x = -0.01, y = 0.1, 
-       legend = c("EN","EP"), 
-       col = unique(add.alpha(merged_dat16s$col, 0.5)), 
-       pch = 19, 
-       horiz = T,
-       cex = 2, 
-       xpd = NA,
-       bty = "n")
-
-dev.off()
+# 
+# pdf(width = 8, height = 8, file = "./visuals/ordination_16S_epVsen_asvs_zoomedInhellingerEuclidean_multi.pdf")
+# 
+# plot(ord16s$points[ord16s$points[,1] > -0.02,1], ord16s$points[ord16s$points[,1] > -0.02,2], 
+#      #type = "n", 
+#      col = add.alpha(merged_dat16s$col, 0.5),
+#      pch = 16,
+#      main = "",
+#      ylim = c(-0.1, 0.1),
+#      cex = 1.3,
+#      frame.plot = F,
+#      xlab = "PCoA1", ylab = "PCoA2",
+#      yaxt = "n")
+# axis(side = 2, at = seq(-0.1,0.1,0.05), labels =   seq(-0.1,0.1,0.05), xpd = NA, las = 2)
+# #ordihull(ord, merged_dat$col, col = unique(merged_dat$col))
+# legend(x = -0.01, y = 0.1, 
+#        legend = c("EN","EP"), 
+#        col = unique(add.alpha(merged_dat16s$col, 0.5)), 
+#        pch = 19, 
+#        horiz = T,
+#        cex = 2, 
+#        xpd = NA,
+#        bty = "n")
+# 
+# dev.off()
 
 #########################
 # Redoing the colors
@@ -356,66 +386,56 @@ adonis(dat_e16s ~ merged_dat16s$col,
        permutations = 999,
        strata = NULL, 
        parallel = getOption("mc.cores"))
+# merged_dat16s$col   61    100.52 1.64785  17.936 0.32235  0.001 ***
+#   Residuals         2300    211.31 0.09187         0.67765           
+# Total             2361    311.83                 1.00000           
+# ---
 
 b <- betadisper(dat_e16s, merged_dat16s$col, type = c("median","centroid"))
 anova(b)
-#TukeyHSD(b)
-#TukeyHSD(b)
-# Df SumsOfSqs  MeanSqs F.Model      R2 Pr(>F)    
-# merged_dat16s$col   62    3.9292 0.063375  6.1525 0.14231  0.001 ***
-#   Residuals         2299   23.6813 0.010301         0.85769           
-# Total             2361   27.6105                  1.00000           
-# ---
-#   Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-# > 
-#   > b <- betadisper(dat_e16s, merged_dat16s$col, type = c("median","centroid"))
-# > anova(b)
-# Analysis of Variance Table
-# 
 # Response: Distances
-# Df  Sum Sq  Mean Sq F value    Pr(>F)    
-# Groups      62  2.3226 0.037461  5.1837 < 2.2e-16 ***
-#   Residuals 2299 16.6144 0.007227                      
+# Df Sum Sq Mean Sq F value                Pr(>F)    
+# Groups      61 29.210 0.47886  11.521 < 0.00000000000000022 ***
+#   Residuals 2300 95.597 0.04156                                  
 # ---
-#   Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 # ###########################
 # # bacteria by host - asvs #
 # ###########################
 # 
-# pdf(width = 8, height = 8, file = "./visuals/ordination_16S_host_asvshellingerEuclidean_multi.pdf")
-# 
-# plot(ord16s$points[,1], ord16s$points[,2], 
-#      #type = "n", 
-#      col = add.alpha(merged_dat16s$col, 0.5),
-#      pch = 16,
-#      main = "",
-#      ylim = c(-0.7, 0.4),
-#      cex = 1.3,
-#      frame.plot = F,
-#      xlab = "PCoA1", ylab = "PCoA2",
-#      yaxt = "n")
-# axis(side = 2, at = seq(-0.6,0.4,0.2), labels =  seq(-0.6,0.4,0.2))
-# text(x = -0.1, y=0.6, "f)", xpd = NA, cex = 1.7)
-# 
-# dev.off()
-# 
-# #Zoomed in
-# pdf(width = 8, height = 8, file = "./visuals/ordination_16S_host_asvsZoomedinhellingerEuclidean_multi.pdf")
-# 
-# plot(ord16s$points[ord16s$points[,1] > -0.04,1], ord16s$points[ord16s$points[,1] > -0.04,2], 
-#      #type = "n", 
-#      col = add.alpha(merged_dat16s$col, 0.5),
-#      pch = 16,
-#      main = "",
-#      ylim = c(-0.7, 0.4),
-#      cex = 1.3,
-#      frame.plot = F,
-#      xlab = "PCoA1", ylab = "PCoA2",
-#      yaxt = "n")
-# axis(side = 2, at = seq(-0.6,0.4,0.2), labels =  seq(-0.6,0.4,0.2))
-# text(x = -0.1, y=0.6, "f)", xpd = NA, cex = 1.7)
-# 
-# dev.off()
+pdf(width = 8, height = 8, file = "./visuals/ordination_16S_host_asvshellingerEuclidean_multi.pdf")
+
+plot(ord16s$points[,1], ord16s$points[,2],
+     #type = "n",
+     col = add.alpha(merged_dat16s$col, 0.5),
+     pch = 16,
+     main = "",
+     ylim = c(-0.7, 0.4),
+     cex = 1.3,
+     frame.plot = F,
+     xlab = "PCoA1", ylab = "PCoA2",
+     yaxt = "n")
+axis(side = 2, at = seq(-0.6,0.4,0.2), labels =  seq(-0.6,0.4,0.2))
+text(x = -0.1, y=0.6, "f)", xpd = NA, cex = 1.7)
+
+dev.off()
+
+#Zoomed in
+pdf(width = 8, height = 8, file = "./visuals/ordination_16S_host_asvsZoomedinhellingerEuclidean_multi.pdf")
+
+plot(ord16s$points[ord16s$points[,1] > -0.04,1], ord16s$points[ord16s$points[,1] > -0.04,2],
+     #type = "n",
+     col = add.alpha(merged_dat16s$col, 0.5),
+     pch = 16,
+     main = "",
+     ylim = c(-0.7, 0.4),
+     cex = 1.3,
+     frame.plot = F,
+     xlab = "PCoA1", ylab = "PCoA2",
+     yaxt = "n")
+axis(side = 2, at = seq(-0.6,0.4,0.2), labels =  seq(-0.6,0.4,0.2))
+text(x = -0.1, y=0.6, "f)", xpd = NA, cex = 1.7)
+
+dev.off()
 
 
 ###################
@@ -437,24 +457,21 @@ adonis_out <- adonis(dat_e16s ~ merged_dat16s$col,
                      strata = NULL, 
                      parallel = getOption("mc.cores"))
 adonis_out
+# merged_dat16s$col    3     9.917  3.3056  25.818 0.0318  0.001 ***
+#   Residuals         2358   301.910  0.1280         0.9682           
+# Total             2361   311.827                 1.0000           
+# ---
+#   
 b <- betadisper(dat_e16s, merged_dat16s$col, type = c("median","centroid"))
 anova(b)
-# Df SumsOfSqs  MeanSqs F.Model      R2 Pr(>F)    
-# merged_dat16s$col    3    0.2504 0.083473   7.194 0.00907  0.001 ***
-#   Residuals         2358   27.3601 0.011603         0.99093           
-# Total             2361   27.6105                  1.00000           
-# ---
-#   Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-# > b <- betadisper(dat_e16s, merged_dat16s$col, type = c("median","centroid"))
-# > anova(b)
 # Analysis of Variance Table
 # 
 # Response: Distances
-# Df  Sum Sq   Mean Sq F value Pr(>F)
-# Groups       3  0.0491 0.0163744   1.805 0.1441
-# Residuals 2358 21.3912 0.0090717  
+# Df  Sum Sq Mean Sq F value                Pr(>F)    
+# Groups       3   6.427  2.1424  25.935 < 0.00000000000000022 ***
+#   Residuals 2358 194.780  0.0826            
 
-pdf(width = 8, height = 8, file = "./visuals/ordination_16S_lifehistory_asvshellingerEuclidean_multi.pdf")
+pdf(width = 8, height = 8, file = "./visuals/ordination_16S_lifehistory_asvs_hellinger.pdf")
 
 plot(ord16s$points[,1], ord16s$points[,2], 
      #type = "n", 

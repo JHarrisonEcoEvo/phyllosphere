@@ -122,7 +122,7 @@ merged_dat <- X[,names(X) %in%
                              , "habit_shrub"                                              
                              , "habit_tree"                                               
                              , "compartment_EN"                                           
-                             , "compartment_EP"                                           
+                           #  , "compartment_EP"                                           
 ,"taxon_final_Abiesconcolor"
 ,"taxon_final_Abiesgrandis"
 ,"taxon_final_Antennariamedia"
@@ -221,7 +221,7 @@ for(i in 2:length(merged_dat)){
 
 #Make a stratum column that is just a dupe of the response
 merged_dat$shannonsISDstratum <- ifelse(merged_dat$div_raw > 
-                                          mean(merged_dat$div_raw), 1, 0)
+                                          median(merged_dat$div_raw), 1, 0)
 
 names(merged_dat) <- gsub("\\s", "_", names(merged_dat))
 
@@ -332,7 +332,8 @@ names(viewdf) <- ""
 viewdf
 
 #write.csv(var.imp, file = paste("variableImportanceshannonsISD_ITS_rawSite_onecompartmnt.csv"), row.names = T)
-write.csv(var.imp, file = paste("variableImportanceshannonsISD_ITS_rawSite.csv"), row.names = T)
+write.csv(var.imp, file = paste("variableImportanceshannonsISD_ITS_rawNOHOSTDATA.csv"), row.names = T)
+# write.csv(out, file = paste("results_shannonsISD_ITS_raw.csv"), row.names = F)
 
 ##########################################
 # Do over AFTER reducing the feature set#
@@ -411,27 +412,299 @@ write.csv(out, file = paste("results_shannonsISD_ITS_raw.csv"), row.names = F)
 
 #write.csv(out, file = paste("results_shannonsISD_ITS_HELLINGER.csv"), row.names = F)
 
-# ######
-# # var imp
-# rm(list=ls())
- dat <- read.csv(
-   "./modelingResults/results_diversity_models/variableImportanceshannonsISD_ITS_raw.csv",
-                 stringsAsFactors = F)
-dat[order(dat[,2]),]
 
-dat <- read.csv(
-  "./modelingResults/results_diversity_models/variableImportanceshannonsISD_ITS_rawSite_onecompartmnt.csv",
-  stringsAsFactors = F)
-dat[order(dat[,2]),]
 
- # 
-# dat <- read.csv("./modelingResults/results_diversity_models/variableImportanceshannonsISD_ITS_HELLINGER_onecompartmnt.csv",
-#                 stringsAsFactors = F)
-# dat
-# names(dat)<- c("Feature", "Importance")
-# print(
-#   xtable(dat[order(dat[,2]),], label = "var_imp_shannon_its", caption = "Variable importance for features (variables) included in the random forest analysis of ITS Shannon's diversity. Variable importance was assigned via post-hoc permutation of the variable and recalculation of model performance. How much the model decreases in performance when permuting the variable provides insight into its importance. Larger values mean a variable is more important than those with small values. Variables that were selected for inclusion in a reduced model (see main text) are bolded.")
-#   ,include.rownames=FALSE)
-# 
+###############################
+# Do over using just EP or EN #
+###############################
+rm(list=ls())
+library(mlr3) #cant get mlr3 to install on work computer
+library(xgboost)
+#install.packages("mlr3learners")
+library(mlr3learners)
+library(mlr3verse)
+library(mlr3fselect)
+library("mlr3hyperband")
+library(fastDummies)
+#library(mlr3pipelines)
+library(ranger)
 
+set.seed(666)
+
+X<- read.csv("./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv")
+
+X <- X[X$substrate == "plant",]
+X <- X[X$compartment == "EP",]
+
+#Make a leaf density variable
+X$sla = X$mass_extracted_g / X$area_cm2
+
+X$sla[is.infinite(X$sla)] <- NA
+
+#Convert partial leaf to 0.5
+X$leaves_extracted <- (as.character(X$leaves_extracted))
+X$leaves_extracted[X$leaves_extracted == "partial"] <- 0.5
+X$leaves_extracted <- (as.numeric(X$leaves_extracted))
+
+X$waterRetention <- (as.character(X$waterRetention))
+indices <- which(X$waterRetention == "90+")
+X$waterRetention[indices] <- 90
+X$waterRetention <- (as.numeric(X$waterRetention))
+
+categoricals <- c(
+  "habit",
+  "taxon_final",
+  "phenology"
+)
+X$taxon_final <- gsub(" ", "", X$taxon_final)
+
+X <- dummy_cols(.data = X, select_columns = categoricals)
+
+#Get rid of stuff we don't need 
+merged_dat <- X[,names(X) %in%
+                  c(
+                    "sample"
+                    , "area_cm2"                                                 
+                    , "mass_extracted_g"                                         
+                    , "leaves_extracted"                                         
+                    , "circumStem"                                               
+                    , "height_sample"                                            
+                    , "Ambient_Humidity"                                         
+                    , "Ambient_Temperature"                                      
+                    , "Leaf_Temp_Differential"                                   
+                    , "LEF"                                                      
+                    , "Light_Intensity..PAR."                                    
+                    , "Phi2"                                                     
+                    , "PhiNO"                                                    
+                    , "PhiNPQ"                                                   
+                    , "Relative_Chlorophyll"                                     
+                    , "thickness"                                                
+                    , "absorbance_420"                                           
+                    , "absorbance_940"                                           
+                    , "B"                                                        
+                    , "contactless_temp"                                         
+                    , "ecs_initial"                                              
+                    , "ecs_max"                                                  
+                    , "FmPrime"                                                  
+                    , "FoPrime"                                                  
+                    , "Fs"                                                       
+                    , "FvP.FmP"                                                  
+                    , "G"                                                        
+                    , "gH."                                                      
+                    , "NPQt_MPF"                                                 
+                    , "pressure"                                                 
+                    , "qL"                                                       
+                    , "R"                                                        
+                    , "Rel_Chl_intensity"                                        
+                    , "RFd"                                                      
+                    , "SPAD_420"                                                 
+                    , "SPAD_420_intensity"                                       
+                    , "TimeofDay"                                                
+                    , "lat"                                                 
+                    , "long"
+                    ,"MEM1"
+                    , "MEM2"
+                    , "waterRetention"                                           
+                    , "toughness"                                                
+                    , "elev_m"                                                   
+                    , "slope_perc"                                               
+                    , "treeRich"                                                 
+                    , "shrubRich"                                                
+                    , "deadDown"                                                 
+                    , "precip_april_in.x"                                        
+                    , "densitometer"                                             
+                    , "shannons_flora"
+                    , "div_raw"
+                    # , "shannonsISD"
+                    , "julianDate"                                               
+                    , "mean_temp_april.y"                                        
+                    , "plant_vol"                                                
+                    , "sla"                                                      
+                    , "habit_forb"                                               
+                    , "habit_graminoid"                                          
+                    , "habit_shrub"                                              
+                    , "habit_tree"                                               
+                    ,"taxon_final_Abiesconcolor"
+                    ,"taxon_final_Abiesgrandis"
+                    ,"taxon_final_Antennariamedia"
+                    ,"taxon_final_Aquilegiacaerula"
+                    ,"taxon_final_Arnicacordifolia"
+                    ,"taxon_final_Artemisiatridentata"
+                    ,"taxon_final_Astragalusalpinus"
+                    ,"taxon_final_Astragaluskentrophyta"
+                    ,"taxon_final_Astragalusmiser"
+                    ,"taxon_final_Bistortabistortoides"
+                    ,"taxon_final_Carexpaysonis"
+                    ,"taxon_final_Carexscopulorumvar.bracteosa"
+                    ,"taxon_final_Chamaenerionangustifoliumvar.angustifolium"
+                    ,"taxon_final_Delphiniumoccidentale"
+                    ,"taxon_final_Erigeronglacialis"
+                    ,"taxon_final_Eriogonumumbellatum"
+                    ,"taxon_final_Eucephaluselegans"
+                    ,"taxon_final_Eucephalusengelmannii"
+                    ,"taxon_final_Fragariavirginiana"
+                    ,"taxon_final_Fraseraspeciosa"
+                    ,"taxon_final_Geraniumviscossimumvar.viscosissimum"
+                    ,"taxon_final_Helianthellauniflora"
+                    ,"taxon_final_Heracleummaximum"
+                    ,"taxon_final_Juncusbalticus."
+                    ,"taxon_final_Juncusparryi"
+                    ,"taxon_final_Juncussp."
+                    ,"taxon_final_Juniperuscommunis"
+                    ,"taxon_final_Ligusticumfilicinum"
+                    ,"taxon_final_Lupinusargenteus"
+                    ,"taxon_final_Mahoniarepens"
+                    ,"taxon_final_Mertensianaciliatavar.ciliata"
+                    ,"taxon_final_Minuartiaobtusiloba"
+                    ,"taxon_final_Osmorhizadepauperata"
+                    ,"taxon_final_Oxyriadigyna"
+                    ,"taxon_final_Paxistimamyrsinites"
+                    ,"taxon_final_Piceaengelmannii"
+                    ,"taxon_final_Pinusalbicaulis"
+                    ,"taxon_final_Pinuscontorta"
+                    ,"taxon_final_Poapratensis"
+                    ,"taxon_final_Poawheeleri"
+                    ,"taxon_final_Polemoniumviscosum"
+                    ,"taxon_final_Populusangustifolium"
+                    ,"taxon_final_Populustremulloides"
+                    ,"taxon_final_Potentilladiversifolia"
+                    ,"taxon_final_Potentillafruticosa"
+                    ,"taxon_final_Potentillapulcherrima"
+                    ,"taxon_final_Primulaparryi"
+                    ,"taxon_final_Pseudotsugamenziesii"
+                    ,"taxon_final_Ribesmontigenum"
+                    ,"taxon_final_Salixglaucavar.villosa"
+                    ,"taxon_final_Salixreticulatavar.nana"
+                    ,"taxon_final_Sedumlanceolatum"
+                    ,"taxon_final_Symphoricarposalbus"
+                    ,"taxon_final_Symphyotrichumfoliaceumvar.apricum"
+                    ,"taxon_final_Thalictrumoccidentale"
+                    ,"taxon_final_Trifoliumparryivar.montanense"
+                    ,"taxon_final_Unknownfir"
+                    ,"taxon_final_Unknownpine"
+                    ,"taxon_final_UnknownSpruce"
+                    ,"taxon_final_Vacciniummembranaceum"
+                    ,"taxon_final_Vacciniumscoparium"
+                    ,"taxon_final_Wyethiaamplexicaulis"
+                    , "phenology_flowering"                                      
+                    , "phenology_fruiting"                                       
+                    , "phenology_vegetative" 
+
+                  )]
+
+#Convert to numeric (makes it easier when doing imputing)
+for(i in 2:length(merged_dat)){
+  merged_dat[,i] <- as.numeric(merged_dat[,i])  
+}
+
+#Make a stratum column that is just a dupe of the response
+merged_dat$shannonsISDstratum <- ifelse(merged_dat$div_raw > 
+                                          median(merged_dat$div_raw), 1, 0)
+
+names(merged_dat) <- gsub("\\s", "_", names(merged_dat))
+
+phyllo_task = TaskRegr$new(backend = merged_dat
+                           , target = "div_raw",
+                           id = "phyllo_data")
+
+#Define roles for all features
+phyllo_task$set_col_roles("sample", roles = "name")
+phyllo_task$set_col_roles("shannonsISDstratum", roles = "stratum")
+
+phyllo_task$col_roles$feature <-  names(merged_dat)[!(names(merged_dat) %in% c("sample", "div_raw","shannonsISDstratum"))]
+
+imp_missind <- po("missind")
+
+imp_num <- po("imputehist", param_vals = list(affect_columns = selector_type("numeric")))
+
+graph <-  po("imputehist", param_vals = list(affect_columns = selector_type("numeric"))) %>>% 
+  po("scale", param_vals = list(scale = T, center = T)) %>>%
+  po( lrn("regr.ranger", importance = "permutation"))
+
+g1 <- GraphLearner$new(graph)
+
+params <- ps(
+  regr.ranger.num.trees = p_int(lower = 50, upper = 400, tags = "budget"), #number of trees in the dark forest
+  regr.ranger.sample.fraction = p_dbl(lower = 0.01, upper = 0.3), #The sample.fraction parameter specifies the fraction of observations to be used in each tree. Smaller fractions lead to greater diversity, and thus less correlated trees which often is desirable.
+  regr.ranger.splitrule = p_fct(levels = c("extratrees", "variance")),
+  regr.ranger.min.node.size = p_int(lower = 1, upper = 25)
+)
+
+at <- AutoTuner$new(
+  learner = g1,
+  resampling = rsmp("cv", folds = 4),
+  measure = msr("regr.rsq"),
+  terminator = trm("none"),
+  tuner = tnr("hyperband", eta = 3),
+  search_space = params, 
+  store_models = TRUE)
+
+#pass back to resampling for nested resampling
+outer_resampling <- rsmp("cv", folds = 3)
+rr <- resample(task = phyllo_task, 
+               learner = at, 
+               outer_resampling, 
+               store_models = TRUE)
+
+outer_resampling$instantiate(phyllo_task)
+
+extract_inner_tuning_results(rr)
+
+# #outer tuning results
+rr$score()
+
+#This is the unbiased estimate of model performance
+rsq <- rr$aggregate(measure = msr("regr.rsq")) #can swap out different measures
+mse <- rr$aggregate(measure = msr("regr.mse") ) #can swap out different measures
+
+
+##################################################################
+# Extract important features
+##################################################################
+
+tained_at <- at$train(phyllo_task)
+
+var.imp <- data.frame(tained_at$model$learner$model$regr.ranger$model$variable.importance)
+
+out <- data.frame(matrix(nrow = 1, ncol = 1))
+out$rsq_nested_resampling <- rsq
+out$mse_nested_resampling <- mse
+
+#rank by importance
+viewdf <- data.frame(
+  row.names(var.imp)[order(var.imp$tained_at.model.learner.model.regr.ranger.model.variable.importance)],
+  var.imp[order(var.imp$tained_at.model.learner.model.regr.ranger.model.variable.importance),1] 
+)
+names(viewdf) <- ""
+viewdf
+
+write.csv(var.imp, file = paste("variableImportanceshannonsISD_ITS_raw_EP_ONLY.csv"), row.names = T)
+write.csv(out, file = "results_shannonsISD_ITS_raw_EP_ONLY.csv", row.names = T)
+
+write.csv(var.imp, file = paste("variableImportanceshannonsISD_ITS_raw_EN_ONLY.csv"), row.names = T)
+write.csv(out, file = "results_shannonsISD_ITS_raw_EN_ONLY.csv", row.names = T)
+
+#figuring out important variables and outputting them as a table
+var.imp <- read.csv("variableImportanceshannonsISD_ITS_raw_EN_ONLY.csv")
+var.imp <- var.imp[rev(order(var.imp[,2])),]
+
+
+names(var.imp) <- c("Feature","Decline in model performance")
+xtable(
+  label = "stable: featureImp_shannonsITS_en_only",
+  
+  caption = "Output from random forest model of Shannon's diversity as calculated using only endophyte data. Features ranked by importance (largest number corresponds with most important feature). To determine importance, features were permuted, the model rerun, and the decline in model performance (mean squared error) assayed (as implemented via the Ranger R package).",
+  var.imp[1:15,])
+
+#figuring out important variables and outputting them as a table
+var.imp <- read.csv("variableImportanceshannonsISD_ITS_raw_EP_ONLY.csv")
+var.imp <- var.imp[rev(order(var.imp[,2])),]
+
+
+names(var.imp) <- c("Feature","Decline in model performance")
+xtable(
+  label = "stable: featureImp_shannonsITS_ep_only",
+  
+  caption = "Output from random forest model of fungal Shannon's diversity as calculated using only epiphyte data. Features ranked by importance (largest number corresponds with most important feature). To determine importance, features were permuted, the model rerun, and the decline in model performance (mean squared error) assayed (as implemented via the Ranger R package).",
+  var.imp[1:15,])
 
