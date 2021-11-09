@@ -34,10 +34,14 @@ corout1 <- cor.test(as.numeric(rsq$rsq_nested_resampling),
 #Calculate prevalence of modeled microbes
 dat <- read.csv("processedData/otuTables/smallmem97_ITS_for_modeling_rearranged_for_CNVRG",
                 stringsAsFactors = F)
+dat[,3:length(dat)] <- dat[,3:length(dat)] - 1
+dat[,3:length(dat)] <- dat[,3:length(dat)] / dat$ISD
+
 focal_taxa <- read.csv("./processedData/ITS_taxa_to_model_via_randomforest.csv",
                        stringsAsFactors = F)
 
-abundance <- colSums(dat[,names(dat) %in% focal_taxa$x])
+abundance <- apply(dat[,names(dat) %in% focal_taxa$x], 2, FUN=mean, na.rm = T)
+abundance[is.infinite(abundance)]<- NA
 
 rsq <- read.csv("modelingResults/results_landscape//all_ITS_withHostRetained_172",
                 stringsAsFactors = F)
@@ -55,7 +59,7 @@ title(ylab="abundance", line=4, cex.lab=1.2, xpd = NA)
 corout <- cor.test(as.numeric(rsq$rsq_nested_resampling), 
                     abundance)
 
-text(paste("R = ", round(corout$estimate,2), sep = ""), x = -1400, y = 250000, xpd = NA)
-text(paste("R = ", round(corout1$estimate,2), sep = ""), x = -4000, y = 250000, xpd = NA)
+text(paste("R = ", round(corout$estimate,2), sep = ""), x = -1400, y = 0.2, xpd = NA)
+text(paste("R = ", round(corout1$estimate,2), sep = ""), x = -4000, y = 0.2, xpd = NA)
 
 dev.off()
