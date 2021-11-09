@@ -485,9 +485,9 @@ plot(ord16s$points[,1], ord16s$points[,2],
      yaxt = "n")
 options(scipen = 99)
 axis(side = 2, at = c(-0.6,-0.4,-.2, 0, .2, .4), labels =   c(-0.6,-0.4,-.2, 0, .2, .4), las = 2)
-text(x = -0.1, y=0.6, "b)", xpd = NA, cex = 1.7)
+#text(x = -0.1, y=0.6, "b)", xpd = NA, cex = 1.7)
 
-legend(x = -0.1, y = -0.4, 
+legend(x = -0.1, y = -0.3, 
        legend = unique(merged_dat16s$habit), 
        col = unique(add.alpha(merged_dat16s$col, 0.8)), 
        pch = 19, 
