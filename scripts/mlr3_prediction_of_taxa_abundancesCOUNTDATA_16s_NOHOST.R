@@ -106,134 +106,133 @@ response_taxon <- merged_dat[,names(merged_dat) == focal_taxon]
 #Get rid of stuff we don't need in merged_dat 
 merged_dat <- merged_dat[,names(merged_dat) %in%
                            c(as.character(focal_taxon),
-                             "sample"
-                             , "area_cm2"   #a                                              
-                             , "mass_extracted_g"   #e                                      
-                             , "leaves_extracted"  #e                                       
-                             , "circumStem"         #t                                      
-                             , "height_sample"       #a                                     
-                             , "Ambient_Humidity"     #a                                    
-                             , "Ambient_Temperature"   #a                                   
-                             , "Leaf_Temp_Differential" #t   #based on two other variables so seems worth removing                               
-                             , "LEF"                     #t                                 
-                             , "Light_Intensity..PAR."    #a                                
-                             , "Phi2"                     #t                                
-                             , "PhiNO"                    #t                                
-                             , "PhiNPQ"                   #t                                
-                             , "Relative_Chlorophyll"     #t                                
-                             , "thickness"               #t                                 
-                             , "absorbance_420"           #t                                
-                             , "absorbance_940"          #t                                 
-                             , "B"                        #t                                
-                             , "contactless_temp"         #a                                
-                             , "ecs_initial"              #t                                
-                             , "ecs_max"                  #t                                
-                             , "FmPrime"                  #t                                
-                             , "FoPrime"                  #t                                
-                             , "Fs"                       #t                                
-                             , "FvP.FmP"                  #t                                
-                             , "G"                         #t                               
-                             , "gH."                       #t                               
-                             #, "NPQt_MPF"                                                 
-                             , "pressure"                 #a                                
-                             , "qL"                        #t                               
-                             , "R"                          #t                              
-                             , "Rel_Chl_intensity"          #t                              
-                             , "RFd"                         #t                             
-                             , "SPAD_420"                   #t                              
-                             , "SPAD_420_intensity"         #t                              
-                             , "TimeofDay"               #a                                 
-                             , "lat"                      #a                           
-                             , "long"                     #a                           
-                             , "waterRetention"           #   t                             
-                             , "toughness"               #t                                 
-                             , "elev_m"                  #a                                 
-                             , "slope_perc"               #a                                
-                             , "treeRich"                  #n                               
-                             , "shrubRich"                   #n                             
-                             , "deadDown"                    #n                             
-                             , "precip_april_in.x"             #A                           
-                             , "densitometer"                   #a                          
-                             , "shannons_flora" #n
-                             # , "shannonsISD"
-                             , "julianDate"       #a                                        
-                             , "mean_temp_april.y"  #a                                      
-                             , "plant_vol"            #t  
-                      
-                             , "sla" #t
-                             ,"MEM1"#a
-                             , "MEM2"#a
-                             , "habit_forb"   #t                                            
-                             , "habit_graminoid"  #                                        
-                             , "habit_shrub"                                              
-                             , "habit_tree"                                               
-                             , "compartment_EN"   #t                                        
-                             #,"compartment_EP"
-                             # ,"taxon_final_Abiesconcolor"
-                             # ,"taxon_final_Abiesgrandis"
-                             # ,"taxon_final_Antennariamedia"
-                             # ,"taxon_final_Aquilegiacaerula"
-                             # ,"taxon_final_Arnicacordifolia"
-                             # ,"taxon_final_Artemisiatridentata"
-                             # ,"taxon_final_Astragalusalpinus"
-                             # ,"taxon_final_Astragaluskentrophyta"
-                             # ,"taxon_final_Astragalusmiser"
-                             # ,"taxon_final_Bistortabistortoides"
-                             # ,"taxon_final_Carexpaysonis"
-                             # ,"taxon_final_Carexscopulorumvar.bracteosa"
-                             # ,"taxon_final_Chamaenerionangustifoliumvar.angustifolium"
-                             # ,"taxon_final_Delphiniumoccidentale"
-                             # ,"taxon_final_Erigeronglacialis"
-                             # ,"taxon_final_Eriogonumumbellatum"
-                             # ,"taxon_final_Eucephaluselegans"
-                             # ,"taxon_final_Eucephalusengelmannii"
-                             # ,"taxon_final_Fragariavirginiana"
-                             # ,"taxon_final_Fraseraspeciosa"
-                             # ,"taxon_final_Geraniumviscossimumvar.viscosissimum"
-                             # ,"taxon_final_Helianthellauniflora"
-                             # ,"taxon_final_Heracleummaximum"
-                             # ,"taxon_final_Juncusbalticus."
-                             # ,"taxon_final_Juncusparryi"
-                             # ,"taxon_final_Juncussp."
-                             # ,"taxon_final_Juniperuscommunis"
-                             # ,"taxon_final_Ligusticumfilicinum"
-                             # ,"taxon_final_Lupinusargenteus"
-                             # ,"taxon_final_Mahoniarepens"
-                             # ,"taxon_final_Mertensianaciliatavar.ciliata"
-                             # ,"taxon_final_Minuartiaobtusiloba"
-                             # ,"taxon_final_Osmorhizadepauperata"
-                             # ,"taxon_final_Oxyriadigyna"
-                             # ,"taxon_final_Paxistimamyrsinites"
-                             # ,"taxon_final_Piceaengelmannii"
-                             # ,"taxon_final_Pinusalbicaulis"
-                             # ,"taxon_final_Pinuscontorta"
-                             # ,"taxon_final_Poapratensis"
-                             # ,"taxon_final_Poawheeleri"
-                             # ,"taxon_final_Polemoniumviscosum"
-                             # ,"taxon_final_Populusangustifolium"
-                             # ,"taxon_final_Populustremulloides"
-                             # ,"taxon_final_Potentilladiversifolia"
-                             # ,"taxon_final_Potentillafruticosa"
-                             # ,"taxon_final_Potentillapulcherrima"
-                             # ,"taxon_final_Primulaparryi"
-                             # ,"taxon_final_Pseudotsugamenziesii"
-                             # ,"taxon_final_Ribesmontigenum"
-                             # ,"taxon_final_Salixglaucavar.villosa"
-                             # ,"taxon_final_Salixreticulatavar.nana"
-                             # ,"taxon_final_Sedumlanceolatum"
-                             # ,"taxon_final_Symphoricarposalbus"
-                             # ,"taxon_final_Symphyotrichumfoliaceumvar.apricum"
-                             # ,"taxon_final_Thalictrumoccidentale"
-                             # ,"taxon_final_Trifoliumparryivar.montanense"
-                             # ,"taxon_final_Unknownfir"
-                             # ,"taxon_final_Unknownpine"
-                             # ,"taxon_final_UnknownSpruce"
-                             # ,"taxon_final_Vacciniummembranaceum"
-                             # ,"taxon_final_Vacciniumscoparium"
-                             # ,"taxon_final_Wyethiaamplexicaulis"
-                             , "phenology_flowering"                                      
-                             , "phenology_fruiting"                                       
-                             , "phenology_vegetative"                                     
+                             "sample",
+                               "area_cm2"                                                 
+                               , "mass_extracted_g"                                         
+                               , "leaves_extracted"                                         
+                               , "circumStem"                                               
+                               , "height_sample"                                            
+                               , "Ambient_Humidity"                                         
+                               , "Ambient_Temperature"                                      
+                               , "Leaf_Temp_Differential"                                   
+                               , "LEF"                                                      
+                               , "Light_Intensity..PAR."                                    
+                               # , "Phi2"                                                     
+                               , "PhiNO"                                                    
+                               , "PhiNPQ"
+                               , "Relative_Chlorophyll"                                     
+                               , "thickness"                                                
+                               #, "absorbance_420"                                           
+                               , "absorbance_940"                                           
+                               # , "B"                                                        
+                               #, "contactless_temp"                                         
+                               , "ecs_initial"                                              
+                               #, "ecs_max"                                                  
+                               #, "FmPrime"                                                  
+                               #, "FoPrime"                                                  
+                               , "Fs"                                                       
+                               #, "FvP.FmP"                                                  
+                               #, "G"                                                        
+                               , "gH."                                                      
+                               #, "NPQt_MPF"                                                 
+                               #, "pressure"                                                 
+                               , "qL"                                                       
+                               #, "R"                                                        
+                               , "Rel_Chl_intensity"                                        
+                               # , "RFd"                                                      
+                               #, "SPAD_420"                                                 
+                               , "SPAD_420_intensity"                                       
+                               , "TimeofDay"                                                
+                               , "lat"                                                 
+                               , "long"                                                
+                               , "waterRetention"                                           
+                               , "toughness"                                                
+                               , "elev_m"                                                   
+                               , "slope_perc"                                               
+                               , "treeRich"                                                 
+                               , "shrubRich"                                                
+                               , "deadDown"                                                 
+                               , "precip_april_in.x"                                        
+                               , "densitometer"                                             
+                               , "shannons_flora"
+                               # , "shannonsISD"
+                               , "julianDate"                                               
+                               , "mean_temp_april.y"                                        
+                               , "plant_vol" 
+                               ,"div_raw"
+                               , "sla"                
+                               , "compartment_EN" 
+                               , "habit_forb"    #                                           
+                               , "habit_graminoid"  #                                        
+                               , "habit_shrub"  #                                            
+                               , "habit_tree" #                                              
+                               # ,"taxon_final_Abiesconcolor"
+                               # ,"taxon_final_Abiesgrandis"
+                               # ,"taxon_final_Antennariamedia"
+                               # ,"taxon_final_Aquilegiacaerula"
+                               # ,"taxon_final_Arnicacordifolia"
+                               # ,"taxon_final_Artemisiatridentata"
+                               # ,"taxon_final_Astragalusalpinus"
+                               # ,"taxon_final_Astragaluskentrophyta"
+                               # ,"taxon_final_Astragalusmiser"
+                               # ,"taxon_final_Bistortabistortoides"
+                               # ,"taxon_final_Carexpaysonis"
+                               # ,"taxon_final_Carexscopulorumvar.bracteosa"
+                               # ,"taxon_final_Chamaenerionangustifoliumvar.angustifolium"
+                               # ,"taxon_final_Delphiniumoccidentale"
+                               # ,"taxon_final_Erigeronglacialis"
+                               # ,"taxon_final_Eriogonumumbellatum"
+                               # ,"taxon_final_Eucephaluselegans"
+                               # ,"taxon_final_Eucephalusengelmannii"
+                               # ,"taxon_final_Fragariavirginiana"
+                               # ,"taxon_final_Fraseraspeciosa"
+                               # ,"taxon_final_Geraniumviscossimumvar.viscosissimum"
+                               # ,"taxon_final_Helianthellauniflora"
+                               # ,"taxon_final_Heracleummaximum"
+                               # ,"taxon_final_Juncusbalticus."
+                               # ,"taxon_final_Juncusparryi"
+                               # ,"taxon_final_Juncussp."
+                               # ,"taxon_final_Juniperuscommunis"
+                               # ,"taxon_final_Ligusticumfilicinum"
+                               # ,"taxon_final_Lupinusargenteus"
+                               # ,"taxon_final_Mahoniarepens"
+                               # ,"taxon_final_Mertensianaciliatavar.ciliata"
+                               # ,"taxon_final_Minuartiaobtusiloba"
+                               # ,"taxon_final_Osmorhizadepauperata"
+                               # ,"taxon_final_Oxyriadigyna"
+                               # ,"taxon_final_Paxistimamyrsinites"
+                               # ,"taxon_final_Piceaengelmannii"
+                               # ,"taxon_final_Pinusalbicaulis"
+                               # ,"taxon_final_Pinuscontorta"
+                               # ,"taxon_final_Poapratensis"
+                               # ,"taxon_final_Poawheeleri"
+                               # ,"taxon_final_Polemoniumviscosum"
+                               # ,"taxon_final_Populusangustifolium"
+                               # ,"taxon_final_Populustremulloides"
+                               # ,"taxon_final_Potentilladiversifolia"
+                               # ,"taxon_final_Potentillafruticosa"
+                               # ,"taxon_final_Potentillapulcherrima"
+                               # ,"taxon_final_Primulaparryi"
+                               # ,"taxon_final_Pseudotsugamenziesii"
+                               # ,"taxon_final_Ribesmontigenum"
+                               # ,"taxon_final_Salixglaucavar.villosa"
+                               # ,"taxon_final_Salixreticulatavar.nana"
+                               # ,"taxon_final_Sedumlanceolatum"
+                               # ,"taxon_final_Symphoricarposalbus"
+                               # ,"taxon_final_Symphyotrichumfoliaceumvar.apricum"
+                               # ,"taxon_final_Thalictrumoccidentale"
+                               # ,"taxon_final_Trifoliumparryivar.montanense"
+                               # ,"taxon_final_Unknownfir"
+                               # ,"taxon_final_Unknownpine"
+                               # ,"taxon_final_UnknownSpruce"
+                               # ,"taxon_final_Vacciniummembranaceum"
+                               # ,"taxon_final_Vacciniumscoparium"
+                               # ,"taxon_final_Wyethiaamplexicaulis"
+                               , "phenology_flowering"                                      
+                               , "phenology_fruiting"                                       
+                               , "phenology_vegetative" 
+                             ,"MEM1"
+                             , "MEM2"
                            )]
 
 #Convert to numeric (makes it easier when doing imputing)

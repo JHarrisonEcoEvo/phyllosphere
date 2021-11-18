@@ -17,30 +17,30 @@ meta <- meta[,names(meta) %in% c("area_cm2"
                              , "Leaf_Temp_Differential"                                   
                              , "LEF"                                                      
                              , "Light_Intensity..PAR."                                    
-                             , "Phi2"                                                     
+                            # , "Phi2"                                                     
                              , "PhiNO"                                                    
-                             , "PhiNPQ"                                                   
+                             , "PhiNPQ"
                              , "Relative_Chlorophyll"                                     
                              , "thickness"                                                
-                             , "absorbance_420"                                           
+                             #, "absorbance_420"                                           
                              , "absorbance_940"                                           
-                             , "B"                                                        
-                             , "contactless_temp"                                         
+                            # , "B"                                                        
+                             #, "contactless_temp"                                         
                              , "ecs_initial"                                              
-                             , "ecs_max"                                                  
-                             , "FmPrime"                                                  
-                             , "FoPrime"                                                  
+                             #, "ecs_max"                                                  
+                             #, "FmPrime"                                                  
+                             #, "FoPrime"                                                  
                              , "Fs"                                                       
-                             , "FvP.FmP"                                                  
-                             , "G"                                                        
+                             #, "FvP.FmP"                                                  
+                             #, "G"                                                        
                              , "gH."                                                      
                              #, "NPQt_MPF"                                                 
-                             , "pressure"                                                 
+                             #, "pressure"                                                 
                              , "qL"                                                       
-                             , "R"                                                        
+                             #, "R"                                                        
                              , "Rel_Chl_intensity"                                        
-                             , "RFd"                                                      
-                             , "SPAD_420"                                                 
+                            # , "RFd"                                                      
+                             #, "SPAD_420"                                                 
                              , "SPAD_420_intensity"                                       
                              , "TimeofDay"                                                
                              , "lat"                                                 
@@ -86,29 +86,30 @@ names(meta) <- c(
   "Leaf temp. differential",
   "Linear electron flow",
   "Light intensity (PAR)",
-  "Phi2",
+  #"Phi2",
   "PhiNO",
   "PhiNPQ",
   "Rel. chlorophyll",
   "Leaf thickness",
-  "Absorbance 420 nm",
+  #"Absorbance 420 nm",
   "Absorbance 940 nm",
-  "Blueness",
-  "Leaf temperature",
+ # "Blueness",
+  #"contactless_temp" ,
+ # "Leaf temperature",
   "ECS initial",
-  "ECS max.",
-  "Fm prime",
-  "Fo prime",
+  #"ECS max.",
+  #"Fm prime",
+  #"Fo prime",
   "Fs",
-  "FvP.FmP",
-  "Greenness",
+  #"FvP.FmP",
+  #"Greenness",
   "gH",
-  "Pressure",
+  #"Pressure",
   "qL",
-  "Redness",
+  #"Redness",
   "Rel. chlorophyll intensity",
-  "RFd",
-  "SPAD 420 nm",
+ # "RFd",
+  #"SPAD 420 nm",
   "SPAD 420 intensity",
   "Time of the day",
   "Water retention",

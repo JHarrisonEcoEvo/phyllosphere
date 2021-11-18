@@ -48,6 +48,21 @@ axis(side = 2, las = 2)
 
 corout <- cor.test(as.numeric(mcc$mcc_nested_resampling), 
          prevalence)
+
+#messing around to see if the correlation changes depending on what part of the data we consider
+#really prevalent stuff or not as prevalent stuff
+cor.test(as.numeric(mcc$mcc_nested_resampling)[prevalence > mean(prevalence)], 
+         prevalence[prevalence > mean(prevalence)])
+cor.test(as.numeric(mcc$mcc_nested_resampling)[prevalence < mean(prevalence)], 
+         prevalence[prevalence < mean(prevalence)])
+
+for(i in seq(0.1,1, .1)){
+  print(
+  cor.test(as.numeric(mcc$mcc_nested_resampling)[prevalence < quantile(prevalence, i)], 
+         prevalence[prevalence < quantile(prevalence, i)])
+  )
+}
+
 text(paste("R = ", round(corout$estimate,2), sep = ""), x = 0.4, y = 1400)
 text(paste("R = ", round(corout1$estimate,2), sep = ""), x = -0.45, y = 1400, xpd = NA)
 

@@ -434,7 +434,7 @@ set.seed(666)
 X<- read.csv("./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv")
 
 X <- X[X$substrate == "plant",]
-X <- X[X$compartment == "EP",]
+X <- X[X$compartment == "EN",]
 
 #Make a leaf density variable
 X$sla = X$mass_extracted_g / X$area_cm2
@@ -462,68 +462,66 @@ X <- dummy_cols(.data = X, select_columns = categoricals)
 
 #Get rid of stuff we don't need 
 merged_dat <- X[,names(X) %in%
-                  c(
-                    "sample"
-                    , "area_cm2"                                                 
-                    , "mass_extracted_g"                                         
-                    , "leaves_extracted"                                         
-                    , "circumStem"                                               
-                    , "height_sample"                                            
-                    , "Ambient_Humidity"                                         
-                    , "Ambient_Temperature"                                      
-                    , "Leaf_Temp_Differential"                                   
-                    , "LEF"                                                      
-                    , "Light_Intensity..PAR."                                    
-                    , "Phi2"                                                     
-                    , "PhiNO"                                                    
-                    , "PhiNPQ"                                                   
-                    , "Relative_Chlorophyll"                                     
-                    , "thickness"                                                
-                    , "absorbance_420"                                           
-                    , "absorbance_940"                                           
-                    , "B"                                                        
-                    , "contactless_temp"                                         
-                    , "ecs_initial"                                              
-                    , "ecs_max"                                                  
-                    , "FmPrime"                                                  
-                    , "FoPrime"                                                  
-                    , "Fs"                                                       
-                    , "FvP.FmP"                                                  
-                    , "G"                                                        
-                    , "gH."                                                      
-                    , "NPQt_MPF"                                                 
-                    , "pressure"                                                 
-                    , "qL"                                                       
-                    , "R"                                                        
-                    , "Rel_Chl_intensity"                                        
-                    , "RFd"                                                      
-                    , "SPAD_420"                                                 
-                    , "SPAD_420_intensity"                                       
-                    , "TimeofDay"                                                
-                    , "lat"                                                 
-                    , "long"
-                    ,"MEM1"
-                    , "MEM2"
-                    , "waterRetention"                                           
-                    , "toughness"                                                
-                    , "elev_m"                                                   
-                    , "slope_perc"                                               
-                    , "treeRich"                                                 
-                    , "shrubRich"                                                
-                    , "deadDown"                                                 
-                    , "precip_april_in.x"                                        
-                    , "densitometer"                                             
-                    , "shannons_flora"
-                    , "div_raw"
-                    # , "shannonsISD"
-                    , "julianDate"                                               
-                    , "mean_temp_april.y"                                        
-                    , "plant_vol"                                                
-                    , "sla"                                                      
-                    , "habit_forb"                                               
-                    , "habit_graminoid"                                          
-                    , "habit_shrub"                                              
-                    , "habit_tree"                                               
+                  c("sample",
+                  "area_cm2"                                                 
+                      , "mass_extracted_g"                                         
+                      , "leaves_extracted"                                         
+                      , "circumStem"                                               
+                      , "height_sample"                                            
+                      , "Ambient_Humidity"                                         
+                      , "Ambient_Temperature"                                      
+                      , "Leaf_Temp_Differential"                                   
+                      , "LEF"                                                      
+                      , "Light_Intensity..PAR."                                    
+                      # , "Phi2"                                                     
+                      , "PhiNO"                                                    
+                      , "PhiNPQ"
+                      , "Relative_Chlorophyll"                                     
+                      , "thickness"                                                
+                      #, "absorbance_420"                                           
+                      , "absorbance_940"                                           
+                      # , "B"                                                        
+                      #, "contactless_temp"                                         
+                      , "ecs_initial"                                              
+                      #, "ecs_max"                                                  
+                      #, "FmPrime"                                                  
+                      #, "FoPrime"                                                  
+                      , "Fs"                                                       
+                      #, "FvP.FmP"                                                  
+                      #, "G"                                                        
+                      , "gH."                                                      
+                      #, "NPQt_MPF"                                                 
+                      #, "pressure"                                                 
+                      , "qL"                                                       
+                      #, "R"                                                        
+                      , "Rel_Chl_intensity"                                        
+                      # , "RFd"                                                      
+                      #, "SPAD_420"                                                 
+                      , "SPAD_420_intensity"                                       
+                      , "TimeofDay"                                                
+                      , "lat"                                                 
+                      , "long"                                                
+                      , "waterRetention"                                           
+                      , "toughness"                                                
+                      , "elev_m"                                                   
+                      , "slope_perc"                                               
+                      , "treeRich"                                                 
+                      , "shrubRich"                                                
+                      , "deadDown"                                                 
+                      , "precip_april_in.x"                                        
+                      , "densitometer"                                             
+                      , "shannons_flora"
+                      # , "shannonsISD"
+                      , "julianDate"                                               
+                      , "mean_temp_april.y"                                        
+                      , "plant_vol" 
+                  ,"div_raw"
+                      , "sla"                                                   
+                    , "habit_forb"    #                                           
+                    , "habit_graminoid"  #                                        
+                    , "habit_shrub"  #                                            
+                    , "habit_tree" # 
+                  , "compartment_EN" 
                     ,"taxon_final_Abiesconcolor"
                     ,"taxon_final_Abiesgrandis"
                     ,"taxon_final_Antennariamedia"
@@ -589,6 +587,8 @@ merged_dat <- X[,names(X) %in%
                     , "phenology_flowering"                                      
                     , "phenology_fruiting"                                       
                     , "phenology_vegetative" 
+                  ,"MEM1"
+                  , "MEM2"
 
                   )]
 
@@ -696,6 +696,36 @@ xtable(
   caption = "Output from random forest model of Shannon's diversity as calculated using only endophyte data. Features ranked by importance (largest number corresponds with most important feature). To determine importance, features were permuted, the model rerun, and the decline in model performance (mean squared error) assayed (as implemented via the Ranger R package).",
   var.imp[1:15,])
 
+# % latex table generated in R 4.1.2 by xtable 1.8-4 package
+# % Wed Nov 17 16:06:11 2021
+# \begin{table}[ht]
+# \centering
+# \begin{tabular}{rlr}
+# \hline
+# & Feature & Decline in model performance \\ 
+# \hline
+# 46 & taxon\_final\_Antennariamedia & 35650.84 \\ 
+# 69 & taxon\_final\_Juniperuscommunis & 30443.64 \\ 
+# 30 & leaves\_extracted & 20288.89 \\ 
+# 34 & phenology\_flowering & 18532.13 \\ 
+# 42 & sla & 16461.40 \\ 
+# 59 & taxon\_final\_Eriogonumumbellatum & 14715.35 \\ 
+# 21 & elev\_m & 14571.76 \\ 
+# 29 & lat & 12422.55 \\ 
+# 100 & taxon\_final\_Unknownfir & 12286.94 \\ 
+# 26 & habit\_tree & 11625.60 \\ 
+# 12 & Relative\_Chlorophyll & 10985.99 \\ 
+# 27 & height\_sample & 10950.20 \\ 
+# 31 & long & 8675.68 \\ 
+# 107 & treeRich & 8403.60 \\ 
+# 43 & slope\_perc & 7517.57 \\ 
+# \hline
+# \end{tabular}
+# \caption{Output from random forest model of Shannon's diversity as calculated using only endophyte data. Features ranked by importance (largest number corresponds with most important feature). To determine importance, features were permuted, the model rerun, and the decline in model performance (mean squared error) assayed (as implemented via the Ranger R package).} 
+# \label{stable: featureImp_shannonsITS_en_only}
+# \end{table}
+
+
 #figuring out important variables and outputting them as a table
 var.imp <- read.csv("variableImportanceshannonsISD_ITS_raw_EP_ONLY.csv")
 var.imp <- var.imp[rev(order(var.imp[,2])),]
@@ -707,4 +737,32 @@ xtable(
   
   caption = "Output from random forest model of fungal Shannon's diversity as calculated using only epiphyte data. Features ranked by importance (largest number corresponds with most important feature). To determine importance, features were permuted, the model rerun, and the decline in model performance (mean squared error) assayed (as implemented via the Ranger R package).",
   var.imp[1:15,])
-
+# 
+# % latex table generated in R 4.1.2 by xtable 1.8-4 package
+# % Wed Nov 17 15:58:30 2021
+# \begin{table}[ht]
+# \centering
+# \begin{tabular}{rlr}
+# \hline
+# & Feature & Decline in model performance \\ 
+# \hline
+# 21 & elev\_m & 38778.08 \\ 
+# 29 & lat & 36342.31 \\ 
+# 69 & taxon\_final\_Juniperuscommunis & 20531.24 \\ 
+# 59 & taxon\_final\_Eriogonumumbellatum & 19761.72 \\ 
+# 41 & shrubRich & 17720.78 \\ 
+# 80 & taxon\_final\_Pinuscontorta & 15750.84 \\ 
+# 94 & taxon\_final\_Sedumlanceolatum & 15145.85 \\ 
+# 23 & habit\_forb & 14714.60 \\ 
+# 40 & shannons\_flora & 12304.16 \\ 
+# 42 & sla & 11990.17 \\ 
+# 43 & slope\_perc & 11518.29 \\ 
+# 28 & julianDate & 10698.15 \\ 
+# 19 & densitometer & 10509.07 \\ 
+# 27 & height\_sample & 10160.77 \\ 
+# 34 & phenology\_flowering & 10094.43 \\ 
+# \hline
+# \end{tabular}
+# \caption{Output from random forest model of fungal Shannon's diversity as calculated using only epiphyte data. Features ranked by importance (largest number corresponds with most important feature). To determine importance, features were permuted, the model rerun, and the decline in model performance (mean squared error) assayed (as implemented via the Ranger R package).} 
+# \label{stable: featureImp_shannonsITS_ep_only}
+# \end{table}

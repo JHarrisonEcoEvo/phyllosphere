@@ -34,11 +34,11 @@ focal_host <- possibles[inargs[3],2]
 print(inargs)
 
 # #Debugging stuff
-taxa <- read.csv("./processedData//otuTables/smallmem97_16S_for_modeling_rearranged_for_CNVRG")
-possibles <- read.csv("./processedData/combination_hosts_microbes_to_analyze_16S.csv", stringsAsFactors = F)
-focal_taxon <- possibles[1,3]
-focal_host <- possibles[1,2]
-X<- read.csv("./processedData/16smetadat_wrangled_for_post_modeling_analysis.csv", stringsAsFactors = F)
+# taxa <- read.csv("./processedData//otuTables/smallmem97_16S_for_modeling_rearranged_for_CNVRG")
+# possibles <- read.csv("./processedData/combination_hosts_microbes_to_analyze_16S.csv", stringsAsFactors = F)
+# focal_taxon <- possibles[1,3]
+# focal_host <- possibles[1,2]
+# X<- read.csv("./processedData/16smetadat_wrangled_for_post_modeling_analysis.csv", stringsAsFactors = F)
 
 #SUBSET to just the focal host taxon.
 X <- X[X$taxon_final == focal_host,]
@@ -98,8 +98,8 @@ merged_dat <- merge(X, taxa, by.x = "sample", by.y = "sample", all.y = T)
 #Get rid of stuff we don't need in merged_dat 
 merged_dat <- merged_dat[,names(merged_dat) %in%
                            c(as.character(focal_taxon),
-                             "sample"
-                             , "area_cm2"                                                 
+                             "sample",
+                             "area_cm2"                                                 
                              , "mass_extracted_g"                                         
                              , "leaves_extracted"                                         
                              , "circumStem"                                               
@@ -109,30 +109,30 @@ merged_dat <- merged_dat[,names(merged_dat) %in%
                              , "Leaf_Temp_Differential"                                   
                              , "LEF"                                                      
                              , "Light_Intensity..PAR."                                    
-                             , "Phi2"                                                     
+                             # , "Phi2"                                                     
                              , "PhiNO"                                                    
-                             , "PhiNPQ"                                                   
+                             , "PhiNPQ"
                              , "Relative_Chlorophyll"                                     
                              , "thickness"                                                
-                             , "absorbance_420"                                           
+                             #, "absorbance_420"                                           
                              , "absorbance_940"                                           
-                             , "B"                                                        
-                             , "contactless_temp"                                         
+                             # , "B"                                                        
+                             #, "contactless_temp"                                         
                              , "ecs_initial"                                              
-                             , "ecs_max"                                                  
-                             , "FmPrime"                                                  
-                             , "FoPrime"                                                  
+                             #, "ecs_max"                                                  
+                             #, "FmPrime"                                                  
+                             #, "FoPrime"                                                  
                              , "Fs"                                                       
-                             , "FvP.FmP"                                                  
-                             , "G"                                                        
+                             #, "FvP.FmP"                                                  
+                             #, "G"                                                        
                              , "gH."                                                      
-                             , "NPQt_MPF"                                                 
-                             , "pressure"                                                 
+                             #, "NPQt_MPF"                                                 
+                             #, "pressure"                                                 
                              , "qL"                                                       
-                             , "R"                                                        
+                             #, "R"                                                        
                              , "Rel_Chl_intensity"                                        
-                             , "RFd"                                                      
-                             , "SPAD_420"                                                 
+                             # , "RFd"                                                      
+                             #, "SPAD_420"                                                 
                              , "SPAD_420_intensity"                                       
                              , "TimeofDay"                                                
                              , "lat"                                                 
@@ -147,17 +147,17 @@ merged_dat <- merged_dat[,names(merged_dat) %in%
                              , "precip_april_in.x"                                        
                              , "densitometer"                                             
                              , "shannons_flora"
-                             , "shannonsISD"
+                             # , "shannonsISD"
                              , "julianDate"                                               
                              , "mean_temp_april.y"                                        
-                             , "plant_vol"                                                
-                             , "sla"                                                      
-                             , "habit_forb"                                               
-                             , "habit_graminoid"                                          
-                             , "habit_shrub"                                              
-                             , "habit_tree"                                               
-                             , "compartment_EN"                                           
-#                             , "compartment_EP"                                           
+                             , "plant_vol" 
+                             ,"div_raw"
+                             , "sla"                
+                             , "compartment_EN" 
+                             , "habit_forb"    #                                           
+                             , "habit_graminoid"  #                                        
+                             , "habit_shrub"  #                                            
+                             , "habit_tree" #                                              
                              , "phenology_flowering"                                      
                              , "phenology_fruiting"                                       
                              , "phenology_vegetative" 

@@ -208,57 +208,6 @@ prevHost[prevHost == 62]
 #cladosporidium was 140 and 3526 for fungi
 
 
-#FIT pareto
-
-#cribbed from https://stats.stackexchange.com/questions/27426/how-do-i-fit-a-set-of-data-to-a-pareto-distribution-in-r
-library(VGAM)
-pareto.MLE <- function(X)
-{
-  n <- length(X)
-  m <- min(X)
-  a <- n/sum(log(X)-log(m))
-  return( c(m,a) ) 
-}
-z <- rpareto(1000, scale = 1, shape = 5) 
-pareto.MLE(z)
-
-length(prevHost)
-prevHost <- prevHost[prevHost > 0]
-prevHostEN <- prevHostEN[prevHostEN > 0]
-prevHostENbact <- prevHostENbact[prevHostENbact > 0]
-prevHostepbact <- prevHostepbact[prevHostepbact > 0]
-
-pareto.MLE(prevHost)
-pareto.MLE(prevHostEN)
-pareto.MLE(prevHostENbact)
-pareto.MLE(prevHostepbact)
-
-#Alternatively we can use ptsuite if we wanted to use non MLE estimators for some reason.
-#install.packages("ptsuite")
-library(ptsuite)
-alpha_mle(z)
-generate_all_estimates(prevHost)
-
-#a function to make a qq plot to see if the Pareto is an ok fit
-pareto_qq_test(prevHost)
-
-#Another way to test if the Pareto is a good fit. Seems not to be.
-pareto_test(prevHost)
-pareto_test(prevHostEN)
-pareto_test(prevHostENbact)
-pareto_test(prevHostepbact)
-
-x <- generate_pareto(1000, 5, 2)
-pareto_test(x)
-
-
-#For poisson the mean and variance should be the same. How close are they?
-mean(prevHost)
-var(prevHost)
-mean(prevHostEN)
-var(prevHostEN)
-#not at all close
-
 #FIGURE OUT MOST PREVALENT MICROBE
 rm(list=ls())
 dat <- read.csv("./processedData/otuTables/smallmem97_ITS_for_modeling_rearranged_for_CNVRG_OCCUPANCY.csv")

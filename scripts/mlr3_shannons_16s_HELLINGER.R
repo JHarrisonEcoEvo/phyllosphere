@@ -59,44 +59,41 @@ X <- dummy_cols(.data = X, select_columns = categoricals)
 
 #Get rid of stuff we don't need 
 merged_dat <- X[,names(X) %in%
-                  c(
-                    "sample"
-                    , "area_cm2"                                                 
+                  c("sample",
+                    "area_cm2"                                                 
                     , "mass_extracted_g"                                         
                     , "leaves_extracted"                                         
                     , "circumStem"                                               
-                    , "height_sample" 
-                    ,"MEM1"
-                    , "MEM2"
+                    , "height_sample"                                            
                     , "Ambient_Humidity"                                         
                     , "Ambient_Temperature"                                      
                     , "Leaf_Temp_Differential"                                   
                     , "LEF"                                                      
                     , "Light_Intensity..PAR."                                    
-                    , "Phi2"                                                     
+                    # , "Phi2"                                                     
                     , "PhiNO"                                                    
-                    , "PhiNPQ"                                                   
+                    , "PhiNPQ"
                     , "Relative_Chlorophyll"                                     
                     , "thickness"                                                
-                    , "absorbance_420"                                           
+                    #, "absorbance_420"                                           
                     , "absorbance_940"                                           
-                    , "B"                                                        
-                    , "contactless_temp"                                         
+                    # , "B"                                                        
+                    #, "contactless_temp"                                         
                     , "ecs_initial"                                              
-                    , "ecs_max"                                                  
-                    , "FmPrime"                                                  
-                    , "FoPrime"                                                  
+                    #, "ecs_max"                                                  
+                    #, "FmPrime"                                                  
+                    #, "FoPrime"                                                  
                     , "Fs"                                                       
-                    , "FvP.FmP"                                                  
-                    , "G"                                                        
+                    #, "FvP.FmP"                                                  
+                    #, "G"                                                        
                     , "gH."                                                      
-                    , "NPQt_MPF"                                                 
-                    , "pressure"                                                 
+                    #, "NPQt_MPF"                                                 
+                    #, "pressure"                                                 
                     , "qL"                                                       
-                    , "R"                                                        
+                    #, "R"                                                        
                     , "Rel_Chl_intensity"                                        
-                    , "RFd"                                                      
-                    , "SPAD_420"                                                 
+                    # , "RFd"                                                      
+                    #, "SPAD_420"                                                 
                     , "SPAD_420_intensity"                                       
                     , "TimeofDay"                                                
                     , "lat"                                                 
@@ -111,23 +108,21 @@ merged_dat <- X[,names(X) %in%
                     , "precip_april_in.x"                                        
                     , "densitometer"                                             
                     , "shannons_flora"
-                    #,"div_Hellinger"
-                    ,"div_raw"
-                    #, "shannonsISD"
+                    # , "shannonsISD"
                     , "julianDate"                                               
                     , "mean_temp_april.y"                                        
-                    , "plant_vol"                                                
-                    , "sla"                                                      
-                    , "habit_forb"                                               
-                    , "habit_graminoid"                                          
-                    , "habit_shrub"                                              
-                    , "habit_tree"                                               
-                    , "compartment_EN"                                           
-                    #, "compartment_EP"                                           
-                    , "taxon_final_Abiesconcolor"
-                    , "taxon_final_Abiesgrandis"
-                    , "taxon_final_Antennariamedia"
-                    , "taxon_final_Aquilegiacaerula"
+                    , "plant_vol" 
+                    ,"div_raw"
+                    , "sla"                                                   
+                    , "habit_forb"    #                                           
+                    , "habit_graminoid"  #                                        
+                    , "habit_shrub"  #                                            
+                    , "habit_tree" #    
+                    , "compartment_EN" 
+                    ,"taxon_final_Abiesconcolor"
+                    ,"taxon_final_Abiesgrandis"
+                    ,"taxon_final_Antennariamedia"
+                    ,"taxon_final_Aquilegiacaerula"
                     ,"taxon_final_Arnicacordifolia"
                     ,"taxon_final_Artemisiatridentata"
                     ,"taxon_final_Astragalusalpinus"
@@ -188,7 +183,10 @@ merged_dat <- X[,names(X) %in%
                     ,"taxon_final_Wyethiaamplexicaulis"
                     , "phenology_flowering"                                      
                     , "phenology_fruiting"                                       
-                    , "phenology_vegetative"   
+                    , "phenology_vegetative" 
+                    ,"MEM1"
+                    , "MEM2"
+                  )]
                     # ,"region_site_1_1"      ,                                            
                     # "region_site_1_2"    ,                                              
                     # "region_site_1_3"    ,                                              
@@ -209,7 +207,7 @@ merged_dat <- X[,names(X) %in%
                     # "region_site_6_3"  ,                                                
                     # "region_site_7_1"   ,                                               
                     # "region_site_7_2"
-                  )]
+              #    )]
 
 #Convert to numeric (makes it easier when doing imputing)
 for(i in 2:length(merged_dat)){
@@ -431,7 +429,7 @@ X<- read.csv("./processedData/16smetadat_wrangled_for_post_modeling_analysis.csv
 ######################
 
 X <- X[X$substrate == "plant",]
-X <- X[X$compartment == "EN",]
+X <- X[X$compartment == "EP",]
 
 #Make a leaf density variable
 X$sla = X$mass_extracted_g / X$area_cm2
@@ -669,6 +667,9 @@ var.imp <- data.frame(tained_at$model$learner$model$regr.ranger$model$variable.i
 out <- data.frame(matrix(nrow = 1, ncol = 1))
 out$rsq_nested_resampling <- rsq
 out$mse_nested_resampling <- mse
+
+write.csv(var.imp , file = paste("variableImportanceshannonsISD_16s_raw_EP_ONLY.csv"), row.names = T)
+write.csv(out , file = paste("results_shannonsISD_16s_raw_EP_ONLY.csv"), row.names = T)
 
 write.csv(var.imp , file = paste("variableImportanceshannonsISD_16s_raw_EN_ONLY.csv"), row.names = T)
 write.csv(out , file = paste("results_shannonsISD_16s_raw_EN_ONLY.csv"), row.names = T)
