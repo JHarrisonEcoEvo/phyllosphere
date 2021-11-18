@@ -39,7 +39,7 @@ X <- read.csv(inargs[1]) #e.g., "./imputed_scaled_ITS_metadata.csv"
 taxa <- read.csv(inargs[2]) #./ITSp_estimates_wrangled_for_post_modeling_analysis_divided_by_ISD.csv
 possibles <- read.csv(inargs[4]) # "./processedData/ITS_taxa_to_model_via_randomforest.csv"
 focal_taxon <- possibles[inargs[3],]
-isdNorm_tf <- inargs[5] #should be a T or an F
+isdNorm_tf <- as.character(inargs[5]) #should be a T or an F
 
 # # #Debugging stuff
 # taxa <- read.csv("./processedData//otuTables/smallmem97_16S_for_modeling_rearranged_for_CNVRG")
@@ -55,7 +55,7 @@ taxa$sample <- gsub("X", "", taxa$sample)
 
 taxa[,3:length(taxa)] <- taxa[,3:length(taxa)] -1
 
-if(isdNorm_tf == T){
+if(isdNorm_tf == "T"){
   print("dividing by the isd")
   taxa[,3:length(taxa)] <- taxa[,3:length(taxa)] / taxa$ISD
 }else{
