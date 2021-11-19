@@ -3,20 +3,21 @@ rm(list=ls())
 #Bring in results and figure out which taxa were predicted well enough to warrant
 #extraction of important features. 
 
-results <- read.csv("modelingResults/results_landscapeNO_ISD/all_its_noisd", stringsAsFactors = F)
+results <- read.csv("modelingResults/results_landscape_hellinger//all_ITS_withHostretained_172", stringsAsFactors = F)
 results <- results[results$taxon != "taxon",]
 results <- results[as.numeric(results$rsq_nested_resampling) > 0.01,]
 
 #Bring in variable importance metrics for only those taxa that were predicted
-dat <- list.files("modelingResults/varImp_landscapeCOUNT_noISD/")
+dat <- list.files("modelingResults/varImp_landscape//")
 dat <- dat[grep("*ITS*", dat)]
-#dat <- dat[-grep("*Reduced*", dat)]
+dat <- dat[-grep("*NOHOST*", dat)]
+dat <- dat[-grep("*OCC*", dat)]
 
 #find those files for the stuff that was predicted
 dat <- grep(paste(results$taxon, collapse="|"), 
              dat, value=TRUE)
 
-varimps <- lapply(paste("modelingResults/varImp_landscapeCOUNT_noISD/", dat, sep = ""), read.csv)
+varimps <- lapply(paste("modelingResults/varImp_landscape/", dat, sep = ""), read.csv)
 length(varimps)
 
 #Extract top ten from each and then do table to see which are most useful. 

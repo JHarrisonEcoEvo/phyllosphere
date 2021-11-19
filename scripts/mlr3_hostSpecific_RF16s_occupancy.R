@@ -144,7 +144,7 @@ merged_dat <- merged_dat[,names(merged_dat) %in%
                              , "julianDate"                                               
                              , "mean_temp_april.y"                                        
                              , "plant_vol" 
-                             ,"div_raw"
+                             #,"div_raw"
                              , "sla"                
                              , "compartment_EN" 
                              , "habit_forb"    #                                           
@@ -286,7 +286,7 @@ out$correctNegatives<- predictionTable[
 
 out$prop_negativeIDd <- out$correctNegatives / sum(predictionTable[,2])
 
-write.csv(out, file = paste("results", focal_taxon, "_", focal_host, "16S_OCCUPANCY.csv",  sep = ""), 
+write.csv(out, file = paste("HOSTresults", focal_taxon, "_", focal_host, "16S_OCCUPANCY.csv",  sep = ""), 
           row.names = F)
 
 

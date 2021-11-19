@@ -5,7 +5,7 @@
 
 rm(list=ls())
 options(scipen = 99)
-dat <- read.csv("./modelingResults/results_landscape/all_ITS_withHostRetained_172", stringsAsFactors = F)
+dat <- read.csv("./modelingResults/results_landscape_hellinger//all_ITS_withHostretained_172", stringsAsFactors = F)
 head(dat)
 dat <- dat[dat$taxon != "taxon",]
 dim(dat)
@@ -15,16 +15,40 @@ length(dat[,1])
 table(dat$rsq_nested_resampling > 0.01)
 dat[which.max(dat$rsq_nested_resampling),]
 
-# 
-# options(scipen = 99)
-# dat <- read.csv("./modelingResults/results_landscape/all_ITS_withHostremoved_172", stringsAsFactors = F)
-# head(dat)
-# dat <- dat[dat$taxon != "taxon",]
-# dat$rsq_nested_resampling <- as.numeric(dat$rsq_nested_resampling)
-# summary(dat$rsq_nested_resampling)
-# length(dat[,1])
-# table(dat$rsq_nested_resampling > 0.01)
-# 
+
+dat <- read.csv("./modelingResults/results_landscape_hellinger//all_ITS_withHostremoved_172", stringsAsFactors = F)
+head(dat)
+dat <- dat[dat$taxon != "taxon",]
+dat$rsq_nested_resampling <- as.numeric(dat$rsq_nested_resampling)
+summary(dat$rsq_nested_resampling)
+length(dat[,1])
+table(dat$rsq_nested_resampling > 0.01)
+ 
+
+rm(list=ls())
+options(scipen = 99)
+dat <- read.csv("./modelingResults/results_landscape_isd/all_its_isd.csv", stringsAsFactors = F)
+head(dat)
+dat <- dat[dat$taxon != "taxon",]
+dim(dat)
+dat$rsq_nested_resampling <- as.numeric(dat$rsq_nested_resampling)
+summary(dat$rsq_nested_resampling)
+length(dat[,1])
+table(dat$rsq_nested_resampling > 0.01)
+dat[which.max(dat$rsq_nested_resampling),]
+
+rm(list=ls())
+options(scipen = 99)
+dat <- read.csv("./modelingResults/results_landscape_isd/all_its_isd_NOHOST.csv", stringsAsFactors = F)
+head(dat)
+dat <- dat[dat$taxon != "taxon",]
+dim(dat)
+dat$rsq_nested_resampling <- as.numeric(dat$rsq_nested_resampling)
+summary(dat$rsq_nested_resampling)
+length(dat[,1])
+table(dat$rsq_nested_resampling > 0.01)
+dat[which.max(dat$rsq_nested_resampling),]
+
 # #Figure out median decline in R sq when comparing with and without host.
 # dat <- read.csv("./modelingResults/results_landscape/all_ITS_withHostRetained_172", stringsAsFactors = F)
 # dat <- dat[dat$taxon != "taxon",]
@@ -49,6 +73,15 @@ dat[which.max(dat$rsq_nested_resampling),]
 # 16s landscape
 ##############
 
+
+dat <- read.csv("./modelingResults/results_landscape_hellinger/all_16S_withHostRetained_23", stringsAsFactors = F)
+head(dat)
+dat <- dat[dat$taxon != "taxon",]
+dat$rsq_nested_resampling <- as.numeric(dat$rsq_nested_resampling)
+summary(dat$rsq_nested_resampling)
+length(dat[,1])
+table(dat$rsq_nested_resampling > 0.01)
+
 dat <- read.csv("./modelingResults/results_landscape/all_16S_withHostRetained_23", stringsAsFactors = F)
 head(dat)
 dat <- dat[dat$taxon != "taxon",]
@@ -56,6 +89,19 @@ dat$rsq_nested_resampling <- as.numeric(dat$rsq_nested_resampling)
 summary(dat$rsq_nested_resampling)
 length(dat[,1])
 table(dat$rsq_nested_resampling > 0.01)
+
+rm(list=ls())
+options(scipen = 99)
+dat <- read.csv("./modelingResults/results_landscape_isd/all_16s_isd.csv", stringsAsFactors = F)
+head(dat)
+dat <- dat[dat$taxon != "taxon",]
+dim(dat)
+dat$rsq_nested_resampling <- as.numeric(dat$rsq_nested_resampling)
+summary(dat$rsq_nested_resampling)
+length(dat[,1])
+table(dat$rsq_nested_resampling > 0.01)
+dat[which.max(dat$rsq_nested_resampling),]
+
 
 # dat <- read.csv("./modelingResults/results_landscape/all_16S_withHostremoved_23", stringsAsFactors = F)
 # head(dat)

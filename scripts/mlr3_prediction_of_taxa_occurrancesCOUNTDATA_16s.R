@@ -142,7 +142,7 @@ merged_dat <- merged_dat[,names(merged_dat) %in%
              , "julianDate"                                               
              , "mean_temp_april.y"                                        
              , "plant_vol" 
-             ,"div_raw"
+            # ,"div_raw"
              , "sla"                
              , "compartment_EN" 
              , "habit_forb"    #                                           

@@ -8,7 +8,7 @@ focal_taxa <- read.csv("./processedData/sixteenS_taxa_to_model_via_randomforest.
 
 prevalence <- colSums(dat[,names(dat) %in% focal_taxa$x])
 
-mcc <- read.csv("modelingResults/results_landscape/all_16S_withHostRetained_23",
+mcc <- read.csv("modelingResults/results_landscape_isd/all_16s_isd.csv",
                 stringsAsFactors = F)
 mcc <- mcc[mcc$taxon != "taxon",]
 
@@ -19,7 +19,7 @@ table(mcc$taxon == names(prevalence))
 pdf(width = 8, height = 4, file = "./visuals/rsq_prevalence.pdf")
 par(mfrow = c(1,2))
 plot(as.numeric(mcc$rsq_nested_resampling), 
-     prevalence, main = "bacteria", xlab = "MCC", yaxt = "n", pch = 16, frame.plot = F)
+     prevalence, main = "bacteria", xlab = "R^2", yaxt = "n", pch = 16, frame.plot = F)
 axis(side = 2, las = 2)
 
 corout1 <- cor.test(as.numeric(mcc$rsq_nested_resampling), 
@@ -34,7 +34,7 @@ focal_taxa <- read.csv("./processedData/ITS_taxa_to_model_via_randomforest.csv",
 
 prevalence <- colSums(dat[,names(dat) %in% focal_taxa$x])
 
-mcc <- read.csv("modelingResults/results_landscape/all_ITS_withHostRetained_172",
+mcc <- read.csv("modelingResults/results_landscape_isd/all_its_isd.csv",
                 stringsAsFactors = F)
 mcc <- mcc[mcc$taxon != "taxon",]
 
@@ -43,7 +43,7 @@ mcc <- mcc[match(names(prevalence),mcc$taxon),]
 table(mcc$taxon == names(prevalence))
 
 plot(as.numeric(mcc$rsq_nested_resampling), 
-     prevalence, main = "fungi", xlab = "MCC", yaxt = "n",pch = 16, frame.plot = F)
+     prevalence, main = "fungi", xlab = "R^2", yaxt = "n",pch = 16, frame.plot = F)
 axis(side = 2, las = 2)
 
 corout <- cor.test(as.numeric(mcc$rsq_nested_resampling), 

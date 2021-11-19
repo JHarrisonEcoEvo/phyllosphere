@@ -5,13 +5,15 @@ rm(list=ls())
 
 results <- read.csv("modelingResults/results_host_occupancy/all_ITS_110.csv", stringsAsFactors = F)
 results <- results[results$taxon != "taxon",]
+dim(results)
 results <- results[as.numeric(results$mcc_nested_resampling) > 0,]
+dim(results)
 
 #Bring in variable importance metrics for only those taxa that were predicted
-dat <- list.files("modelingResults/varImp_hostCount_occupancy///")
+dat <- list.files("modelingResults/varImp_hostCount_occupancy/")
 dat <- dat[grep("*ITS*", dat)]
-dat <- dat[-grep("*rare*", dat)]
-dat <- dat[-grep("*Reduced*", dat)]
+#dat <- dat[-grep("*rare*", dat)]
+#dat <- dat[-grep("*Reduced*", dat)]
 
 dat <- grep(paste(results$taxon, collapse="|"), 
              dat, value=TRUE)

@@ -263,3 +263,4 @@ write.csv(dat, file = "./processedData/otuTables/smallmem97_16S_for_modeling_rea
 write.csv(data.frame(dat[,1:2], dat_rarefied), 
           file = "./processedData/otuTables/smallmem97_16S_for_modeling_rearranged_for_CNVRG_OCCUPANCY_rarified300.csv", 
           row.names = F)
+

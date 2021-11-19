@@ -159,7 +159,7 @@ merged_dat <- merged_dat[,names(merged_dat) %in%
                                , "julianDate"                                               
                                , "mean_temp_april.y"                                        
                                , "plant_vol" 
-                               ,"div_raw"
+                              # ,"div_raw"
                                , "sla"                
                                , "compartment_EN" 
                                , "habit_forb"    #                                           
@@ -373,4 +373,4 @@ out$rsq_nested_resampling <- rsq
 out$mse_nested_resampling <- mse
 
 write.csv(var.imp, file = paste("variableImportance", focal_taxon, "16S_NOHOST.csv", sep = ""), row.names = T)
-write.csv(out, file = paste("results", focal_taxon, "16S_NOHOST.csv", sep = ""), row.names = T)
+write.csv(out, file = paste("HOSTresults", focal_taxon, "16S_NOHOST.csv", sep = ""), row.names = T)

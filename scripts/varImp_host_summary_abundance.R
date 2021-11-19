@@ -4,19 +4,22 @@ rm(list=ls())
 #extraction of important features. 
 
 results <- read.csv("modelingResults/results_host/all_its_host_combinations_108.csv", stringsAsFactors = F)
+dim(results)
+
 results <- results[results$taxon != "taxon",]
+dim(results)
 results <- results[as.numeric(results$rsq_nested_resampling) > 0.01,]
 
 #Bring in variable importance metrics for only those taxa that were predicted
-dat <- list.files("modelingResults/varImp_hostCount///")
+dat <- list.files("modelingResults/varImp_hostSpecific///")
 dat <- dat[grep("*ITS*", dat)]
-#dat <- dat[-grep("*rare*", dat)]
+dat <- dat[-grep("*educed*", dat)]
 #dat <- dat[-grep("*NOHOST*", dat)]
 
 dat <- grep(paste(results$taxon, collapse="|"), 
              dat, value=TRUE)
 
-varimps <- lapply(paste("modelingResults/varImp_hostCount/", dat, sep = ""), read.csv)
+varimps <- lapply(paste("modelingResults/varImp_hostSpecific/", dat, sep = ""), read.csv)
 length(varimps)
 
 #Extract top ten from each and then do table to see which are most useful. 
@@ -39,16 +42,17 @@ xtable(rev(sort(table(important)))[1:10])
 
 # ###########################
 # # Do for bacteria #####
+#NO GOOD MODELS
 # rm(list=ls())
 # 
 # #Bring in results and figure out which taxa were predicted well enough to warrant
 # #extraction of important features. 
 # 
-# results <- read.csv("modelingResults/results_host/all_16s_byHostPlant.csv", stringsAsFactors = F)
+#  results <- read.csv("modelingResults/results_host/all_16s_host_combinations_9.csv", stringsAsFactors = F)
 # results <- results[results$taxon != "taxon",]
 # 
 # results <- results[results$rsq_nested_resampling > 0.01,]
-# 
+
 # #Bring in variable importance metrics for only those taxa that were predicted
 # dat <- list.files("modelingResults/varImp_hostCount/")
 # dat <- dat[grep("*16S*", dat)]

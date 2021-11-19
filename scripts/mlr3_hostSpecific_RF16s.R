@@ -151,7 +151,7 @@ merged_dat <- merged_dat[,names(merged_dat) %in%
                              , "julianDate"                                               
                              , "mean_temp_april.y"                                        
                              , "plant_vol" 
-                             ,"div_raw"
+                            # ,"div_raw"
                              , "sla"                
                              , "compartment_EN" 
                              , "habit_forb"    #                                           
@@ -383,6 +383,6 @@ var.impR <- data.frame(tained_at_reduced$model$learner$model$regr.ranger$model$v
 
 write.csv(var.impR, file = paste("HOSTvariableImportanceReduced", focal_taxon, "_", focal_host, "16S.csv", sep = ""), row.names = F)
 
-write.csv(out, file = paste("results", focal_taxon,"_", focal_host, "16S.csv", sep = ""), row.names = F)
+write.csv(out, file = paste("HOSTresults", focal_taxon,"_", focal_host, "16S.csv", sep = ""), row.names = F)
 
 
