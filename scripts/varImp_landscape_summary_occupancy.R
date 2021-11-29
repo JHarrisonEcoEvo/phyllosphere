@@ -3,21 +3,26 @@ rm(list=ls())
 #Bring in results and figure out which taxa were predicted well enough to warrant
 #extraction of important features. 
 
-results <- read.csv("modelingResults/results_landscape_occupancy/all_ITS_occupancy_landscape_172.csv", stringsAsFactors = F)
+results <- read.csv("modelingResults/results_landscape_isd//all_ITS_OCC.csv", stringsAsFactors = F)
 results <- results[results$taxon != "taxon",]
-results <- results[as.numeric(results$mcc_nested_resampling) > 0,]
+results <- results[as.numeric(results$mcc_nested_resampling) > 0.2,]
+dim(results)
 
 #Bring in variable importance metrics for only those taxa that were predicted
-dat <- list.files("modelingResults/varImp_landscape_occupancy//")
+dat <- list.files("modelingResults/varImp_landscape_isd/")
 dat <- dat[grep("*ITS*", dat)]
-#dat <- dat[-grep("*Reduced*", dat)]
+dat <- dat[grep("*OCC*", dat)]
 #dat <- dat[-grep("*NOHOST*", dat)]
 
 dat <- grep(paste(results$taxon, collapse="|"), 
              dat, value=TRUE)
+#QC
+length(dat) == dim(results)[1]
 
-varimps <- lapply(paste("modelingResults/varImp_landscape_occupancy/", dat, sep = ""), read.csv)
-length(varimps)
+varimps <- lapply(paste("modelingResults/varImp_landscape_isd/", dat, sep = ""), read.csv)
+
+#qc
+length(dat) == length(varimps)
 
 #Extract top ten from each and then do table to see which are most useful. 
 
@@ -34,7 +39,33 @@ sort(table(important))
 hist(sort(table(important)))
 length(varimps)
 
-xtable(rev(sort(table(important)))[1:10])
+xtable::xtable(rev(sort(table(important)))[1:15])
+# % latex table generated in R 4.1.2 by xtable 1.8-4 package
+# % Fri Nov 19 14:48:49 2021
+# \begin{table}[ht]
+# \centering
+# \begin{tabular}{rr}
+# \hline
+# & important \\ 
+# \hline
+# height\_sample &  41 \\ 
+# area\_cm2 &  40 \\ 
+# sla &  37 \\ 
+# elev\_m &  35 \\ 
+# plant\_vol &  25 \\ 
+# mean\_temp\_april.y &  25 \\ 
+# long &  25 \\ 
+# MEM2 &  20 \\ 
+# lat &  19 \\ 
+# julianDate &  19 \\ 
+# shrubRich &  16 \\ 
+# Ambient\_Humidity &  16 \\ 
+# precip\_april\_in.x &  15 \\ 
+# deadDown &  15 \\ 
+# shannons\_flora &  14 \\ 
+# \hline
+# \end{tabular}
+# \end{table}
 
 #Bring in taxonomy for each taxon and see if there are certain patterns by phyla
 #where, say, a certain suite of predictors is more important for certain phyla
@@ -78,7 +109,7 @@ queryindices <- which(names(varimps) %in% ascos)
 
 importantAscos <- vector()
 for(i in queryindices){
-  importantAscos <- c(important,
+  importantAscos <- c(importantAscos,
                  as.character(varimps[[i]][head(rev(order(varimps[[i]][,2])), n = 10),1]))
 }
 sort(table(importantAscos))
@@ -89,7 +120,7 @@ queryindices <- which(names(varimps) %in% basidios)
 
 importantbasidios <- vector()
 for(i in queryindices){
-  importantbasidios <- c(important,
+  importantbasidios <- c(importantbasidios,
                       as.character(varimps[[i]][head(rev(order(varimps[[i]][,2])), n = 10),1]))
 }
 sort(table(importantbasidios))
@@ -100,7 +131,7 @@ sort(table(importantbasidios))
 
 classinfo <- list()
 k <- 1
-for(j in names(table(tax$CLASS)[table(tax$CLASS) > 5])){
+for(j in names(table(tax$CLASS)[table(tax$CLASS) > 3])){
   taxC <- tax[tax$CLASS == j, ]
   taxC <- taxC[!is.na(taxC$CLASS),]
   
@@ -155,7 +186,7 @@ for(i in 1:length(outmat)){
 }
 
 forheat <- data.frame(
-  matrix(unlist(outmat), nrow = 3 , ncol = length(unique(nms))))
+  matrix(unlist(outmat), nrow = length(names(classinfo)) , ncol = length(unique(nms))))
 names(forheat) <- unique(nms)
 forheat
 
@@ -170,51 +201,53 @@ forheat
 
 pdf(width = 10, height = 10, file = "./visuals/its_heatmap_feature_importance_occupancy.pdf")
 par(mar=c(3,3,3,3), oma = c(8,3,3,12))
-heatmap(as.matrix(forheat),scale = "none",
+gplots::heatmap.2(as.matrix(forheat),scale = "none",
         col= rev(heat.colors(5)),
         #wesanderson::wes_palette("FantasticFox1", n = 5, type = "discrete"),
         Colv = NA, 
-        labCol = c("Leaf area", 
-                   "B",
-                   "Dead down",
-                   "Elevation",
-                   "G",
-                   "Height sample",
-                   "Julian date",
-                   "Latitude",
-                   "Light intensity (PAR)",
-                   
-                   "Longitude",
-                   "Temp. April",
-                   "MEM #2",
-                   "Plant volume",
-                   "Precip. April",
-                   "Pressure",
-                   "R",
-                   "Shannon's flora",
-                   "Shrub richness",
-                   "Leaf density (SLA)",
-                   "Fm Prime",
-                   "Num. leaves extracted",
-                   "LEF",
-                   "Rel. chlorophyll",
-                   "SPAD 420",
-                   "Fo prime"
-                   ),
+        trace = "none",
+        dendrogram = "row",
+        # labCol = c("Leaf area", 
+        #            "B",
+        #            "Dead down",
+        #            "Elevation",
+        #            "G",
+        #            "Height sample",
+        #            "Julian date",
+        #            "Latitude",
+        #            "Light intensity (PAR)",
+        #            
+        #            "Longitude",
+        #            "Temp. April",
+        #            "MEM #2",
+        #            "Plant volume",
+        #            "Precip. April",
+        #            "Pressure",
+        #            "R",
+        #            "Shannon's flora",
+        #            "Shrub richness",
+        #            "Leaf density (SLA)",
+        #            "Fm Prime",
+        #            "Num. leaves extracted",
+        #            "LEF",
+        #            "Rel. chlorophyll",
+        #            "SPAD 420",
+        #            "Fo prime"
+        #            ),
         labRow = gsub("c:", "", names(classinfo))
 )
 dev.off()
 
-pdf(width = 5, height = 5, file = "./visuals/its_heatmap_legend_occupancy.pdf")
-plot(NULL)
-legend("center",
-       bty = "n",
-       xpd = NA,
-       legend=c("0-4", "5-8", "9-16", "17-22", "22+"),
-       fill=c(rev(heat.colors(5))))
-#wesanderson::wes_palette("FantasticFox1", n = 5, type = "discrete"))
-
-dev.off()
+# pdf(width = 5, height = 5, file = "./visuals/its_heatmap_legend_occupancy.pdf")
+# plot(NULL)
+# legend("center",
+#        bty = "n",
+#        xpd = NA,
+#        legend=c("0-4", "5-8", "9-16", "17-22", "22+"),
+#        fill=c(rev(heat.colors(5))))
+# #wesanderson::wes_palette("FantasticFox1", n = 5, type = "discrete"))
+# 
+# dev.off()
 #ORIGINAL VERSION
 #Useful for results of models of data that were not normalized by the ISD. 
 
@@ -256,15 +289,15 @@ dev.off()
 ###########################
 # Do for bacteria #####
 #NOT ENOUGH RESULTS FOR THIS TO BE WORTHWHILE
-# rm(list=ls())
+rm(list=ls())
+
+#Bring in results and figure out which taxa were predicted well enough to warrant
+#extraction of important features.
 # 
-# #Bring in results and figure out which taxa were predicted well enough to warrant
-# #extraction of important features. 
-# 
-# results <- read.csv("modelingResults/results_landscape_occupancy/all_16S_occupancy_landscape_23.csv", stringsAsFactors = F)
-# results <- results[results$rsq_nested_resampling > 0.01,]
+# results <- read.csv("modelingResults/results_landscape_isd/all_16S_OCC.csv", stringsAsFactors = F)
+# results <- results[results$mcc_nested_resampling > 0.2,]
 # results <- results[results$taxon != "taxon",]
-# 
+# # 
 # #Bring in variable importance metrics for only those taxa that were predicted
 # dat <- list.files("modelingResults/varImp_hostCount_occupancy/")
 # dat <- dat[grep("*16S*", dat)]

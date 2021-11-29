@@ -3,21 +3,21 @@ rm(list=ls())
 #Bring in results and figure out which taxa were predicted well enough to warrant
 #extraction of important features. 
 
-results <- read.csv("modelingResults/results_landscape/all_ITS_withHostRetained_172",
+results <- read.csv("modelingResults/results_landscape_isd//all_ITS.csv",
                     stringsAsFactors = F)
 results <- results[results$taxon != "taxon",]
 results <- results[as.numeric(results$rsq_nested_resampling) > 0.01,]
 
 #Bring in variable importance metrics for only those taxa that were predicted
-dat <- list.files("modelingResults/varImp_landscapeCOUNT//")
+dat <- list.files("modelingResults/varImp_landscape_isd///")
 dat <- dat[grep("*ITS*", dat)]
 dat <- dat[-grep("*NOHOST*", dat)]
-dat <- dat[-grep("all*", dat)]
+dat <- dat[-grep("*OCC*", dat)]
 
-dat <- grep(paste(results$taxon, collapse="|"), 
+dat <- grep(paste(results$taxon, "TITS*", sep = "",collapse="|"), 
              dat, value=TRUE)
 
-varimps <- lapply(paste("modelingResults/varImp_landscapeCOUNT/", dat, sep = ""), read.csv)
+varimps <- lapply(paste("modelingResults/varImp_landscape_isd//", dat, sep = ""), read.csv)
 length(varimps)
 
 #Extract top ten from each and then do table to see which are most useful. 
@@ -35,8 +35,33 @@ sort(table(important))
 hist(sort(table(important)))
 length(varimps)
 
-xtable(rev(sort(table(important)))[1:10])
-
+xtable(rev(sort(table(important)))[1:15])
+# % latex table generated in R 4.1.2 by xtable 1.8-4 package
+# % Fri Nov 19 10:48:32 2021
+# \begin{table}[ht]
+# \centering
+# \begin{tabular}{rr}
+# \hline
+# & important \\ 
+# \hline
+# shannons\_flora &  23 \\ 
+# mean\_temp\_april.y &  23 \\ 
+# Light\_Intensity..PAR. &  22 \\ 
+# sla &  21 \\ 
+# shrubRich &  20 \\ 
+# habit\_forb &  20 \\ 
+# elev\_m &  19 \\ 
+# Ambient\_Humidity &  19 \\ 
+# MEM2 &  18 \\ 
+# Ambient\_Temperature &  18 \\ 
+# height\_sample &  17 \\ 
+# precip\_april\_in.x &  16 \\ 
+# LEF &  15 \\ 
+# julianDate &  15 \\ 
+# Fs &  15 \\ 
+# \hline
+# \end{tabular}
+# \end{table}
 #Bring in taxonomy for each taxon and see if there are certain patterns by phyla
 #where, say, a certain suite of predictors is more important for certain phyla
 #If this appears to be the case, then make a heatmap figure
@@ -66,8 +91,8 @@ tax$OTU_ID <- gsub("otu", "Zotu", tax$OTU_ID)
 #calculate table for important features for each taxon. 
 #figure out how to display, if interesting.
 
-hits <- gsub("variableImportan.*(Zotu\\d+ITS).*", "\\1", dat)
-hits <- gsub("ITS*", "", hits)
+hits <- gsub("variableImportan.*(Zotu\\d+TITS).*", "\\1", dat)
+hits <- gsub("TITS*", "", hits)
 tax <- tax[tax$OTU_ID %in% hits,]
 
 names(varimps) <- hits
@@ -79,7 +104,7 @@ queryindices <- which(names(varimps) %in% ascos)
 
 importantAscos <- vector()
 for(i in queryindices){
-  importantAscos <- c(important,
+  importantAscos <- c(importantAscos,
                  as.character(varimps[[i]][head(rev(order(varimps[[i]][,2])), n = 10),1]))
 }
 sort(table(importantAscos))
@@ -90,7 +115,7 @@ queryindices <- which(names(varimps) %in% basidios)
 
 importantbasidios <- vector()
 for(i in queryindices){
-  importantbasidios <- c(important,
+  importantbasidios <- c(importantbasidios,
                       as.character(varimps[[i]][head(rev(order(varimps[[i]][,2])), n = 10),1]))
 }
 sort(table(importantbasidios))
@@ -162,7 +187,7 @@ forheat
 
 #REmove host for visualization. We will state clearly in the text that host is important
 #thus including it here is redundant
-forheat <- forheat[, -grep("taxon",names(forheat))]
+#forheat <- forheat[, -grep("taxon",names(forheat))]
 
 #found this tidbit here, but doesn't work in this case. Saving for posterity:
 #https://stackoverflow.com/questions/35089898/transforming-a-list-with-differing-number-of-elements-to-a-data-frame
@@ -171,48 +196,50 @@ forheat <- forheat[, -grep("taxon",names(forheat))]
 
 pdf(width = 10, height = 10, file = "./visuals/its_heatmap_feature_importance_isd_transformed_data.pdf")
 par(mar=c(3,3,3,3), oma = c(8,3,3,12))
-heatmap(as.matrix(forheat),scale = "none",
+gplots::heatmap.2(as.matrix(forheat),scale = "none",
         col= rev(heat.colors(5)),
         #wesanderson::wes_palette("FantasticFox1", n = 5, type = "discrete"),
         Colv = NA, 
-        labCol = c("B", 
-                   "Elevation",
-                   "Fs",
-                   "R",
-                   "Shannons_flora",
-                   "Leaf thickness",
-                   "Tree richness",
-                   "Water retention",
-                   "Growth habit: forb",
-                   
-                   "Temp. April",
-                   "Flowering",
-                   "Shrub richness",
-                   "Leaf density (SLA)",
-                   "Time of day collected",
-                   "Leaf toughness",
-                   "Absorbance 420 nm",
-                   "Densitometer",
-                   "Fm prime",
-                   "Height of sample",
-                   "Pressure",
-                   "Rel. chlorophyll",
-                   "RFd"
-                   ),
+        trace = "none",
+        dendrogram = "row",
+        # labCol = c("B", 
+        #            "Elevation",
+        #            "Fs",
+        #            "R",
+        #            "Shannons_flora",
+        #            "Leaf thickness",
+        #            "Tree richness",
+        #            "Water retention",
+        #            "Growth habit: forb",
+        #            
+        #            "Temp. April",
+        #            "Flowering",
+        #            "Shrub richness",
+        #            "Leaf density (SLA)",
+        #            "Time of day collected",
+        #            "Leaf toughness",
+        #            "Absorbance 420 nm",
+        #            "Densitometer",
+        #            "Fm prime",
+        #            "Height of sample",
+        #            "Pressure",
+        #            "Rel. chlorophyll",
+        #            "RFd"
+        #            ),
         labRow = gsub("c:", "", names(classinfo))
 )
 dev.off()
-
-pdf(width = 5, height = 5, file = "./visuals/its_heatmap_legend_withISD.pdf")
-plot(NULL)
-legend("center",
-       bty = "n",
-       xpd = NA,
-       legend=c("0", "1-3", "4-5", "6-7", "8+"),
-       fill=c(rev(heat.colors(5))))
-#wesanderson::wes_palette("FantasticFox1", n = 5, type = "discrete"))
-
-dev.off()
+# 
+# pdf(width = 5, height = 5, file = "./visuals/its_heatmap_legend_withISD.pdf")
+# plot(NULL)
+# legend("center",
+#        bty = "n",
+#        xpd = NA,
+#        legend=c("0", "1-3", "4-5", "6-7", "8+"),
+#        fill=c(rev(heat.colors(5))))
+# #wesanderson::wes_palette("FantasticFox1", n = 5, type = "discrete"))
+# 
+# dev.off()
 #ORIGINAL VERSION
 #Useful for results of models of data that were not normalized by the ISD. 
 
@@ -364,12 +391,17 @@ length(unique(unlist(classinfo)))
 #https://stackoverflow.com/questions/35089898/transforming-a-list-with-differing-number-of-elements-to-a-data-frame
 forheat <- t(sapply(classinfo, `length<-`, max(lengths(classinfo))))
 
-#pdf(width = 8, height = 8, file = "./visuals/sixteens_heatmap_feature_importance.pdf")
+pdf(width = 8, height = 8, file = "./visuals/sixteens_heatmap_feature_importance.pdf")
+library(gplot)
+
 par(mar=c(3,3,3,3), oma = c(8,3,3,8))
-heatmap(forheat,scale = "none",
+
+heatmap.2(as.matrix(forheat),scale = "none",
         col= rev(heat.colors(5)),
         #wesanderson::wes_palette("FantasticFox1", n = 5, type = "discrete"),
         Colv = NA, 
+        key = T,
+        trace="none",
         labCol = c("Compartment EN", 
                    "Elevation",
                    "Latitude",

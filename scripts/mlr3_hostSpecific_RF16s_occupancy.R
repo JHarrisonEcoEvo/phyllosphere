@@ -147,10 +147,10 @@ merged_dat <- merged_dat[,names(merged_dat) %in%
                              #,"div_raw"
                              , "sla"                
                              , "compartment_EN" 
-                             , "habit_forb"    #                                           
-                             , "habit_graminoid"  #                                        
-                             , "habit_shrub"  #                                            
-                             , "habit_tree" #                                              
+                             # , "habit_forb"    #                                           
+                             # , "habit_graminoid"  #                                        
+                             # , "habit_shrub"  #                                            
+                             # , "habit_tree" #                                              
                              , "phenology_flowering"                                      
                              , "phenology_fruiting"                                       
                              , "phenology_vegetative" 

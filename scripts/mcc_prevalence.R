@@ -8,12 +8,12 @@ focal_taxa <- read.csv("./processedData/sixteenS_taxa_to_model_via_randomforest.
 
 prevalence <- colSums(dat[,names(dat) %in% focal_taxa$x])
 
-mcc <- read.csv("modelingResults/results_landscape_occupancy/all_16s_occupancy.csv",
+mcc <- read.csv("modelingResults/results_landscape_isd/all_16S_OCC.csv",
                 stringsAsFactors = F)
 mcc <- mcc[mcc$taxon != "taxon",]
 
 #checking arrangement
-mcc <- mcc[match(mcc$taxon, names(prevalence)),]
+mcc <- mcc[match(names(prevalence),mcc$taxon ),]
 table(mcc$taxon == names(prevalence))
 
 pdf(width = 8, height = 4, file = "./visuals/mcc_prevalence.pdf")
@@ -34,7 +34,7 @@ focal_taxa <- read.csv("./processedData/ITS_taxa_to_model_via_randomforest.csv",
 
 prevalence <- colSums(dat[,names(dat) %in% focal_taxa$x])
 
-mcc <- read.csv("modelingResults/results_landscape_occupancy/all_its_occupancy.csv",
+mcc <- read.csv("modelingResults/results_landscape_isd/all_ITS_OCC.csv",
                 stringsAsFactors = F)
 mcc <- mcc[mcc$taxon != "taxon",]
 
@@ -64,6 +64,6 @@ for(i in seq(0.1,1, .1)){
 }
 
 text(paste("R = ", round(corout$estimate,2), sep = ""), x = 0.05, y = 1400)
-text(paste("R = ", round(corout1$estimate,2), sep = ""), x = -0.85, y = 1400, xpd = NA)
+text(paste("R = ", round(corout1$estimate,2), sep = ""), x = -0.83, y = 1400, xpd = NA)
 
 dev.off()

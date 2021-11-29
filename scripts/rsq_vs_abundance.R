@@ -12,12 +12,12 @@ focal_taxa <- read.csv("./processedData/sixteenS_taxa_to_model_via_randomforest.
 abundance <- apply(dat[,names(dat) %in% focal_taxa$x], 2, FUN=mean, na.rm = T)
 abundance[is.infinite(abundance)]<- NA
 
-rsq <- read.csv("modelingResults/results_landscape_isd/all_16s_isd.csv",
+rsq <- read.csv("modelingResults/results_landscape_isd/all_16S.csv",
                 stringsAsFactors = F)
 rsq <- rsq[rsq$taxon != "taxon",]
 
 #checking arrangement
-rsq <- rsq[match(rsq$taxon, names(abundance)),]
+rsq <- rsq[match(names(abundance),rsq$taxon ),]
 table(rsq$taxon == names(abundance))
 
 pdf(width = 8, height = 5, file = "./visuals/rsq_abundance.pdf")
@@ -25,7 +25,7 @@ par(mfrow = c(1,2), oma = c(1,1,1,1))
 plot(as.numeric(rsq$rsq_nested_resampling), 
      abundance, main = "bacteria", xlab = "R^2", ylab = "",yaxt = "n", pch = 16, frame.plot = F)
 axis(side = 2, las = 2)
-title(ylab="abundance", line=3.5, cex.lab=1.2)
+title(ylab="abundance", line=3.5, cex.lab=1.2, xpd = NA)
 
 corout1 <- cor.test(as.numeric(rsq$rsq_nested_resampling), 
                     abundance)
@@ -43,11 +43,12 @@ focal_taxa <- read.csv("./processedData/ITS_taxa_to_model_via_randomforest.csv",
 abundance <- apply(dat[,names(dat) %in% focal_taxa$x], 2, FUN=mean, na.rm = T)
 abundance[is.infinite(abundance)]<- NA
 
-rsq <- read.csv("modelingResults/results_landscape_isd/all_its_isd.csv",
+rsq <- read.csv("modelingResults/results_landscape_isd/all_ITS.csv",
                 stringsAsFactors = F)
 rsq <- rsq[rsq$taxon != "taxon",]
 
 #checking arrangement
+
 rsq <- rsq[match(names(abundance),rsq$taxon),]
 table(rsq$taxon == names(abundance))
 
@@ -59,8 +60,8 @@ title(ylab="abundance", line=3.5, cex.lab=1.2, xpd = NA)
 corout <- cor.test(as.numeric(rsq$rsq_nested_resampling), 
                     abundance)
 
-text(paste("R = ", round(corout$estimate,2), sep = ""), x = -1200, y = 0.2, xpd = NA)
-text(paste("R = ", round(corout1$estimate,2), sep = ""), x = -3600, y = 0.2, xpd = NA)
+text(paste("R = ", round(corout$estimate,2), sep = ""), x = -600, y = 0.2, xpd = NA)
+text(paste("R = ", round(corout1$estimate,2), sep = ""), x = -2100, y = 0.2, xpd = NA)
 
 dev.off()
 
@@ -84,12 +85,12 @@ focal_taxa <- read.csv("./processedData/sixteenS_taxa_to_model_via_randomforest.
 abundance <- apply(dat[,names(dat) %in% focal_taxa$x], 2, FUN=mean, na.rm = T)
 abundance[is.infinite(abundance)]<- NA
 
-rsq <- read.csv("modelingResults/results_landscape_hellinger//all_16S_withHostRetained_23",
+rsq <- read.csv("modelingResults/results_landscape_hellinger//all_16s_hella.csv",
                 stringsAsFactors = F)
 rsq <- rsq[rsq$taxon != "taxon",]
 
 #checking arrangement
-rsq <- rsq[match(rsq$taxon, names(abundance)),]
+rsq <- rsq[match(names(abundance),rsq$taxon ),]
 table(rsq$taxon == names(abundance))
 
 pdf(width = 8, height = 5, file = "./visuals/rsq_abundance_hellinger.pdf")
@@ -115,7 +116,7 @@ focal_taxa <- read.csv("./processedData/ITS_taxa_to_model_via_randomforest.csv",
 abundance <- apply(dat[,names(dat) %in% focal_taxa$x], 2, FUN=mean, na.rm = T)
 abundance[is.infinite(abundance)]<- NA
 
-rsq <- read.csv("modelingResults/results_landscape_hellinger/all_ITS_withHostretained_172",
+rsq <- read.csv("modelingResults/results_landscape_hellinger/all_its_hella.csv",
                 stringsAsFactors = F)
 rsq <- rsq[rsq$taxon != "taxon",]
 
