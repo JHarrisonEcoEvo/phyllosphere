@@ -9,18 +9,19 @@ dim(results)
 results <- results[results$taxon != "taxon",]
 dim(results)
 results <- results[as.numeric(results$rsq_nested_resampling) > 0.01,]
+dim(results)
 
 #Bring in variable importance metrics for only those taxa that were predicted
 dat <- list.files("modelingResults/varImp_hostSpecific////")
 dat <- dat[grep("*ITS*", dat)]
 dat <- dat[-grep("*educed*", dat)]
-#dat <- dat[-grep("*NOHOST*", dat)]
+dat <- dat[-grep("*OCC*", dat)]
 
 dat <- grep(paste(results$taxon, collapse="|"), 
              dat, value=TRUE)
 
 varimps <- lapply(paste("modelingResults/varImp_hostSpecific/", dat, sep = ""), read.csv)
-length(varimps)
+length(varimps) == dim(results)[1]
 
 #Extract top ten from each and then do table to see which are most useful. 
 
@@ -38,33 +39,34 @@ hist(sort(table(important)))
 length(varimps)
 
 library(xtable)
-xtable(rev(sort(table(important)))[1:15])
+# xtable(rev(sort(table(important)))[1:15])
 # % latex table generated in R 4.1.2 by xtable 1.8-4 package
-# % Fri Nov 19 14:52:41 2021
+# % Thu Dec  2 14:18:09 2021
 # \begin{table}[ht]
 # \centering
 # \begin{tabular}{rr}
 # \hline
 # & important \\ 
 # \hline
-# SPAD\_420\_intensity &  25 \\ 
-# densitometer &  25 \\ 
-# compartment\_EN &  25 \\ 
-# Rel\_Chl\_intensity &  24 \\ 
-# phenology\_vegetative &  24 \\ 
-# phenology\_fruiting &  22 \\ 
-# gH. &  20 \\ 
-# treeRich &  19 \\ 
-# leaves\_extracted &  16 \\ 
-# habit\_tree &  16 \\ 
-# shrubRich &  11 \\ 
-# slope\_perc &   8 \\ 
-# habit\_shrub &   6 \\ 
-# elev\_m &   5 \\ 
-# deadDown &   5 \\ 
+# Rel\_Chl\_intensity &  13 \\ 
+# compartment\_EN &  13 \\ 
+# phenology\_fruiting &  12 \\ 
+# treeRich &  11 \\ 
+# SPAD\_420\_intensity &  11 \\ 
+# phenology\_vegetative &  11 \\ 
+# leaves\_extracted &  11 \\ 
+# densitometer &   9 \\ 
+# slope\_perc &   7 \\ 
+# gH. &   7 \\ 
+# absorbance\_940 &   5 \\ 
+# lat &   4 \\ 
+# height\_sample &   4 \\ 
+# shrubRich &   3 \\ 
+# julianDate &   3 \\ 
 # \hline
 # \end{tabular}
 # \end{table}
+# > 
 
 # ###########################
 # # Do for bacteria #####

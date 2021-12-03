@@ -1,3 +1,8 @@
+
+#################
+# Just EN #
+################
+
 rm(list=ls())
 library(mlr3) #cant get mlr3 to install on work computer
 library(xgboost)
@@ -9,11 +14,6 @@ library("mlr3hyperband")
 library(fastDummies)
 #library(mlr3pipelines)
 library(ranger)
-library(caret)
-
-#library(doParallel)
-#all_cores <- parallel::detectCores(logical = FALSE)
-#registerDoParallel(cores = all_cores)
 
 set.seed(666)
 
@@ -28,6 +28,7 @@ X<- read.csv("./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv
 ######################
 
 X <- X[X$substrate == "plant",]
+X <- X[X$compartment == "EN",]
 
 #Make a leaf density variable
 X$sla = X$mass_extracted_g / X$area_cm2
@@ -48,10 +49,9 @@ X$waterRetention <- (as.numeric(X$waterRetention))
 #Writing out all the categorical features for clarity
 categoricals <- c(
   "habit",
-  "compartment",
   "taxon_final",
   "phenology"
- # ,"region_site"
+  ,"region_site"
 )
 X$taxon_final <- gsub(" ", "", X$taxon_final)
 
@@ -186,14 +186,11 @@ merged_dat <- X[,names(X) %in%
                     , "phenology_vegetative" 
                     ,"MEM1"
                     , "MEM2")]
+
 #Convert to numeric (makes it easier when doing imputing)
 for(i in 2:length(merged_dat)){
   merged_dat[,i] <- as.numeric(merged_dat[,i])  
 }
-
-#########################################
-#Use mlr to define a pipeline, task and a learner#
-########################################
 
 #Make a stratum column that is just a dupe of the response
 merged_dat$shannonsISDstratum <- ifelse(merged_dat$div_raw > 
@@ -217,31 +214,13 @@ phyllo_task$col_roles$feature <-  names(merged_dat)[!(names(merged_dat) %in% c("
 #Build pipeline for scaling and imputation
 imp_missind <- po("missind")
 
-#Note that imputation of numeric will NOT work with integer class features. 
-#Vice versa doesn't work either
 imp_num <- po("imputehist", param_vals = list(affect_columns = selector_type("numeric")))
-
-######
-# QC #
-######
-# Simulate some data to see if the model works properly with a better feature. 
-# 
-# merged_dat$simmed <- merged_dat$shannonsISD * rnorm(mean = 0, sd = 100, n = length(merged_dat$response_taxon))
-# merged_dat$simmed <- merged_dat$shannonsISD * rnorm(mean = 0, sd = 10, n = length(merged_dat$response_taxon))
-
-##########
-# RF #
-##########
 
 graph <-  po("imputehist", param_vals = list(affect_columns = selector_type("numeric"))) %>>% 
   po("scale", param_vals = list(scale = T, center = T)) %>>%
   po( lrn("regr.ranger", importance = "permutation"))
 
 g1 <- GraphLearner$new(graph)
-
-##########
-# tuning #
-##########
 
 #For ranger (randomforest)
 params <- ps(
@@ -250,11 +229,6 @@ params <- ps(
   regr.ranger.splitrule = p_fct(levels = c("extratrees", "variance")),
   regr.ranger.min.node.size = p_int(lower = 1, upper = 25)
 )
-
-
-###################################################
-# Nested resampling to estimate model performance #
-###################################################
 
 at <- AutoTuner$new(
   learner = g1,
@@ -283,14 +257,6 @@ rr$score()
 rsq <- rr$aggregate(measure = msr("regr.rsq")) #can swap out different measures
 mse <- rr$aggregate(measure = msr("regr.mse") ) #can swap out different measures
 
-
-##################################################################
-# Extract important features
-##################################################################
-
-#Extremely clunky to get the variable importance. This took me a lot of digging to even find
-#since you can't query the object effectively with str()
-
 tained_at <- at$train(phyllo_task)
 
 var.imp <- data.frame(tained_at$model$learner$model$regr.ranger$model$variable.importance)
@@ -299,26 +265,26 @@ out <- data.frame(matrix(nrow = 1, ncol = 1))
 out$rsq_nested_resampling <- rsq
 out$mse_nested_resampling <- mse
 
-#rank by importance
-viewdf <- data.frame(
-  row.names(var.imp)[order(var.imp$tained_at.model.learner.model.regr.ranger.model.variable.importance)],
-  var.imp[order(var.imp$tained_at.model.learner.model.regr.ranger.model.variable.importance),1] 
-)
-names(viewdf) <- ""
-viewdf
+# write.csv(var.imp , file = paste("variableImportanceshannonsISD_16s_raw_EP_ONLY.csv"), row.names = T)
+# write.csv(out , file = paste("results_shannonsISD_16s_raw_EP_ONLY.csv"), row.names = T)
 
-#write.csv(var.imp, file = paste("variableImportanceshannonsISD_ITS_rawSite_onecompartmnt.csv"), row.names = T)
-#write.csv(var.imp, file = paste("variableImportanceshannonsISD_ITS_rawNOHOSTDATA.csv"), row.names = T)
-write.csv(var.imp, file = paste("variableImportanceshannonsISD_ITS_raw.csv"), row.names = T)
+write.csv(var.imp , file = paste("variableImportanceshannonsISD_its_raw_EN_ONLY.csv"), row.names = T)
+write.csv(out , file = paste("results_shannonsISD_its_raw_EN_ONLY.csv"), row.names = T)
 
-var.imp <- data.frame(names(tained_at$model$learner$model$regr.ranger$model$variable.importance),
-                      tained_at$model$learner$model$regr.ranger$model$variable.importance)
-var.imp <- var.imp[order(var.imp$tained_at.model.learner.model.regr.ranger.model.variable.importance),]
+#figuring out important variables and outputting them as a table
+#16s EP data not shown because model failed
+var.imp <- read.csv("variableImportanceshannonsISD_its_raw_EN_ONLY.csv")
+var.imp <- var.imp[rev(order(var.imp[,2])),]
 
 
+names(var.imp) <- c("Feature","Decline in model performance")
+xtable::xtable(
+  label = "stable: featureImp_shannonsits_en_only",
+  
+  caption = "Output from random forest model of fungal Shannon's diversity as calculated using only endophyte data. Features ranked by importance (largest number corresponds with most important feature). To determine importance, features were permuted, the model rerun, and the decline in model performance (mean squared error) assayed (as implemented via the Ranger R package).",
+  var.imp[1:15,])
 
-#Had to build a different learner to get the backend to pass to iml later. 
-#WHAT A PAIN
+#MAKE PLOTS
 graph2 <-  po("imputehist", param_vals = list(affect_columns = selector_type("numeric"))) %>>% 
   po("scale", param_vals = list(scale = T, center = T)) 
 
@@ -326,58 +292,35 @@ graph2$train(phyllo_task)
 test <- graph2$predict(phyllo_task)
 forgraphing <- test$scale.output$backend
 
-engineered_df <- data.frame(
-  forgraphing$data(rows = 1:dim(merged_dat)[1], cols = colnames(merged_dat)))
+engineered_df <- forgraphing$data(rows = 1:dim(merged_dat)[1], cols = colnames(merged_dat))
 
 #sanity check to make sure what came through the pipeop is as expected
 table(engineered_df$shannons_flora ==
         scale(merged_dat$shannons_flora, center = T, scale = T))
 
-
 library(vip)  # for variable importance plots
 
-pdf(width = 7, height = 8, file = "./visuals/varImp.div.its.pdf")
+pdf(width = 7, height = 8, file = "./visuals/varImp.div.its_en.pdf")
 vip(tained_at$model$learner$model$regr.ranger$model)
 dev.off()
 
-
 library(pdp)  # for partial dependence plots
+library(ggplot2) 
 
-library(ggplot2)  # for autoplot() generic
+engineered_df <- data.frame(engineered_df)
 
-
+# ggplot2-based PDP
 p1 <- tained_at$model$learner$model$regr.ranger$model %>%  
-  partial(pred.var = "elev_m", 
+  partial(pred.var = "leaves_extracted", 
           train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))]) %>%
   autoplot(smooth = TRUE,  
            train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))],
            rug = TRUE, 
-           xlab = "Elevation",
-           ylab = "Partial dependence") +
-theme_light()
+           xlab = "Leaves extracted",
+           ylab = "Partial dependence") +theme_light()
 
 
 p2 <- tained_at$model$learner$model$regr.ranger$model %>%  
-  partial(pred.var = "lat", 
-          train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))]) %>%
-  autoplot(smooth = TRUE,  
-           train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))],
-           rug = TRUE, 
-           xlab = "Latitude",
-           ylab = "Partial dependence") +  theme_light()
-
-
-p3 <- tained_at$model$learner$model$regr.ranger$model %>%  
-  partial(pred.var = "shrubRich", 
-          train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))]) %>%
-  autoplot(smooth = TRUE,  
-           train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))],
-           rug = TRUE, 
-           xlab = "Shrub richness",
-           ylab = "Partial dependence") +  theme_light()
-
-
-p4 <- tained_at$model$learner$model$regr.ranger$model %>%  
   partial(pred.var = "sla", 
           train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))]) %>%
   autoplot(smooth = TRUE,  
@@ -387,7 +330,36 @@ p4 <- tained_at$model$learner$model$regr.ranger$model %>%
            ylab = "Partial dependence") +  theme_light()
 
 
+p3 <- tained_at$model$learner$model$regr.ranger$model %>%  
+  partial(pred.var = "elev_m", 
+          train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))]) %>%
+  autoplot(smooth = TRUE,  
+           train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))],
+           rug = TRUE, 
+           xlab = "Elevation",
+           ylab = "Partial dependence") +  theme_light()
+
+
+p4 <- tained_at$model$learner$model$regr.ranger$model %>%  
+  partial(pred.var = "lat", 
+          train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))]) %>%
+  autoplot(smooth = TRUE,  
+           train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))],
+           rug = TRUE, 
+           xlab = "Latitude",
+           ylab = "Partial dependence") +  theme_light()
+
 p5 <- tained_at$model$learner$model$regr.ranger$model %>%  
+  partial(pred.var = "Relative_Chlorophyll", 
+          train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))]) %>%
+  autoplot(smooth = TRUE,  
+           train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))],
+           rug = TRUE, 
+           xlab = "Rel. chlorophyll",
+           ylab = "Partial dependence") +  theme_light()
+
+
+p6 <- tained_at$model$learner$model$regr.ranger$model %>%  
   partial(pred.var = "height_sample", 
           train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))]) %>%
   autoplot(smooth = TRUE,  
@@ -396,33 +368,6 @@ p5 <- tained_at$model$learner$model$regr.ranger$model %>%
            xlab = "Height of sample",
            ylab = "Partial dependence") +  theme_light()
 
-
-p6 <- tained_at$model$learner$model$regr.ranger$model %>%  
-  partial(pred.var = "mean_temp_april.y", 
-          train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))]) %>%
-  autoplot(smooth = TRUE,  
-           train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))],
-           rug = TRUE, 
-           xlab = "Mean temp. April",
-           ylab = "Partial dependence") +  theme_light()
-
-
-pdf(width = 10, height = 10, file = "./visuals/pdp_div_its.pdf")
-grid.arrange(p1, p2, p3, p4, p5, p6)
+pdf(width = 10, height = 10, file = "./visuals/pdp_rich_its_en.pdf")
+grid.arrange(p1, p2, p3, p4,p5,p6)
 dev.off()
-
-write.csv(out, file = paste("results_shannonsISD_ITS_raw.csv"), row.names = F)
-#write.csv(out, file = paste("results_shannonsISD_ITS_rawSite_onecompartment.csv"), row.names = F)
-
-#write.csv(out, file = paste("results_shannonsISD_ITS_HELLINGER.csv"), row.names = F)
-
-var.imp <- viewdf[rev(order(viewdf[,2])),]
-
-
-names(var.imp) <- c("Feature","Decline in model performance")
-xtable::xtable(
-  caption = "Output from random forest model of fungal Shannon's diversity. Features ranked by importance (largest number corresponds with most important feature). To determine importance, features were permuted, the model rerun, and the decline in model performance (mean squared error) assayed (as implemented via the Ranger R package).",
-  
-  label = "stable: featureImp_shannonsits",
-  
-  var.imp[1:15,])

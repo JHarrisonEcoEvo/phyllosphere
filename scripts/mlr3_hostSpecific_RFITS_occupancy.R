@@ -32,7 +32,7 @@ focal_taxon <- possibles[inargs[3],3]
 focal_host <- possibles[inargs[3],2]
 print(inargs)
 
-# # #Debugging stuff
+# # # #Debugging stuff
 # taxa <- read.csv("./processedData//otuTables/smallmem97_16S_for_modeling_rearranged_for_CNVRG_OCCUPANCY.csv")
 # possibles <- read.csv("./processedData/combination_hosts_microbes_to_analyze_16S.csv", stringsAsFactors = F)
 # focal_taxon <- possibles[1,3]
@@ -70,7 +70,7 @@ X$waterRetention <- (as.numeric(X$waterRetention))
 #Do dummy encoding of all host taxa and other categoricals
 #Writing out all the categorical features for clarity
 categoricals <- c(
-  "habit",
+ # "habit",
   "compartment",
   "phenology"
 )
@@ -273,6 +273,7 @@ extract_inner_tuning_results(rr)
 
 out <- data.frame(matrix(nrow = 1, ncol = 1))
 out$taxon <- focal_taxon
+out$host <- focal_host
 out$mcc_nested_resampling <- rr$aggregate(measure = msr("classif.mcc")) #Matthews cor coef
 mcc <- rr$aggregate(measure = msr("classif.mcc"))
 out$classification_error <-  rr$aggregate(measure = msr("classif.ce")) #classification error

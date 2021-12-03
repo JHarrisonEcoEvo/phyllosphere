@@ -74,7 +74,7 @@ X$waterRetention <- (as.numeric(X$waterRetention))
 #Do dummy encoding of all host taxa and other categoricals
 #Writing out all the categorical features for clarity
 categoricals <- c(
-  "habit",
+ # "habit",
   "compartment",
   "phenology"
 )
@@ -315,72 +315,72 @@ write.csv(var.imp, file = paste("HOSTvariableImportance", focal_taxon, "_", foca
 ##########################################
 # Do over AFTER reducing the feature set#
 ##########################################
-
-#####################
-# Feature selection #
-#####################
-#Note, I am going to do this prior to tuning, otherwise I would want to do 
-#this after tuning, then retune, which seems somewhat in the realm of
-#diminishing returns and would increase runtime.
-
-#https://mlr3book.mlr-org.com/fs.html
-
-feat_selector = FSelectInstanceSingleCrit$new(
-  task = phyllo_task,
-  learner = g1,
-  resampling = rsmp("cv", folds = 3),
-  measure = msr("regr.rsq"),
-  terminator = trm("evals", n_evals = 200)
-)
-#fselector = fs("rfe")
-fselector = fs("sequential")
-
-# reduce logging output
-lgr::get_logger("bbotk")$set_threshold("warn")
-
-fselector$optimize(feat_selector)
-#See what we are left with
-feat_selector$result_feature_set
-
-#Select the best features
-if(length(feat_selector$result_feature_set) > 1){
-  phyllo_task$select(feat_selector$result_feature_set)
-}
-
-
-###################################################
-# Nested resampling to estimate model performance #
-###################################################
-
-at_reduced <- AutoTuner$new(
-  learner = g1,
-  resampling = rsmp("cv", folds = 3),
-  measure = msr("regr.rsq"),
-  terminator = trm("none"),
-  tuner = tnr("hyperband", eta = 3),
-  search_space = params)
-
-#pass back to resampling for nested resampling
-outer_resampling <- rsmp("cv", folds = 3)
-rr <- resample(task = phyllo_task, 
-               learner = at_reduced, 
-               outer_resampling, 
-               store_models = TRUE)
-
-outer_resampling$instantiate(phyllo_task)
-
-#This is the unbiased estimate of model performance
-rsq_reduced <- rr$aggregate(measure = msr("regr.rsq")) #can swap out different measures
-mse_reduced <- rr$aggregate(measure = msr("regr.mse") ) #can swap out different measures
-
-out$rsq_reduced<- rsq_reduced
-out$mse_reduced <- mse_reduced
-
-tained_at_reduced <- at$train(phyllo_task)
-
-var.impR <- data.frame(tained_at_reduced$model$learner$model$regr.ranger$model$variable.importance)
-
-write.csv(var.impR, file = paste("HOSTvariableImportanceReduced", focal_taxon, "_", focal_host, "16S.csv", sep = ""), row.names = F)
+# 
+# #####################
+# # Feature selection #
+# #####################
+# #Note, I am going to do this prior to tuning, otherwise I would want to do 
+# #this after tuning, then retune, which seems somewhat in the realm of
+# #diminishing returns and would increase runtime.
+# 
+# #https://mlr3book.mlr-org.com/fs.html
+# 
+# feat_selector = FSelectInstanceSingleCrit$new(
+#   task = phyllo_task,
+#   learner = g1,
+#   resampling = rsmp("cv", folds = 3),
+#   measure = msr("regr.rsq"),
+#   terminator = trm("evals", n_evals = 200)
+# )
+# #fselector = fs("rfe")
+# fselector = fs("sequential")
+# 
+# # reduce logging output
+# lgr::get_logger("bbotk")$set_threshold("warn")
+# 
+# fselector$optimize(feat_selector)
+# #See what we are left with
+# feat_selector$result_feature_set
+# 
+# #Select the best features
+# if(length(feat_selector$result_feature_set) > 1){
+#   phyllo_task$select(feat_selector$result_feature_set)
+# }
+# 
+# 
+# ###################################################
+# # Nested resampling to estimate model performance #
+# ###################################################
+# 
+# at_reduced <- AutoTuner$new(
+#   learner = g1,
+#   resampling = rsmp("cv", folds = 3),
+#   measure = msr("regr.rsq"),
+#   terminator = trm("none"),
+#   tuner = tnr("hyperband", eta = 3),
+#   search_space = params)
+# 
+# #pass back to resampling for nested resampling
+# outer_resampling <- rsmp("cv", folds = 3)
+# rr <- resample(task = phyllo_task, 
+#                learner = at_reduced, 
+#                outer_resampling, 
+#                store_models = TRUE)
+# 
+# outer_resampling$instantiate(phyllo_task)
+# 
+# #This is the unbiased estimate of model performance
+# rsq_reduced <- rr$aggregate(measure = msr("regr.rsq")) #can swap out different measures
+# mse_reduced <- rr$aggregate(measure = msr("regr.mse") ) #can swap out different measures
+# 
+# out$rsq_reduced<- rsq_reduced
+# out$mse_reduced <- mse_reduced
+# 
+# tained_at_reduced <- at$train(phyllo_task)
+# 
+# var.impR <- data.frame(tained_at_reduced$model$learner$model$regr.ranger$model$variable.importance)
+# 
+# write.csv(var.impR, file = paste("HOSTvariableImportanceReduced", focal_taxon, "_", focal_host, "16S.csv", sep = ""), row.names = F)
 
 write.csv(out, file = paste("HOSTresults", focal_taxon,"_", focal_host, "16S.csv", sep = ""), row.names = F)
 

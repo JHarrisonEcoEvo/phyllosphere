@@ -3,7 +3,7 @@ rm(list=ls())
 #Bring in results and figure out which taxa were predicted well enough to warrant
 #extraction of important features. 
 
-results <- read.csv("modelingResults/results_host//all_its_occupancy.csv", stringsAsFactors = F)
+results <- read.csv("modelingResults/results_host//all_its_host_occupancy.csv", stringsAsFactors = F)
 results <- results[results$taxon != "taxon",]
 dim(results)
 results <- results[as.numeric(results$mcc_nested_resampling) > 0.2,]
@@ -15,11 +15,12 @@ dat <- dat[grep("*ITS*", dat)]
 #dat <- dat[-grep("*rare*", dat)]
 dat <- dat[grep("*OCC*", dat)]
 
-dat <- grep(paste(results$taxon, collapse="|"), 
+dat <- grep(paste(results$taxon,"_", collapse="|", sep = ""), 
              dat, value=TRUE)
 
 varimps <- lapply(paste("modelingResults/varImp_hostSpecific/", dat, sep = ""), read.csv)
-length(varimps)
+length(varimps) == dim(results)[1]
+
 
 #Extract top ten from each and then do table to see which are most useful. 
 
@@ -37,26 +38,26 @@ hist(sort(table(important)))
 length(varimps)
 
 library(xtable)
-xtable(rev(sort(table(important)))[1:15])
+# xtable(rev(sort(table(important)))[1:15])
 # % latex table generated in R 4.1.2 by xtable 1.8-4 package
-# % Fri Nov 19 14:53:38 2021
+# % Thu Dec  2 14:04:38 2021
 # \begin{table}[ht]
 # \centering
 # \begin{tabular}{rr}
 # \hline
 # & important \\ 
 # \hline
-# SPAD\_420\_intensity &  50 \\ 
-# compartment\_EN &  50 \\ 
-# Rel\_Chl\_intensity &  45 \\ 
-# treeRich &  44 \\ 
-# phenology\_fruiting &  43 \\ 
-# phenology\_vegetative &  42 \\ 
-# gH. &  40 \\ 
-# densitometer &  38 \\ 
-# habit\_tree &  32 \\ 
-# leaves\_extracted &  31 \\ 
-# shrubRich &  30 \\ 
+# SPAD\_420\_intensity &  45 \\ 
+# compartment\_EN &  45 \\ 
+# treeRich &  40 \\ 
+# Rel\_Chl\_intensity &  40 \\ 
+# phenology\_fruiting &  39 \\ 
+# phenology\_vegetative &  37 \\ 
+# gH. &  37 \\ 
+# densitometer &  35 \\ 
+# shrubRich &  27 \\ 
+# habit\_tree &  27 \\ 
+# leaves\_extracted &  26 \\ 
 # slope\_perc &  10 \\ 
 # habit\_shrub &  10 \\ 
 # habit\_forb &   7 \\ 

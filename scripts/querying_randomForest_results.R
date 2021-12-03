@@ -267,7 +267,7 @@ dat
 
 rm(list=ls())
 options(scipen = 99)
-dat <- read.csv("./modelingResults/results_host/all_its_occupancy.csv",
+dat <- read.csv("./modelingResults/results_host/all_its_host_occupancy.csv",
                 stringsAsFactors = F)
 head(dat)
 
