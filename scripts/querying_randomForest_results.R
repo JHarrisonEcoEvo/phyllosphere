@@ -93,6 +93,8 @@ dat$rsq_nested_resampling <- as.numeric(dat$rsq_nested_resampling)
 summary(dat$rsq_nested_resampling)
 length(dat[,1])
 table(dat$rsq_nested_resampling > 0.01)
+dat <- dat[!duplicated(dat$taxon),]
+summary(dat$rsq_nested_resampling)
 
 rm(list=ls())
 options(scipen = 99)
@@ -106,6 +108,14 @@ length(dat[,1])
 table(dat$rsq_nested_resampling > 0.01)
 dat[which.max(dat$rsq_nested_resampling),]
 
+rm(list=ls())
+options(scipen = 99)
+dat <- read.csv("./modelingResults/results_landscape_hellinger_nohost16s/all.csv", stringsAsFactors = F)
+head(dat)
+dat <- dat[dat$taxon != "taxon",]
+dim(dat)
+dat$rsq_nested_resampling <- as.numeric(dat$rsq_nested_resampling)
+summary(dat$rsq_nested_resampling)
 
 # dat <- read.csv("./modelingResults/results_landscape/all_16S_withHostremoved_23", stringsAsFactors = F)
 # head(dat)
@@ -267,12 +277,13 @@ dat
 
 rm(list=ls())
 options(scipen = 99)
-dat <- read.csv("./modelingResults/results_host/all_its_host_occupancy.csv",
+dat <- read.csv("./modelingResults/results_host/all_host_its_occupancy.csv",
                 stringsAsFactors = F)
 head(dat)
-
 dat <- dat[dat$taxon != "taxon",]
 dim(dat)
+dat <- dat[1:110,]
+
 table(as.numeric(dat$mcc_nested_resampling) > 0.2)
 summary(as.numeric(dat$mcc_nested_resampling ))
 summary(as.numeric(dat$prop_positiveIDd ))
@@ -294,7 +305,7 @@ summary(as.numeric(dat$prop_positiveIDd ))
 ################################
 rm(list=ls())
 options(scipen = 99)
-dat <- read.csv("./modelingResults/results_host/all_16s_occupancy.csv",
+dat <- read.csv("./modelingResults/results_host/all_host_16s_occupancy.csv",
                 stringsAsFactors = F)
 head(dat)
 

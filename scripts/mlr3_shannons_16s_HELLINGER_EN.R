@@ -4,9 +4,7 @@
 ################
 
 rm(list=ls())
-library(mlr3) #cant get mlr3 to install on work computer
-library(xgboost)
-#install.packages("mlr3learners")
+library(mlr3) 
 library(mlr3learners)
 library(mlr3verse)
 library(mlr3fselect)
@@ -301,7 +299,7 @@ table(engineered_df$shannons_flora ==
 library(vip)  # for variable importance plots
 
 pdf(width = 7, height = 8, file = "./visuals/varImp.div.16s_en.pdf")
-vip(tained_at$model$learner$model$regr.ranger$model)
+vip(tained_at$model$learner$model$regr.ranger$model, num_features = 15)
 dev.off()
 
 library(pdp)  # for partial dependence plots
@@ -368,6 +366,6 @@ p6 <- tained_at$model$learner$model$regr.ranger$model %>%
            xlab = "Ambient humidity",
            ylab = "Partial dependence") +  theme_light()
 
-pdf(width = 10, height = 10, file = "./visuals/pdp_rich_16s_en.pdf")
+pdf(width = 10, height = 10, file = "./visuals/pdp_div_16s_en.pdf")
 grid.arrange(p1, p2, p3, p4,p5,p6)
 dev.off()
