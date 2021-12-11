@@ -1,7 +1,5 @@
 rm(list=ls())
-library(mlr3) #cant get mlr3 to install on work computer
-library(xgboost)
-#install.packages("mlr3learners")
+library(mlr3)
 library(mlr3learners)
 library(mlr3verse)
 library(mlr3fselect)
