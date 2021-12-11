@@ -296,7 +296,7 @@ table(engineered_df$shannons_flora ==
 
 library(vip)  # for variable importance plots
 
-pdf(width = 7, height = 8, file = "./visuals/varImp.div.its_ep.pdf")
+pdf(width = 7, height = 8, file = "./visuals/varImp_div_its_ep.pdf")
 vip(tained_at$model$learner$model$regr.ranger$model, num_features = 15)
 dev.off()
 
