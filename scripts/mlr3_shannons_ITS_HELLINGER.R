@@ -1,7 +1,5 @@
 rm(list=ls())
-library(mlr3) #cant get mlr3 to install on work computer
-library(xgboost)
-#install.packages("mlr3learners")
+library(mlr3) 
 library(mlr3learners)
 library(mlr3verse)
 library(mlr3fselect)
@@ -336,8 +334,8 @@ table(engineered_df$shannons_flora ==
 
 library(vip)  # for variable importance plots
 
-pdf(width = 7, height = 8, file = "./visuals/varImp.div.its.pdf")
-vip(tained_at$model$learner$model$regr.ranger$model)
+pdf(width = 7, height = 8, file = "./visuals/varImp_div_its.pdf")
+vip(tained_at$model$learner$model$regr.ranger$model, num_features = 15)
 dev.off()
 
 
@@ -377,7 +375,17 @@ p3 <- tained_at$model$learner$model$regr.ranger$model %>%
            ylab = "Partial dependence") +  theme_light()
 
 
+
 p4 <- tained_at$model$learner$model$regr.ranger$model %>%  
+  partial(pred.var = "leaves_extracted", 
+          train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))]) %>%
+  autoplot(smooth = TRUE,  
+           train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))],
+           rug = TRUE, 
+           xlab = "Num. leaves extracted",
+           ylab = "Partial dependence") +  theme_light()
+
+p5 <- tained_at$model$learner$model$regr.ranger$model %>%  
   partial(pred.var = "sla", 
           train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))]) %>%
   autoplot(smooth = TRUE,  
@@ -387,7 +395,7 @@ p4 <- tained_at$model$learner$model$regr.ranger$model %>%
            ylab = "Partial dependence") +  theme_light()
 
 
-p5 <- tained_at$model$learner$model$regr.ranger$model %>%  
+p6 <- tained_at$model$learner$model$regr.ranger$model %>%  
   partial(pred.var = "height_sample", 
           train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))]) %>%
   autoplot(smooth = TRUE,  
@@ -397,14 +405,6 @@ p5 <- tained_at$model$learner$model$regr.ranger$model %>%
            ylab = "Partial dependence") +  theme_light()
 
 
-p6 <- tained_at$model$learner$model$regr.ranger$model %>%  
-  partial(pred.var = "mean_temp_april.y", 
-          train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))]) %>%
-  autoplot(smooth = TRUE,  
-           train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))],
-           rug = TRUE, 
-           xlab = "Mean temp. April",
-           ylab = "Partial dependence") +  theme_light()
 
 
 pdf(width = 10, height = 10, file = "./visuals/pdp_div_its.pdf")
@@ -426,3 +426,31 @@ xtable::xtable(
   label = "stable: featureImp_shannonsits",
   
   var.imp[1:15,])
+# % latex table generated in R 4.1.1 by xtable 1.8-4 package
+# % Fri Dec 10 14:50:47 2021
+# \begin{table}[ht]
+# \centering
+# \begin{tabular}{rlr}
+# \hline
+# & Feature & Decline in model performance \\ 
+# \hline
+# 109 & compartment\_EN & 35985.21 \\ 
+# 108 & taxon\_final\_Juniperuscommunis & 29732.31 \\ 
+# 107 & elev\_m & 29595.78 \\ 
+# 106 & phenology\_flowering & 21595.44 \\ 
+# 105 & lat & 19484.70 \\ 
+# 104 & taxon\_final\_Eriogonumumbellatum & 16809.26 \\ 
+# 103 & shrubRich & 14107.02 \\ 
+# 102 & leaves\_extracted & 14079.80 \\ 
+# 101 & sla & 13313.93 \\ 
+# 100 & habit\_tree & 13159.42 \\ 
+# 99 & height\_sample & 11885.20 \\ 
+# 98 & taxon\_final\_Antennariamedia & 11549.57 \\ 
+# 97 & mean\_temp\_april.y & 11472.21 \\ 
+# 96 & habit\_forb & 10864.52 \\ 
+# 95 & densitometer & 10783.64 \\ 
+# \hline
+# \end{tabular}
+# \caption{Output from random forest model of fungal Shannon's diversity. Features ranked by importance (largest number corresponds with most important feature). To determine importance, features were permuted, the model rerun, and the decline in model performance (mean squared error) assayed (as implemented via the Ranger R package).} 
+# \label{stable: featureImp_shannonsits}
+# \end{table}

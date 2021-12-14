@@ -1,7 +1,5 @@
 rm(list=ls())
-library(mlr3) #cant get mlr3 to install on work computer
-library(xgboost)
-#install.packages("mlr3learners")
+library(mlr3) 
 library(mlr3learners)
 library(mlr3verse)
 library(mlr3fselect)
@@ -362,8 +360,8 @@ table(engineered_df$shannons_flora ==
 
 library(vip)  # for variable importance plots
 
-pdf(width = 7, height = 8, file = "./visuals/varImp.div.16s.pdf")
-vip(tained_at$model$learner$model$regr.ranger$model)
+pdf(width = 7, height = 8, file = "./visuals/varImp_div_16s.pdf")
+vip(tained_at$model$learner$model$regr.ranger$model, num_features = 15)
 dev.off()
 
 
@@ -430,9 +428,7 @@ p6 <- tained_at$model$learner$model$regr.ranger$model %>%
            train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))],
            rug = TRUE, 
            xlab = "Leaf area",
-           ylab = "Partial dependence") + 
-  theme(axis.text=element_text(size=12),
-       axis.title=element_text(size=14,face="bold"))
+           ylab = "Partial dependence") +  theme_light()
 
 
 pdf(width = 10, height = 10, file = "./visuals/pdp_div_16s.pdf")

@@ -1,7 +1,5 @@
 rm(list=ls())
-library(mlr3) #cant get mlr3 to install on work computer
-library(xgboost)
-#install.packages("mlr3learners")
+library(mlr3) 
 library(mlr3learners)
 library(mlr3verse)
 library(mlr3fselect)
@@ -324,124 +322,81 @@ var.imp <- var.imp[order(var.imp$tained_at.model.learner.model.regr.ranger.model
 library(vip)  # for variable importance plots
 
 pdf(width = 7, height = 8, file = "./visuals/varImp.rich.its.pdf")
-  vip(tained_at$model$learner$model$regr.ranger$model)
+  vip(tained_at$model$learner$model$regr.ranger$model, num_features = 15)
 dev.off()
 
-# pred_wrapper <- function(object, newdata) {
-#   p <- predict(object, data = newdata)$predictions[, 1L, drop = TRUE]
-#   c("avg" = mean(p), "avg-1sd" = mean(p) - sd(p), "avg+1sd" = mean(p) + sd(p))
-# }
-
-library(pdp)  # for partial dependence plots
-# pd1 <- partial(tained_at$model$learner$model$regr.ranger$model, 
-#         pred.var = "plant_vol",
-#        # ice = T,
-#         train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))])
-
+engineered_df <- data.frame(engineered_df)
+library(pdp)  # for partial dependence plot
 library(ggplot2)  # for autoplot() generic
-
-# #simple pdp
-# pdp1 <- autoplot(pd1) + 
-#   theme_light()
-#   labs(x = "Plant volume", y = "Partial dependence") +
-#   theme(legend.position = "none")
-# pdp1        
 
 # ggplot2-based PDP
 p1 <- tained_at$model$learner$model$regr.ranger$model %>%  
-  partial(pred.var = "plant_vol", 
+  partial(pred.var = "deadDown", 
           train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))]) %>%
   autoplot(smooth = TRUE,  
            train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))],
            rug = TRUE, 
-           xlab = "Plant volume",
+           xlab = "Num of downed trees",
            ylab = "Partial dependence") +
-           xlab = "Plant volume"
   theme_light()
-  
+#   
+# plot(engineered_df$deadDown, (engineered_df$rich))
+# abline(lm((engineered_df$rich)~engineered_df$deadDown))
 
 p2 <- tained_at$model$learner$model$regr.ranger$model %>%  
-  partial(pred.var = "Ambient_Humidity", 
+  partial(pred.var = "treeRich", 
           train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))]) %>%
   autoplot(smooth = TRUE,  
            train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))],
            rug = TRUE, 
-           xlab = "Ambient humidity",
+           xlab = "Tree richness",
            ylab = "Partial dependence") +  theme_light()
   
 
 p3 <- tained_at$model$learner$model$regr.ranger$model %>%  
-  partial(pred.var = "ecs_initial", 
+  partial(pred.var = "precip_april_in.x", 
           train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))]) %>%
   autoplot(smooth = TRUE,  
            train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))],
            rug = TRUE, 
-           xlab = "ECS initial",
+           xlab = "Precip. in April",
            ylab = "Partial dependence") +  theme_light()
   
 
 p4 <- tained_at$model$learner$model$regr.ranger$model %>%  
-  partial(pred.var = "height_sample", 
+  partial(pred.var = "Light_Intensity..PAR.", 
           train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))]) %>%
   autoplot(smooth = TRUE,  
            train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))],
            rug = TRUE, 
-           xlab = "Height of sample",
+           xlab = "Photoactive radiation)",
            ylab = "Partial dependence") +  theme_light()
   
 
 p5 <- tained_at$model$learner$model$regr.ranger$model %>%  
-  partial(pred.var = "waterRetention", 
+  partial(pred.var = "long", 
           train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))]) %>%
   autoplot(smooth = TRUE,  
            train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))],
            rug = TRUE, 
-           xlab = "Water retention",
+           xlab = "Longitude",
            ylab = "Partial dependence") +  theme_light()
-  
+
+# plot(engineered_df$long, log(engineered_df$rich))
+# abline(lm(log(engineered_df$rich)~engineered_df$long))
 
 p6 <- tained_at$model$learner$model$regr.ranger$model %>%  
-  partial(pred.var = "area_cm2", 
+  partial(pred.var = "leaves_extracted", 
           train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))]) %>%
   autoplot(smooth = TRUE,  
            train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))],
            rug = TRUE, 
-           xlab = "Leaf area",
+           xlab = "Num. of leaves extracted",
            ylab = "Partial dependence") +  theme_light()
   
-
-p7 <- tained_at$model$learner$model$regr.ranger$model %>%  
-  partial(pred.var = "Relative_Chlorophyll", 
-          train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))]) %>%
-  autoplot(smooth = TRUE,  
-           train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))],
-           rug = TRUE, 
-           xlab = "Relative chlorophyll",
-           ylab = "Partial dependence") +  theme_light()
-  
-
-p8 <- tained_at$model$learner$model$regr.ranger$model %>%  
-  partial(pred.var = "TimeofDay", 
-          train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))]) %>%
-  autoplot(smooth = TRUE,  
-           train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))],
-           rug = TRUE, 
-           xlab = "Time of day",
-           ylab = "Partial dependence") +  theme_light()
-  
-
-p9 <- tained_at$model$learner$model$regr.ranger$model %>%  
-  partial(pred.var = "thickness", 
-          train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))]) %>%
-  autoplot(smooth = TRUE,
-           train = engineered_df[,!(names(engineered_df) %in% c("sample", "merged_dat$rich", "rich","richISDstratum"))],
-           rug = TRUE, 
-           xlab = "Thickness",
-           ylab = "Partial dependence") +  theme_light()
-grid.arrange(p9)
 
 pdf(width = 10, height = 10, file = "./visuals/pdp_rich_its.pdf")
-  grid.arrange(p1, p2, p3, p4, p5, p6, p7, p8, p9)
+  grid.arrange(p1, p2, p3, p4, p5, p6)
 dev.off()
 
 out <- data.frame(matrix(nrow = 1, ncol = 1))
