@@ -85,7 +85,7 @@ focal_taxa <- read.csv("./processedData/sixteenS_taxa_to_model_via_randomforest.
 abundance <- apply(dat[,names(dat) %in% focal_taxa$x], 2, FUN=mean, na.rm = T)
 abundance[is.infinite(abundance)]<- NA
 
-rsq <- read.csv("modelingResults/results_landscape_hellinger//all_16s_hella.csv",
+rsq <- read.csv("modelingResults/results_hella_noduds///all_16s_hella_noduds.csv",
                 stringsAsFactors = F)
 rsq <- rsq[rsq$taxon != "taxon",]
 
@@ -93,7 +93,7 @@ rsq <- rsq[rsq$taxon != "taxon",]
 rsq <- rsq[match(names(abundance),rsq$taxon ),]
 table(rsq$taxon == names(abundance))
 
-pdf(width = 8, height = 5, file = "./visuals/rsq_abundance_hellinger.pdf")
+pdf(width = 8, height = 5, file = "./visuals/rsq_abundance_hellinger16s.pdf")
 par(mfrow = c(1,2), oma = c(1,2,1,1))
 plot(as.numeric(rsq$rsq_nested_resampling), 
      abundance, main = "bacteria", xlab = "R^2", ylab = "",yaxt = "n", pch = 16, frame.plot = F)
@@ -116,7 +116,7 @@ focal_taxa <- read.csv("./processedData/ITS_taxa_to_model_via_randomforest.csv",
 abundance <- apply(dat[,names(dat) %in% focal_taxa$x], 2, FUN=mean, na.rm = T)
 abundance[is.infinite(abundance)]<- NA
 
-rsq <- read.csv("modelingResults/results_landscape_hellinger/all_its_hella.csv",
+rsq <- read.csv("modelingResults/results_hella_noduds/all_its_hella_noduds.csv",
                 stringsAsFactors = F)
 rsq <- rsq[rsq$taxon != "taxon",]
 
