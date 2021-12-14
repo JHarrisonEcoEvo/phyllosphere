@@ -15,6 +15,30 @@ length(dat[,1])
 table(dat$rsq_nested_resampling > 0.01)
 dat[which.max(dat$rsq_nested_resampling),]
 
+rm(list=ls())
+options(scipen = 99)
+dat <- read.csv("./modelingResults/results_hella_noduds//all_its_hella_noduds.csv", stringsAsFactors = F)
+head(dat)
+dat <- dat[dat$taxon != "taxon",]
+dim(dat)
+dat$rsq_nested_resampling <- as.numeric(dat$rsq_nested_resampling)
+summary(dat$rsq_nested_resampling)
+length(dat[,1])
+table(dat$rsq_nested_resampling > 0.01)
+dat[which.max(dat$rsq_nested_resampling),]
+
+
+rm(list=ls())
+options(scipen = 99)
+dat <- read.csv("./modelingResults/results_hella_noduds//all_16s_hella_noduds.csv", stringsAsFactors = F)
+head(dat)
+dat <- dat[dat$taxon != "taxon",]
+dim(dat)
+dat$rsq_nested_resampling <- as.numeric(dat$rsq_nested_resampling)
+summary(dat$rsq_nested_resampling)
+length(dat[,1])
+table(dat$rsq_nested_resampling > 0.01)
+dat[which.max(dat$rsq_nested_resampling),]
 
 dat <- read.csv("./modelingResults/results_landscape_hellinger/all_16s_hella.csv", stringsAsFactors = F)
 head(dat)
