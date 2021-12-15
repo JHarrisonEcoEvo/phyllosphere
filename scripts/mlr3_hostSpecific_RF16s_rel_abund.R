@@ -31,6 +31,7 @@ possibles <- read.csv(inargs[4], stringsAsFactors = F) # "./processedData/ITS_ta
 focal_taxon <- possibles[inargs[3],3]
 focal_host <- possibles[inargs[3],2]
 print(inargs)
+isdNorm_tf <- as.character(inargs[5]) #should be a T or an F
 
 # #Debugging stuff
 # taxa <- read.csv("./processedData//otuTables/smallmem97_16S_for_modeling_rearranged_for_CNVRG")
