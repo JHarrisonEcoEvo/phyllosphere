@@ -133,7 +133,7 @@ corout <- cor.test(as.numeric(rsq$rsq_nested_resampling),
                    abundance)
 
 text(paste("R = ", round(corout$estimate,2), sep = ""), x = 0.3, y = 0.2, xpd = NA)
-text(paste("R = ", round(corout1$estimate,2), sep = ""), x = -0.23, y = 0.2, xpd = NA)
+text(paste("R = ", round(corout1$estimate,2), sep = ""), x = -0.24, y = 0.2, xpd = NA)
 
 dev.off()
 

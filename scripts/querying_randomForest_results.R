@@ -30,6 +30,19 @@ dat[which.max(dat$rsq_nested_resampling),]
 
 rm(list=ls())
 options(scipen = 99)
+dat <- read.csv("./modelingResults/results_hella_noduds//all_hella_its_nodudsnohost", stringsAsFactors = F)
+head(dat)
+dat <- dat[dat$taxon != "taxon",]
+dim(dat)
+dat$rsq_nested_resampling <- as.numeric(dat$rsq_nested_resampling)
+summary(dat$rsq_nested_resampling)
+length(dat[,1])
+table(dat$rsq_nested_resampling > 0.01)
+dat[which.max(dat$rsq_nested_resampling),]
+
+
+rm(list=ls())
+options(scipen = 99)
 dat <- read.csv("./modelingResults/results_hella_noduds//all_16s_hella_noduds.csv", stringsAsFactors = F)
 head(dat)
 dat <- dat[dat$taxon != "taxon",]
@@ -75,25 +88,27 @@ length(dat[,1])
 table(dat$rsq_nested_resampling > 0.01)
 dat[which.max(dat$rsq_nested_resampling),]
 
+
 # #Figure out median decline in R sq when comparing with and without host.
-# dat <- read.csv("./modelingResults/results_landscape/all_ITS_withHostRetained_172", stringsAsFactors = F)
-# dat <- dat[dat$taxon != "taxon",]
-# dat$rsq_nested_resampling[as.numeric(dat$rsq_nested_resampling) < 0] <- 0
-# 
-# dat2 <- read.csv("./modelingResults/results_landscape/all_ITS_withHostremoved_172", stringsAsFactors = F)
-# dat2 <- dat2[dat2$taxon != "taxon",]
-# dat2$rsq_nested_resampling[as.numeric(dat2$rsq_nested_resampling) < 0] <- 0
-# dim(dat)
-# dim(dat2)
-# 
-# summary(as.numeric(dat$rsq_nested_resampling) - as.numeric(dat2$rsq_nested_resampling))
-# 
-# #make new df of the two different rsq and then subset to those rows that are greater than 0.01 for either
-# #set. Then calculate decline summary stats
-# rsqs <- data.frame(as.numeric(dat$rsq_nested_resampling),
-#            as.numeric(dat2$rsq_nested_resampling))
-# gooduns <- rsqs[rsqs[,1] > 0.01 | rsqs[,2] > 0.01,]
-# summary(gooduns[,1] - gooduns[,2])
+dat <- read.csv("./modelingResults/results_hella_noduds//all_its_hella_noduds.csv", stringsAsFactors = F)
+dat <- dat[dat$taxon != "taxon",]
+dat$rsq_nested_resampling[as.numeric(dat$rsq_nested_resampling) < 0] <- 0
+
+dat2 <- read.csv("./modelingResults/results_hella_noduds/all_hella_its_nodudsnohost", stringsAsFactors = F)
+dat2 <- dat2[dat2$taxon != "taxon",]
+dat2$rsq_nested_resampling[as.numeric(dat2$rsq_nested_resampling) < 0] <- 0
+dim(dat)
+dim(dat2)
+
+dat$taxon == dat2$taxon
+summary(as.numeric(dat$rsq_nested_resampling) - as.numeric(dat2$rsq_nested_resampling))
+
+#make new df of the two different rsq and then subset to those rows that are greater than 0.01 for either
+#set. Then calculate decline summary stats
+rsqs <- data.frame(as.numeric(dat$rsq_nested_resampling),
+           as.numeric(dat2$rsq_nested_resampling))
+gooduns <- rsqs[rsqs[,1] > 0.01 | rsqs[,2] > 0.01,]
+summary(gooduns[,1] - gooduns[,2])
 
 ###############
 # 16s landscape
@@ -150,22 +165,22 @@ summary(dat$rsq_nested_resampling)
 # table(dat$rsq_nested_resampling > 0.01)
 # 
 # #Figure out median decline in R sq when comparing with and without host.
-# dat <- read.csv("./modelingResults/results_landscape/all_16S_withHostRetained_23", stringsAsFactors = F)
-# dat <- dat[dat$taxon != "taxon",]
-# dat$rsq_nested_resampling[as.numeric(dat$rsq_nested_resampling) < 0] <- 0
-# 
-# dat2 <- read.csv("./modelingResults/results_landscape/all_16S_withHostremoved_23", stringsAsFactors = F)
-# dat2 <- dat2[dat2$taxon != "taxon",]
-# dat2$rsq_nested_resampling[as.numeric(dat2$rsq_nested_resampling) < 0] <- 0
-# 
-# summary(as.numeric(dat$rsq_nested_resampling) - as.numeric(dat2$rsq_nested_resampling))
-# 
-# #make new df of the two different rsq and then subset to those rows that are greater than 0.01 for either
-# #set. Then calculate decline summary stats
-# rsqs <- data.frame(as.numeric(dat$rsq_nested_resampling),
-#                    as.numeric(dat2$rsq_nested_resampling))
-# gooduns <- rsqs[rsqs[,1] > 0.01 | rsqs[,2] > 0.01,]
-# summary(gooduns[,1] - gooduns[,2])
+dat <- read.csv("./modelingResults/results_hella_noduds/all_16s_hella_noduds.csv", stringsAsFactors = F)
+dat <- dat[dat$taxon != "taxon",]
+dat$rsq_nested_resampling[as.numeric(dat$rsq_nested_resampling) < 0] <- 0
+
+dat2 <- read.csv("./modelingResults/results_hella_noduds/all_hella_16s_nohost.csv", stringsAsFactors = F)
+dat2 <- dat2[dat2$taxon != "taxon",]
+dat2$rsq_nested_resampling[as.numeric(dat2$rsq_nested_resampling) < 0] <- 0
+
+summary(as.numeric(dat$rsq_nested_resampling) - as.numeric(dat2$rsq_nested_resampling))
+
+#make new df of the two different rsq and then subset to those rows that are greater than 0.01 for either
+#set. Then calculate decline summary stats
+rsqs <- data.frame(as.numeric(dat$rsq_nested_resampling),
+                   as.numeric(dat2$rsq_nested_resampling))
+gooduns <- rsqs[rsqs[,1] > 0.01 | rsqs[,2] > 0.01,]
+summary(gooduns[,1] - gooduns[,2])
 
 #######################
 #landscape occupancy ITS
