@@ -254,6 +254,29 @@ table(dat$rsq_nested_resampling > 0.01)
 dat <- dat[dat$rsq_nested_resampling > 0.01,]
 summary(as.numeric(dat$rsq_nested_resampling))
 
+
+rm(list=ls())
+options(scipen = 99)
+dat <- read.csv("./modelingResults/results_host_hella/allits.csv", stringsAsFactors = F)
+dat <- dat[dat$taxon != "taxon",]
+dim(dat)
+
+table(dat$rsq_nested_resampling > 0.01)
+#subset to the good ones
+dat <- dat[dat$rsq_nested_resampling > 0.01,]
+summary(as.numeric(dat$rsq_nested_resampling))
+
+rm(list=ls())
+options(scipen = 99)
+dat <- read.csv("./modelingResults/results_host_hella/all16s.csv", stringsAsFactors = F)
+dat <- dat[dat$taxon != "taxon",]
+dim(dat)
+
+table(dat$rsq_nested_resampling > 0.01)
+#subset to the good ones
+dat <- dat[dat$rsq_nested_resampling > 0.01,]
+summary(as.numeric(dat$rsq_nested_resampling))
+
 ###
 #Bacteria host combinations - all failed
 
