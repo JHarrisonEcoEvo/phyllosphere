@@ -4,6 +4,7 @@ meta <- read.csv("./processedData/ITSmetadat_wrangled_for_post_modeling_analysis
 library(wesanderson)
 colors <- wes_palette("FantasticFox1", n = 5, type = "discrete")
 
+color_vec <- vector(length = length(meta$lifehistory))
 color_vec[meta$lifehistory == "tree"] <- colors[1]
 color_vec[meta$lifehistory == "shrub"] <- colors[2]
 color_vec[meta$lifehistory == "forb"] <- colors[3]
@@ -85,7 +86,10 @@ text(x = 4.5,
 
 dev.off()
 
+table(is.na(meta$lifehistory))
+meta <- meta[!is.na(meta$lifehistory),]
 TukeyHSD(aov(meta$div_raw ~ meta$compartment + meta$lifehistory))
+xtable::xtable(TukeyHSD(aov(meta$div_raw ~ paste(meta$compartment, meta$lifehistory)))$`paste(meta$compartment, meta$lifehistory)`)
 
 out <- list()
 k <- 1
@@ -169,6 +173,7 @@ meta <- read.csv("./processedData/16smetadat_wrangled_for_post_modeling_analysis
 
 library(wesanderson)
 colors <- wes_palette("FantasticFox1", n = 5, type = "discrete")
+color_vec <- vector(length = length(meta$lifehistory))
 
 color_vec[meta$lifehistory == "tree"] <- colors[1]
 color_vec[meta$lifehistory == "shrub"] <- colors[2]
@@ -266,6 +271,10 @@ for(i in na.omit(unique(meta$lifehistory))){
   k <- k + 1
 }
 
+table(is.na(meta$lifehistory))
+meta <- meta[!is.na(meta$lifehistory),]
+TukeyHSD(aov(meta$div_raw ~ meta$compartment + meta$lifehistory))
+xtable::xtable(TukeyHSD(aov(meta$div_raw ~ paste(meta$compartment, meta$lifehistory)))$`paste(meta$compartment, meta$lifehistory)`)
 
 ############
 ############Plot modeled data
