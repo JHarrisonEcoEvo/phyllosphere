@@ -34,6 +34,7 @@ table(names(rich) == meta$sample)
 
 write.csv(data.frame(meta, rich), file = "processedData/16smetadat_wrangled_for_post_modeling_analysis_withRich.csv")
 
+
 a <- aov(log(rich) ~ paste(meta$habit,meta$compartment))
 xtable::xtable(TukeyHSD(a)$`paste(meta$habit, meta$compartment)`)
 # % latex table generated in R 4.1.2 by xtable 1.8-4 package
@@ -87,6 +88,21 @@ boxplot((rich16s) ~ meta$habit + meta$compartment, las = 2,
 
 text("16S", x = 0, y = 250, xpd = NA, cex= 2)
 dev.off()
+
+dat <- read.csv("processedData/16smetadat_wrangled_for_post_modeling_analysis_withRich.csv")
+dat <- dat[order(dat$rich),]
+dat <- dat[dat$compartment == "EP",]
+median_rich <- aggregate(dat$rich ~ dat$taxon_final, FUN = median)
+median_rich <- median_rich[order(median_rich$`dat$rich`),]
+
+#add habit
+median_rich$habit <- NA
+for(i in 1:length(median_rich$`dat$taxon_final`)){
+  median_rich$habit[i] <- unique(dat$habit[dat$taxon_final == median_rich$`dat$taxon_final`[i]])
+}
+
+print(xtable::xtable(median_rich), include.rownames=FALSE)
+
 ##########################
 rm(list=setdiff(ls(), c("rich16s","meta16s")))
 library(breakaway)
@@ -190,3 +206,17 @@ boxplot((rich16s) ~ meta16s$taxon_final + meta16s$compartment, las = 2,
         ylab = "estimated richness", xlab = "", main = "16S", outline = F)
 
 dev.off()
+
+dat <- read.csv("processedData/ITSmetadat_wrangled_for_post_modeling_analysis_withRich.csv")
+dat <- dat[order(dat$rich),]
+dat <- dat[dat$compartment == "EN",]
+median_rich <- aggregate(dat$rich ~ dat$taxon_final, FUN = median)
+median_rich <- median_rich[order(median_rich$`dat$rich`),]
+
+#add habit
+median_rich$habit <- NA
+for(i in 1:length(median_rich$`dat$taxon_final`)){
+  median_rich$habit[i] <- unique(dat$habit[dat$taxon_final == median_rich$`dat$taxon_final`[i]])
+}
+
+print(xtable::xtable(median_rich), include.rownames=FALSE)
