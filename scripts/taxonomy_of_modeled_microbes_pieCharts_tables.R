@@ -44,14 +44,17 @@ dim(dat) #still good
 
 #Figure out how many things were in 100 or more samples.
 #This should be how many things I tried to model with the random forest
-prev <- dat[,colSums(dat[,3:length(dat)]) >=100]
-prevalent <- dim(prev)[2] -2
+#check
+howmany <- read.csv("processedData/sixteenS_taxa_to_model_via_randomforest.csv")
+dim(howmany)[1]
+
+prevalent <- dim(howmany)[1]
 
 hyperrare <- dim( dat[,colSums(dat[,3:length(dat)]) < 5])[2]
 uncommon <- dim(dat[,colSums(dat[,3:length(dat)]) >= 5 & colSums(dat[,3:length(dat)]) < 100,])[2]
 
 #how many were successfully modeled
-results <- read.csv("modelingResults/all_16s_withhost.csv")
+results <- read.csv("modelingResults/results_hella_noduds/all_16s_hella_noduds.csv")
 results <- results[results$taxon != "taxon",]
 
 good <- results[as.numeric(as.character(results$rsq_nested_resampling)) >= 0.01,]
@@ -114,14 +117,16 @@ dim(dat) #still good
 
 #Figure out how many things were in 100 or more samples.
 #This should be how many things I tried to model with the random forest
-prev <- dat[,colSums(dat[,3:length(dat)]) >=100]
-prevalent <- dim(prev)[2] -2
+howmany <- read.csv("processedData/ITS_taxa_to_model_via_randomforest.csv")
+dim(howmany)[1]
+
+prevalent <- dim(howmany)[1]
 
 hyperrare <- dim( dat[,colSums(dat[,3:length(dat)]) < 5])[2]
 uncommon <- dim(dat[,colSums(dat[,3:length(dat)]) >= 5 & colSums(dat[,3:length(dat)]) < 100,])[2]
 
 #how many were successfully modeled
-results <- read.csv("modelingResults/all_its_withhost.csv")
+results <- read.csv("modelingResults/results_hella_noduds/all_its_hella_noduds.csv")
 results <- results[results$taxon != "taxon",]
 
 good <- results[as.numeric(as.character(results$rsq_nested_resampling)) >= 0.01,]
