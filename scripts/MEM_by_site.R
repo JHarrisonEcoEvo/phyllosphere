@@ -14,7 +14,7 @@ library(geosphere)
 
 dat <- read.csv("./processedData/treatments_metadata.csv")
 
-simpledat <- data.frame(matrix(nrow = 20, ncol = 11))
+simpledat <- data.frame(matrix(nrow = 20, ncol = 13))
 k <- 1
 for(i in unique(dat$label)){
   simpledat[k,] <- dat[which(dat$label == i)[1], ]
