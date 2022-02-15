@@ -13,7 +13,7 @@ quantifiedDNA: DNA concentration and spectral info from the microdrop reader
 
 Raw_fieldData* : these data likely will need to be wrangled, but have much of use. The wrangled versions will be stored in this folder and described below.
 
-Soil_data: soil data were messed up due to leaky vials and misplaced information from the soil lab. Given the lack of reliability here, I think it is best to probably not mess with these data much. It might be possible to extract soil moisture from some samples, but nothing else is here. This was largely a waste of time unfortunately.
+Soil_data: soil data were messed up due to leaky vials and misplaced information from the soil lab. Given the lack of reliability here, I think it is best to probably not mess with these data much. It might be possible to extract soil moisture from some samples, but nothing else of interest is here
 
 area_mg_leafCount: has useful info on mass extracted and leaves extracted as well as leaf area
 
