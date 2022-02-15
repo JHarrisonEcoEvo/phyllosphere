@@ -1,0 +1,131 @@
+The metadata were heavily wrangled. For details see the "wrangling*" scripts. Note that wrangling for this project was very challenging due to the disparate data sources and modifications needed for various samples for quality control. 
+
+Sample labeling follows this convention: digit_digit_digit_digit_compartment
+
+Where the first digit is the region sampled, the second is the site within the region, the third is
+the plant taxon within that site and the last is the plant individual. Compartment is either "EN" or "EP"
+
+
+Column 1 has no name and is an index that was added by a spreadsheet program. 
+region_site - the first half of the sample name
+region_site_plant - same as above, but with the plant taxon.
+X - not useful, detritus
+taxon.y - plant taxon. Use taxon_final for this info.
+plant - the full sample name, except for compartment
+forward and reverse barcode - the barcode (MID) sequence
+locus - 16s or ITS
+samplename - the whole sample name. Primary refers to if the sample was a technical replicate or not. 
+project - this project was split among sequencing runs and so was assigned different project names occasionally. This is mostly useful for tracking samples through the LIMS
+wellposition - self-explanatory
+plate - which plate the sample was on
+midplate - which plate of mids was used for that plate
+substrate - should all be plant. We originally had soil data, but decided not to use them. 
+Client_name - my name, left over from the sequencing labs metadata
+combo - a convenience field where all the sample name parts are combined, for sorting purposes.
+area_cm2 - leaf area, measured with imageJ, averaged among leaflets for that sample.
+mass_g - leaf mass, averaged among leaflets for that sample. 
+mass_extracted - how much mass made it through extraction. Note that some leaves were too small to be exdtracted by themselves so this number can be larger than leaf mass.
+leaves_extracted - the number of leaves that were extracted.
+exdtractionFailed - did the extraction not work well or not
+rewashed - yes/no whether or not this sample was rewashed to determine how well the washing treatment worked.
+leaf_broken - yes/no if a large leaf was broken for extraction.
+slaOnly - detritus, ignore.
+notes.x - notes, ignore.
+startTime - sampling start time, only available for a few samples. 
+xcoord - ycoord - where in the plot the sample was obtained. The plot was a 50 x 50 m square.
+sidePlantSampled - the side sampled, if only one side was sampled, which was not common. 
+phenology - either fruiting/flowering/vegetative
+circumStem - circumference at 1.5 m approximately for trees
+width - approximate width of plant
+plantMeasurement* - the other dimensions of the plant. Imagine a box that could be put over the plant, these measurements, plus width, would be the dimensions of that box. All thse measurements are in cm. 
+height_sampled - how high off the ground was the sample. 
+endTime - when sampling ended
+ID - ignore
+Ambient_hummidity -  Taken with the multispeq
+Ambient Temp - multispeq measurement
+Leaf-angle - this is not reliable. multispeq measurement
+leaf-temp - multispeq measurement
+LEF - linear electron flow - multispeq
+Light_intensity - multispeq
+NPQt, Phi*, Relative_chlorophyll - multispeq
+time - time of sampling
+taxon.x - the taxon repeated. This is incomplete, use taxon_final for this info.
+thickness - multispeq
+thicknessReliable - whether or not the thickness measurements can be trusted. 
+absorbance* - absorbance at different wavelengths. multispeq measurement
+angle - slope angle of leaf, multispeq
+angle direction - which way the sample was pointed, multispeq
+B - blueness, multispeq
+baseline - multispeq, not sure what this is. 
+compass - ignore, multispeq I think
+compass direction - ignore, multispeq I think
+contactless_temparature - temperature of the leaf, multispeq
+detector_read1 - unknown, multispeq
+ecs* - multispeq
+flatten_slope, Fm* and Fo* - multispeq
+G - greenness multispeq
+gH - multispeq
+humidity and light* - more multispeq environmental measurements
+*MPF* - multispeq
+pitch and pressure - multispeq
+ql, qp, R, ratio* - multispeq
+Rel_chl_intensity - multispeq
+Rfd, roll, SPAD* - multispeq
+temperature - multispeq
+TiemofDay - multispeq, ignoreable
+vH - multispeq
+User - multispeq
+Device.ID - multispeq
+Latitude and longitude -multispeq ignore, use lat and long
+Issues - multispeq
+photo - mostly NA
+status - multispeq, whether submitted to their repository
+waterRetention - angle at which water drops off leaf. 
+toughness - measured with a penetrometer
+sameLeaf - if the same leaf was used for the thickness measurements and waterRetention measurements
+mtrange - the name of the region
+name - the site name
+lat long - the lat and long of the site
+elev_m - elevation of site
+slope_perc - slope percentage
+aspect - cardinal direction of the slope
+Startday0-365 - start day, mostly left NA
+conditions - weather
+TimeStart and timeEnd - multispeq
+canopyCover - mostly NA
+treeRich, shrubRich - the number of species of trees or shrubs observed in the site, whether they were sampled or not. 
+notes.y - notes
+soilMeasurements - ignore
+Daubemire.measurements -ignore
+mean_temp_may_june and mean_precip* - measurements of weather from the months preceeding sampling
+lat.1 and long.1 - more lat long measurements
+family.x - the host plant family
+siteName - site name again
+date - just in case I didn't get the date down enough already ;) (most of these were autofilled during merges)
+numSamples - how many samples for that plant taxon
+compartment - one of EN (endophyte) or EP (epiphyte)
+dupe - was this a technical replicate
+family.y - half filled plant family, ignore
+amf-emf - guess as to the mychorrhizal status of the host plant
+habit - the growth habit
+taxon_final - what the name of the host was
+sample _ the sample name repeated again!
+label - region_site
+latitude and longitude - yet  again
+altitude - ditto
+densitometer - average densitometer measurements for canopy cover
+taxon and life history - use taxon_final and habit instead
+TreatmentClass - useful for filtering
+shannons_flora - shannons entropy for the floral data from Daubenmire plots
+MEM* - Moran's eigenvector maps
+JulianDate - JulianDate of sampling
+mean_temp* and precip - more weather data from preceeding year, same as before
+plant_vol - the estimated cubic volume of the plant (the product of the box dimensions from earlier)
+dat.daubPlots__denso - densitometer readings from the Daubenmire plots
+as.numeric.newdat.dat.daubPlots__VegCompositionBlock__coverClass. - conversion of cover class data from Daub. plots to numeric data
+div_raw - diversity of the sample in terms of microbes using the raw data
+shannonsISD / SimpsonsISD - shannons and simpsons after ISD normalization
+div_Hellinger - diversity using hellinger standardized data
+rich - estimated richness using breakaway
+
+
