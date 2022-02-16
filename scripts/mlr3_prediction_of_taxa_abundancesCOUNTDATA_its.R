@@ -109,66 +109,66 @@ response_taxon <- merged_dat[,names(merged_dat) == focal_taxon]
 merged_dat <- merged_dat[,names(merged_dat) %in%
                            c(as.character(focal_taxon),
                              "sample",
-                               "area_cm2"                                                 
-                               , "mass_extracted_g"                                         
-                               , "leaves_extracted"                                         
-                               , "circumStem"                                               
+                               "area_cm2"       #4                                          
+                               , "mass_extracted_g"    #21                                     
+                               , "leaves_extracted"      #18                                   
+                               , "circumStem"          #5                                     
                                , "height_sample"                                            
-                               , "Ambient_Humidity"                                         
-                               , "Ambient_Temperature"                                      
-                               , "Leaf_Temp_Differential"                                   
-                               , "LEF"                                                      
-                               , "Light_Intensity..PAR."                                    
+                               , "Ambient_Humidity"   #3                                      
+                               , "Ambient_Temperature"  #37                                    
+                               , "Leaf_Temp_Differential"  #17                                 
+                               , "LEF"                #19                                      
+                               , "Light_Intensity..PAR."   #20                                 
                                # , "Phi2"                                                     
-                               , "PhiNO"                                                    
-                               , "PhiNPQ"
-                               , "Relative_Chlorophyll"                                     
-                               , "thickness"                                                
+                               , "PhiNO"       #24                                             
+                               , "PhiNPQ"   #25
+                               , "Relative_Chlorophyll"   #30                                  
+                               , "thickness"        #39                                        
                                #, "absorbance_420"                                           
-                               , "absorbance_940"                                           
+                               , "absorbance_940"     #1                                      
                                # , "B"                                                        
                                #, "contactless_temp"                                         
-                               , "ecs_initial"                                              
+                               , "ecs_initial"         #10                                     
                                #, "ecs_max"                                                  
                                #, "FmPrime"                                                  
                                #, "FoPrime"                                                  
-                               , "Fs"                                                       
+                               , "Fs"               #11                                        
                                #, "FvP.FmP"                                                  
                                #, "G"                                                        
-                               , "gH."                                                      
+                               , "gH."              #12                                        
                                #, "NPQt_MPF"                                                 
                                #, "pressure"                                                 
-                               , "qL"                                                       
+                               , "qL"         #28                                              
                                #, "R"                                                        
-                               , "Rel_Chl_intensity"                                        
+                               , "Rel_Chl_intensity"   #29                                     
                                # , "RFd"                                                      
                                #, "SPAD_420"                                                 
-                               , "SPAD_420_intensity"                                       
-                               , "TimeofDay"                                                
-                               , "lat"                                                 
-                               , "long"                                                
-                               , "waterRetention"                                           
-                               , "toughness"                                                
-                               , "elev_m"                                                   
-                               , "slope_perc"                                               
-                               , "treeRich"                                                 
-                               , "shrubRich"                                                
-                               , "deadDown"                                                 
-                               , "precip_april_in.x"                                        
-                               , "densitometer"                                             
-                               , "shannons_flora"
+                               , "SPAD_420_intensity"     #35                                  
+                               , "TimeofDay"          #38                                      
+                               , "lat"     #15                                            
+                               , "long"        #16                                        
+                               , "waterRetention"     #41                                      
+                               , "toughness"     #40                                           
+                               , "elev_m"  #2                                                 
+                               , "slope_perc"     #34                                          
+                               , "treeRich"     #41                                            
+                               , "shrubRich"   #32                                             
+                               , "deadDown"    #8                                             
+                               , "precip_april_in.x"    #27                                    
+                               , "densitometer"     #9                                        
+                               , "shannons_flora"#31
                                # , "shannonsISD"
-                               , "julianDate"                                               
-                               , "mean_temp_april.y"                                        
-                               , "plant_vol" 
+                               , "julianDate"   #7                                            
+                               , "mean_temp_april.y"    #36                                    
+                               , "plant_vol"  #26
                                #,"div_raw"
-                               , "sla"                
-                               , "compartment_EN" 
+                               , "sla"          #33      
+                               , "compartment_EN" #6
                                , "habit_forb"    #                                           
-                               , "habit_graminoid"  #                                        
+                               , "habit_graminoid"  #13                                        
                                , "habit_shrub"  #                                            
                                , "habit_tree" #                                              
-                               ,"taxon_final_Abiesconcolor"
+                               ,"taxon_final_Abiesconcolor" #14
                                ,"taxon_final_Abiesgrandis"
                                ,"taxon_final_Antennariamedia"
                                ,"taxon_final_Aquilegiacaerula"
@@ -230,11 +230,11 @@ merged_dat <- merged_dat[,names(merged_dat) %in%
                                ,"taxon_final_Vacciniummembranaceum"
                                ,"taxon_final_Vacciniumscoparium"
                                ,"taxon_final_Wyethiaamplexicaulis"
-                               , "phenology_flowering"                                      
+                               , "phenology_flowering"      #23                                
                                , "phenology_fruiting"                                       
                                , "phenology_vegetative" 
                              ,"MEM1"
-                             , "MEM2"
+                             , "MEM2" #22
                            )]
 
 #Convert to numeric (makes it easier when doing imputing)
