@@ -38,8 +38,8 @@ focal_taxon <- possibles[inargs[3],]
 isdNorm_tf <- as.character(inargs[5]) #should be a T or an F
 
 # # #Debugging stuff or running for a focal taxon
-# taxa <- read.csv("./processedData//otuTables/smallmem97_ITS_for_modeling_rearranged_for_CNVRG")
-# possibles <- read.csv("./processedData/ITS_taxa_to_model_via_randomforest.csv")
+taxa <- read.csv("./processedData//otuTables/smallmem97_ITS_for_modeling_rearranged_for_CNVRG")
+possibles <- read.csv("./processedData/ITS_taxa_to_model_via_randomforest.csv")
 # focal_taxon <- possibles[13,]
 # focal_taxon <- "Zotu5710"
 #  X<- read.csv("./processedData/ITSmetadat_wrangled_for_post_modeling_analysis.csv")
@@ -63,9 +63,11 @@ if(isdNorm_tf == "T"){
   taxa[,3:length(taxa)] <- taxa[,3:length(taxa)] / taxa$ISD
 }else{
   print("not dividing by the isd")
+  #Note that the ISD and duds are overwritten as the third and fourth columns. This doesn't matter since they are not used
   taxa[,3:length(taxa)]  <- vegan::decostand(taxa[,3:(length(taxa)-2)],
                                              method = "hellinger")
 }
+taxa[1:5,3188:3193]
 
 X <- X[X$substrate == "plant",]
 

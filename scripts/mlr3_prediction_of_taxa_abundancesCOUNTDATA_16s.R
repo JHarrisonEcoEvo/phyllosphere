@@ -55,6 +55,8 @@ if(isdNorm_tf == "T"){
   taxa[,3:length(taxa)] <- taxa[,3:length(taxa)] / taxa$ISD
 }else{
   print("not dividing by the isd., but doing Hella standardization!")
+  #Note that the ISD and duds are overwritten as the third and fourth columns. This doesn't matter since they are not used
+  
   taxa[,3:length(taxa)]  <- vegan::decostand(taxa[,3:length(taxa)],
                                              method = "hellinger")
 }
