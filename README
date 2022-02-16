@@ -1,13 +1,97 @@
 
+############
+# Overview #
+############
+
+processed*/ - contains processed data
+raw* - contains various raw data. Note that wrangling for this project was cumbersome, so it would be wise to use processed data for most use cases. 
+scripts/ - contains the code for this project
+visuals/ - numerous figures, some of which were intermediate and not published, are provided here.
 
 ########
+# code #
+########
+
 scripts/ includes:
 
-combine_pcr_dupes_rmv_contams... - this script examines blanks, rewashed samples, removes cross-contaminated samples, combines PCR duplicates, and outputs cleaned up OTU tables for modelling via CNVRG.
-
+absolute abundance estimates.R - estimates molecular abundances
+biodiversity_summary_barplot_COUNT.R - makes barplots for microbial taxa abundances and relative abundances.
+checking_cpdna_to_see_if_plant_taxa_match_expectations.txt - notes with some shell commands to accomplish the task in the title.
+choosing_taxa_to_model_with_rf_and_making_occupancy_tables.R - Finding prevalent taxa for modeling and making occupancy tables.
+cleanOTUtable.R - script to clean up the OTU table and removes the ISD and non-target data.
+cnvrg_modeling_relatedScripts/ - numerous scripts for CNVRG modeling (Dirichlet-multinomial). The script naming follows what is shown here. These scripts were only used for some supplemental results.
+coligoChecker.R - Determines the extent to which coligos occur as expected.
+combine_pcr_dupes_rmv_contams* - examines blanks, rewashed samples, removes cross-contaminated samples, combines PCR duplicates, and outputs cleaned up OTU tables for modelling.
+compareResults_with_without_microbes.R - Compares the models that used microbes as features to those that did not
+comparing_multi_count.R - comparing multinomial estimates from the hierarchical model to maximum likelihood estimates.
+correlagram.R - make correlagram to show how features are related to one another.
+dendrogram.R - make dendrograms showing sample relatedness, not included in published work.
+Examine_relationships_features_taxa.R - Determines which taxa were best predicted and by what. Makes partial dependence plots.
+fit_occupancy_curves_NegBinom_Pareto.R - Model occupancy curves using several distributions. Did not include this in published work.
+freq_vs_abund.R - Correlate prevalence and abundance
+hostBreadth_focal.R - determine how many plant species focal taxa live in.
+QuantifyingVariation_its.R - examine patterns of variation in the data. Not included in the manuscript.
+mantelTest_distanceMatrices_bacteriaVsFungi.R - the title says it all. 
+mcc_prevalence.R - Make plots of Matthew's correlation coefficient for prevalence models.
+MEM_by_site.R - calculate MEMs 
+mlr3_16s_modeling_using_other_microbes.R - 16s abundance (ISD transformed) using other taxa as features
+mlr3_hostSpecific_RF16s.R - host specific 16s models for ISD transformed abundances
+mlr3_hostSpecific_RF16s_occupancy.R - ditto but for occupancy
+mlr3_hostSpecific_RF16s_rel_abund.R - ditto but for Hellinger transformed data
+mlr3_hostSpecific_RFITS.R - host specific ITS models for ISD transformed abundances
+mlr3_hostSpecific_RFITS_occupancy.R - ditto but for occupancy
+mlr3_hostSpecific_RFITS_rel_abund.R - ditto but for Hellinger transformed data
+mlr3_its_modeling_using_other_microbes.R - ITS abundance (ISD transformed) using other taxa as features
+mlr3_prediction_of_taxa_abundancesCOUNTDATA_16s.R - 16s abundance modeling, either ISD normalized or not. 
+mlr3_prediction_of_taxa_abundancesCOUNTDATA_16s_NOHOST.R - ditto but without hosts
+mlr3_prediction_of_taxa_abundancesCOUNTDATA_its.R - ITS abundance modeling, either ISD normalized or not.
+mlr3_prediction_of_taxa_abundancesCOUNTDATA_its_NOHOST.R - ditto but without hosts
+mlr3_prediction_of_taxa_occurrancesCOUNTDATA_16s.R - 16s occurrence model
+mlr3_prediction_of_taxa_occurrancesCOUNTDATA_ITS.R - ITS ditto
+mlr3_readCount_16s.R - model the total 16s abundance (ISD transformed)
+mlr3_readCount_ITS.R - ditto for ITS
+mlr3_rich_16s.R - model estimated 16s richness
+mlr3_rich_ITS.R - ditto for ITS
+mlr3_shannons_16s_HELLINGER.R - model 16s Shannon's diversity calculated from Hellinger standardized data. 
+mlr3_shannons_16s_HELLINGER_EN.R - ditto but just for endophytes. Not enough data to do this for epiphytes
+mlr3_shannons_ITS_HELLINGER.R - model ITS Shannon's diversity calculated from Hellinger standardized data.  
+mlr3_shannons_ITS_HELLINGER_EP.R - ditto for epiphytes
+mlr3_shannons_ITS_Hellinger_EN.R - ditto for endophytes
+networkAnalysis.R - messing about with bipartite. Didn't use and don't recommend the package (too slow).
+novaseq3_prep.R* - prepping demultiplexing key
+old_scripts_not_used_in_final_product/ - not worth your time. I am keeping these here for my own benefit. 
+ordination_bothloci_figureforPaper.R - ordinations in all their glory
+plotDiversity.R - make diversity plots by habit and compartment that are used in the paper.
+plot_diversity_by_host.R - same as above but by host.
+prevalences_microbes.R - figure out prevalences
+querying_randomForest_results.R - random forest summary stats
+readSums_plant_duds_microbes.R - do various summaries and plots of microbial abundances.
+richness_calculation.R - guess what this one does ; ) Uses breakaway
+rsq_vs_abundance.R - calculate model performance versus microbial abundance.
+rsq_vs_prevalence.R - calculate model performance versus microbial prevalence.
+taxonomy_of_modeled_microbes_pieCharts_tables.R - make pie charts used in the paper showing model performance
+varImp_host_summary_abundance.R - determine variable importance for host specific abundance models
+varImp_host_summary_occupancy.R - ditto but for occupancy
+varImp_host_summary_relAbund.R - ditto for relative abundance models
+varImp_landscape_summary_occupancy.R - determine variable importance for occupancy models
+varImp_landscape_summary_withISD.R - ditto for absolute abundance models
+varImp_landscape_summary_withoutISD.R - ditto for relative abundance models
+vennDiagram.R - make a venn diagram of taxon occurrences by compartment
+wrangling_Daubenmire_data.R - Wrangling the neighborhood floral diversity data
+wrangling_densitometer_data.R - getting densitometer data in order
+wrangling_latlong.R - not much to say here beyond the title. 
+wrangling_of_metadata_preModeling.R - wrangling happened in several steps some before modeling with CNVRG, some after modeling. Even though CNVRG wasn't used I ended up retaining this two step approach. The wrangling for this project was extremely complex due to mistakes during naming (expected given so many samples) and variation in how data were recorded in some cases.
+wrangling_postModeling.R - see above. 
+wrangling_samplingGroup_metadata.R - wrangling at the level of the site and host.
+writing_hellinger_countTables_adding_diversity_to_metadata.R - Making Hellinger tables and adding diversity data to metadata.
 
 ########
-raw_data_notIncluding+sequenceData/ includes: 
+# data #
+########
+
+##########
+raw_data_notIncluding+sequenceData/ includes:
+##########
 
 quantifiedDNA: DNA concentration and spectral info from the microdrop reader
 
@@ -31,8 +115,42 @@ TaxaSampled: taxa and individuals sampled at each site
 
 Toughness_water*: toughness and water retention info. I think these data are likely to be very noisy as the method of measurement was not super precise. Still, could be interesting. 
 
+##########
+processed* includes the following: 
+##########
 
-
-
+16Ssamples_that_had_too_much_ISD_added.csv
+16smetadat_wrangled_for_post_modeling_analysis_withRich.csv
+ITS_taxa_to_model_via_randomforest.csv
+ITSmetadat_wrangled_for_post_modeling_analysis_withRich.csv
+ITSsamples_that_had_too_much_ISD_added.csv
+README_metadata - IMPORTANT - this explains what all the metadata are
+coligoTable - this and the following are various coligo tables from different sequencing runs and loci
+coligoTable16s
+coligoTableITS
+coligoTable_oct9
+coligoTable_sep17
+combination_hosts_microbes_to_analyze_16S.csv - the list of host taxa and microbial taxa to model. This was used to serially deploy models. 
+combination_hosts_microbes_to_analyze_ITS.csv - ditto for ITS
+cross_contam_oct9 - possibly contaminated samples
+cross_contam_sep17 - ditto
+densitometer_mean_vs_site.csv - estimated densitometer measurements by site
+hellinger_standardized_16s_normalized.csv - OTU table transformed as stated. 
+hellinger_standardized_its_normalized.csv - see above.
+latlong_elevation_by_site.csv - self-explanatory
+metadata.csv - this and the following are iterations of the metadata that were made during wrangling. Keeping for posterity, best to use the metadata referenced above. 
+metadata_2.csv - see above. 
+moransEigenVectors.csv - MEMs for use during modeling. 
+otuTables/ - OTU tables used in modeling. The smallmem* tables were what was used. 
+samples_that_had_too_much_ISD_added.csv - Too much ISD was added to these, this was accounted for downstream.
+shannons_siteLevel_veg.csv - Shannon's diversity of flora at each sampling site. Calculated from Daubenmire plots.
+sixteenS_taxa_to_model_via_randomforest.csv - taxa to model chosen via prevalence
+smallmem97_16S.sintax - taxonomic hypotheses
+smallmem97_ITS.sintax - ditto
+taxonomy_modeled_bacteria_landscape.csv - for convienience, here are taxonomic hypotheses for modeled taxa.
+taxonomy_modeled_fungi_landscape.csv - ditto for its. 
+treatments_for_modeling_16s.csv - treatment codes to aid in CNVRG modeling
+treatments_for_modeling_ITS.csv - ditto for its
+treatments_metadata.csv - USEFUL - site and host level metadata
 
 
