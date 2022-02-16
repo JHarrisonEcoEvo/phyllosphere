@@ -65,6 +65,7 @@ plotDiversity.R - make diversity plots by habit and compartment that are used in
 plot_diversity_by_host.R - same as above but by host.
 prevalences_microbes.R - figure out prevalences
 querying_randomForest_results.R - random forest summary stats
+rankAbundanceCurves.R - make rank abundance curves for ITS, 16s, EN and EP
 readSums_plant_duds_microbes.R - do various summaries and plots of microbial abundances.
 richness_calculation.R - guess what this one does ; ) Uses breakaway
 rsq_vs_abundance.R - calculate model performance versus microbial abundance.
